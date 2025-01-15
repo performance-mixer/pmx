@@ -16,17 +16,9 @@
 std::string build_input_channel_osc_path(pwcpp::midi::control_change &message,
                                          parameters::parameter &parameter) {
   std::stringstream osc_path;
-  std::string device;
-  if (parameter.device_name == "saturator") {
-    device = "SAT";
-  } else if (parameter.device_name == "compressor") {
-    device = "CMP";
-  } else if (parameter.device_name == "equalizer") {
-    device = "EQ";
-  }
 
-  osc_path << std::format("/I/{}/{}/{}", static_cast<int>(message.channel),
-                          device, parameter.name);
+  osc_path << std::format("/I/{}/{}/{}", static_cast<int>(message.channel) + 1,
+                          parameter.device_short_name, parameter.name);
 
   return osc_path.str();
 }

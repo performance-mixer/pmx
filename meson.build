@@ -7,5 +7,6 @@ executable(
   'pmx-midi-router',
   'src/midi_router_main.cpp',
   'src/parameters.cpp',
+  'src/processing.cpp',
   dependencies: [pipewire_dep],
   include_directories: [include_directory])
