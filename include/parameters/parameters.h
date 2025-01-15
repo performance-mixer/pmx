@@ -41,4 +41,49 @@ extern std::shared_ptr<parameter> equalizer_master;
 extern std::shared_ptr<parameter> equalizer_low_mid;
 extern std::shared_ptr<parameter> equalizer_mid_high;
 
+inline std::shared_ptr<struct parameter>
+find_target_parameter(std::uint8_t cc_number) {
+  if (cc_number == 0) {
+    return none;
+  } else if (cc_number == 1) {
+    return saturator_level_in;
+  } else if (cc_number == 2) {
+    return saturator_drive;
+  } else if (cc_number == 3) {
+    return saturator_blend;
+  } else if (cc_number == 4) {
+    return saturator_level_out;
+  } else if (cc_number == 5) {
+    return compressor_threshold;
+  } else if (cc_number == 6) {
+    return compressor_ratio;
+  } else if (cc_number == 7) {
+    return compressor_attack;
+  } else if (cc_number == 8) {
+    return compressor_release;
+  } else if (cc_number == 9) {
+    return compressor_makeup;
+  } else if (cc_number == 10) {
+    return compressor_knee;
+  } else if (cc_number == 11) {
+    return compressor_mix;
+  } else if (cc_number == 12) {
+    return none;
+  } else if (cc_number == 13) {
+    return equalizer_low;
+  } else if (cc_number == 14) {
+    return equalizer_mid;
+  } else if (cc_number == 15) {
+    return equalizer_high;
+  } else if (cc_number == 16) {
+    return equalizer_master;
+  } else if (cc_number == 17) {
+    return equalizer_low_mid;
+  } else if (cc_number == 18) {
+    return equalizer_mid_high;
+  } else {
+    return none;
+  }
+}
+
 } // namespace parameters
