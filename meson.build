@@ -10,3 +10,11 @@ executable(
   'src/processing.cpp',
   dependencies: [pipewire_dep],
   include_directories: [include_directory])
+
+executable(
+  'pmx-filter-chain-ctrl',
+  'src/filter_chain_ctrl_main.cpp',
+  'src/parameters.cpp',
+  'src/processing.cpp',
+  dependencies: [pipewire_dep],
+  include_directories: [include_directory])

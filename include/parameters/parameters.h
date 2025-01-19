@@ -14,17 +14,10 @@ struct parameter {
   std::string device_short_name;
 
   parameter(unsigned int id, std::string name, std::string device_name,
-            double min, double max)
+            double min, double max, std::string device_short_name)
       : id(id), name(name), device_name(device_name), min(min), max(max),
-        full_name(device_name + ":" + name) {
-    if (device_name == "saturator") {
-      device_short_name = "SAT";
-    } else if (device_name == "compressor") {
-      device_short_name = "CMP";
-    } else if (device_name == "equalizer") {
-      device_short_name = "EQ";
-    }
-  }
+        full_name(device_name + ":" + name),
+        device_short_name(device_short_name) {}
 
   bool operator==(const parameters::parameter &other) const {
     return this->id == other.id;
