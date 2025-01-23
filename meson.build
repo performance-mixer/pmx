@@ -3,18 +3,5 @@ pipewire_dep = dependency('libpipewire-0.3')
 
 include_directory = include_directories('include', '../pwcpp/include')
 
-executable(
-  'pmx-midi-router',
-  'src/midi_router_main.cpp',
-  'src/parameters.cpp',
-  'src/processing.cpp',
-  dependencies: [pipewire_dep],
-  include_directories: [include_directory])
-
-executable(
-  'pmx-filter-chain-ctrl',
-  'src/filter_chain_ctrl_main.cpp',
-  'src/parameters.cpp',
-  'src/processing.cpp',
-  dependencies: [pipewire_dep],
-  include_directories: [include_directory])
+subdir('src')
+subdir('test')

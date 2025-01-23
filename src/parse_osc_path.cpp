@@ -1,0 +1,33 @@
+#include "osc/parse_osc_path.h"
+#include "parameters/parameters.h"
+#include <cctype>
+
+osc::osc_path osc::parse_osc_path(const std::string &path) {
+  if (path.substr(0, 3) == "/I/") {
+    size_t channel(0);
+    size_t consumed(3);
+    if (std::isdigit(path[4])) {
+      channel = std::stoi(path.substr(3, 2));
+      consumed += 3;
+    } else {
+      channel = std::stoi(path.substr(3, 1));
+      consumed += 2;
+    };
+
+    auto device_short_name = path.substr(consumed, 3);
+    consumed += 4;
+
+    auto parameter_name = path.substr(consumed);
+
+    auto parameter = std::find_if(
+        parameters::all.begin(), parameters::all.end(),
+        [&device_short_name, &parameter_name](const auto &parameter) {
+          return parameter->device_short_name == device_short_name &&
+                 parameter->name == parameter_name;
+        });
+
+    return {channel, *parameter};
+  }
+
+  return {0, parameters::none};
+}

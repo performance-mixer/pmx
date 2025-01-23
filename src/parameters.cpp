@@ -55,3 +55,23 @@ std::shared_ptr<parameters::parameter> parameters::equalizer_low_mid =
 std::shared_ptr<parameters::parameter> parameters::equalizer_mid_high =
     std::make_shared<parameters::parameter>(17, "mid_high", "Equalizer", 1000.0,
                                             20000.0, "EQ");
+
+std::vector<std::shared_ptr<parameters::parameter>> parameters::all = {
+    parameters::none,
+    parameters::saturator_level_in,
+    parameters::saturator_drive,
+    parameters::saturator_blend,
+    parameters::saturator_level_out,
+    parameters::compressor_threshold,
+    parameters::compressor_ratio,
+    parameters::compressor_attack,
+    parameters::compressor_release,
+    parameters::compressor_makeup,
+    parameters::compressor_knee,
+    parameters::compressor_mix,
+    parameters::equalizer_low,
+    parameters::equalizer_mid,
+    parameters::equalizer_high,
+    parameters::equalizer_master,
+    parameters::equalizer_low_mid,
+    parameters::equalizer_mid_high};

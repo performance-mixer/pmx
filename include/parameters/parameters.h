@@ -2,6 +2,7 @@
 
 #include <memory>
 #include <string>
+#include <vector>
 namespace parameters {
 
 struct parameter {
@@ -42,6 +43,8 @@ extern std::shared_ptr<parameter> equalizer_high;
 extern std::shared_ptr<parameter> equalizer_master;
 extern std::shared_ptr<parameter> equalizer_low_mid;
 extern std::shared_ptr<parameter> equalizer_mid_high;
+
+extern std::vector<std::shared_ptr<parameters::parameter>> all;
 
 inline std::shared_ptr<struct parameter>
 find_target_parameter(std::uint8_t cc_number) {

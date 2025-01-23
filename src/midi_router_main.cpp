@@ -1,5 +1,6 @@
 #include "parameters/parameters.h"
 
+#include <cstddef>
 #include <iostream>
 #include <ranges>
 
@@ -24,7 +25,7 @@ std::string build_input_channel_osc_path(pwcpp::midi::control_change &message,
 }
 
 int main(int argc, char *argv[]) {
-  pwcpp::filter::AppBuilder builder;
+  pwcpp::filter::AppBuilder<std::nullptr_t> builder;
   builder.set_filter_name("pmx-midi-router")
       .set_media_type("Midi")
       .set_media_class("Midi/Sink")
@@ -32,7 +33,8 @@ int main(int argc, char *argv[]) {
       .add_input_port("input channels", "8 bit raw midi")
       .add_input_port("output channels", "8 bit raw midi")
       .add_output_port("osc", "8 bit raw midi")
-      .add_signal_processor([](auto position, auto in_ports, auto out_ports) {
+      .add_signal_processor([](auto position, auto &in_ports, auto &out_ports,
+                               auto &user_data, auto &parameters) {
         auto in_buffers = in_ports | std::views::transform([](auto &&in_port) {
                             return in_port->get_buffer();
                           });
