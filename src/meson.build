@@ -1,6 +1,6 @@
 executable(
   'pmx-midi-router',
-  'midi_router_main.cpp',
+  'applications/midi_router.cpp',
   'parameters.cpp',
   'processing.cpp',
   'interpolation.cpp',
@@ -9,9 +9,18 @@ executable(
 
 executable(
   'pmx-filter-chain-ctrl',
-  'filter_chain_ctrl_main.cpp',
+  'applications/filter_chain_ctrl.cpp',
   'parameters.cpp',
   'processing.cpp',
   'parse_osc_path.cpp',
   dependencies: [pipewire_dep],
+  include_directories: [include_directory])
+
+executable(
+  'pmx-osc-network-router',
+  'applications/osc_network_router.cpp',
+  'parameters.cpp',
+  'processing.cpp',
+  'parse_osc_path.cpp',
+  dependencies: [pipewire_dep, boost_dep],
   include_directories: [include_directory])
