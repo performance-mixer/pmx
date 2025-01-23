@@ -1,3 +1,4 @@
+#include "interpolation/interpolation.h"
 #include "parameters/parameters.h"
 
 #include <cstddef>
@@ -94,7 +95,8 @@ int main(int argc, char *argv[]) {
                   build_input_channel_osc_path(control_change, *parameter);
 
               packet.openMessage(message_path.c_str(), 1)
-                  .float32(control_change.value)
+                  .float32(interpolation::interpolate(*parameter,
+                                                      control_change.value))
                   .closeMessage();
               auto size = packet.size();
               spa_pod_builder_bytes(&builder, osc_buffer, size);

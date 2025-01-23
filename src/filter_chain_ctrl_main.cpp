@@ -1,6 +1,10 @@
-#include "oscpp/server.hpp"
+#include "osc/parse_osc_path.h"
+
 #include <cstddef>
 #include <iostream>
+
+#include <oscpp/server.hpp>
+
 #include <pwcpp/filter/app_builder.h>
 #include <pwcpp/osc/parse_osc.h>
 
@@ -37,11 +41,37 @@ int main(int argc, char *argv[]) {
             for (auto &&packet : packets.value()) {
               if (packet.has_value()) {
                 OSCPP::Server::Message message(packet.value());
-                std::cout << "Received message: " << message.address()
-                          << std::endl;
-                OSCPP::Server::ArgStream arguments(message.args());
-                auto value = arguments.float32();
-                std::cout << "Value: " << value << std::endl;
+
+                auto osc_path = osc::parse_osc_path(message.address());
+                bool has_no_value = false;
+                bool value_is_int = false;
+                if (osc_path.channel > parameters.size()) {
+                  has_no_value = true;
+                } else {
+                  has_no_value = std::holds_alternative<std::nullopt_t>(
+                      parameters[osc_path.channel - 1].value);
+                  value_is_int = std::holds_alternative<int>(
+                      parameters[osc_path.channel - 1].value);
+                }
+
+                if (!has_no_value && value_is_int) {
+                  auto pwcpp_parameter = parameters[osc_path.channel - 1];
+                  auto pwcpp_parameter_value =
+                      std::get<int>(pwcpp_parameter.value);
+                  OSCPP::Server::ArgStream arguments(message.args());
+                  auto value = arguments.float32();
+                  std::cout << "Received message for device parameter "
+                            << osc_path.parameter->full_name << std::endl
+                            << "on channel " << osc_path.channel << std::endl
+                            << "for node id " << pwcpp_parameter_value
+                            << std::endl
+                            << "with new value " << value << std::endl
+                            << std::endl;
+                } else {
+                  std::cout << "No filter chain id configured for input "
+                               "channel, or value is not integer: "
+                            << osc_path.channel << std::endl;
+                }
               }
             }
           } else {

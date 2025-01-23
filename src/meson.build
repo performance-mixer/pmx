@@ -3,6 +3,7 @@ executable(
   'midi_router_main.cpp',
   'parameters.cpp',
   'processing.cpp',
+  'interpolation.cpp',
   dependencies: [pipewire_dep],
   include_directories: [include_directory])
 
@@ -11,5 +12,6 @@ executable(
   'filter_chain_ctrl_main.cpp',
   'parameters.cpp',
   'processing.cpp',
+  'parse_osc_path.cpp',
   dependencies: [pipewire_dep],
   include_directories: [include_directory])
