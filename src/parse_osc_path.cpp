@@ -3,14 +3,14 @@
 #include <cctype>
 
 osc::osc_path osc::parse_osc_path(const std::string &path) {
-  if (path.substr(0, 3) == "/I/") {
+  if (path.substr(0, 5) == "/I/A/") {
     size_t channel(0);
-    size_t consumed(3);
-    if (std::isdigit(path[4])) {
-      channel = std::stoi(path.substr(3, 2));
+    size_t consumed(5);
+    if (std::isdigit(path[consumed + 1])) {
+      channel = std::stoi(path.substr(consumed, 2));
       consumed += 3;
     } else {
-      channel = std::stoi(path.substr(3, 1));
+      channel = std::stoi(path.substr(consumed, 1));
       consumed += 2;
     };
 

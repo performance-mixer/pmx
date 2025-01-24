@@ -39,22 +39,22 @@ std::shared_ptr<parameters::parameter> parameters::compressor_mix =
                                             "CMP");
 std::shared_ptr<parameters::parameter> parameters::equalizer_low =
     std::make_shared<parameters::parameter>(12, "low", "Equalizer", -24, 24,
-                                            "EQ");
+                                            "EQU");
 std::shared_ptr<parameters::parameter> parameters::equalizer_mid =
     std::make_shared<parameters::parameter>(13, "mid", "Equalizer", -24, 24,
-                                            "EQ");
+                                            "EQU");
 std::shared_ptr<parameters::parameter> parameters::equalizer_high =
     std::make_shared<parameters::parameter>(14, "high", "Equalizer", -24, 24,
-                                            "EQ");
+                                            "EQU");
 std::shared_ptr<parameters::parameter> parameters::equalizer_master =
     std::make_shared<parameters::parameter>(15, "master", "Equalizer", -24, 24,
-                                            "EQ");
+                                            "EQU");
 std::shared_ptr<parameters::parameter> parameters::equalizer_low_mid =
     std::make_shared<parameters::parameter>(16, "low_mid", "Equalizer", 0.0,
-                                            1000.0, "EQ");
+                                            1000.0, "EQU");
 std::shared_ptr<parameters::parameter> parameters::equalizer_mid_high =
     std::make_shared<parameters::parameter>(17, "mid_high", "Equalizer", 1000.0,
-                                            20000.0, "EQ");
+                                            20000.0, "EQU");
 
 std::vector<std::shared_ptr<parameters::parameter>> parameters::all = {
     parameters::none,

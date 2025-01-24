@@ -19,7 +19,8 @@ std::string build_input_channel_osc_path(pwcpp::midi::control_change &message,
                                          parameters::parameter &parameter) {
   std::stringstream osc_path;
 
-  osc_path << std::format("/I/{}/{}/{}", static_cast<int>(message.channel) + 1,
+  osc_path << std::format("/I/A/{}/{}/{}",
+                          static_cast<int>(message.channel) + 1,
                           parameter.device_short_name, parameter.name);
 
   return osc_path.str();
@@ -94,6 +95,8 @@ int main(int argc, char *argv[]) {
               auto message_path =
                   build_input_channel_osc_path(control_change, *parameter);
 
+              std::cout << message_path << std::endl;
+
               packet.openMessage(message_path.c_str(), 1)
                   .float32(interpolation::interpolate(*parameter,
                                                       control_change.value))
@@ -105,7 +108,6 @@ int main(int argc, char *argv[]) {
 
           auto pod =
               static_cast<spa_pod *>(spa_pod_builder_pop(&builder, &frame));
-          spa_debug_pod(0, nullptr, pod);
 
           spa_data->chunk->size = builder.state.offset;
           out_buffer->finish();
