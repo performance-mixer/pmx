@@ -24,3 +24,12 @@ executable(
   'parse_osc_path.cpp',
   dependencies: [pipewire_dep, boost_dep],
   include_directories: [include_directory])
+
+executable(
+  'pmx-traktor-z1-router',
+  'applications/traktor_z1_router.cpp',
+  'parameters.cpp',
+  'interpolation.cpp',
+  dependencies: [pipewire_dep],
+  include_directories: [include_directory])
+
