@@ -77,43 +77,47 @@ int main(int argc, char *argv[]) {
                     changes{};
 
                 if (previous.gain_l != message.gain_l) {
-                  changes[0] = std::make_tuple("/gain_l", message.gain_l);
+                  changes[0] =
+                      std::make_tuple("/L/A/MIX/fx_gain", message.gain_l);
                 }
 
                 if (previous.hi_l != message.hi_l) {
-                  changes[1] = std::make_tuple("/hi_l", message.hi_l);
+                  changes[1] = std::make_tuple("/L/A/EQU/high", message.hi_l);
                 }
 
                 if (previous.mid_l != message.mid_l) {
-                  changes[2] = std::make_tuple("/mid_l", message.mid_l);
+                  changes[2] = std::make_tuple("/L/A/EQU/mid", message.mid_l);
                 }
 
                 if (previous.low_l != message.low_l) {
-                  changes[3] = std::make_tuple("/low_l", message.low_l);
+                  changes[3] = std::make_tuple("/L/A/EQU/low", message.low_l);
                 }
 
                 if (previous.filter_l != message.filter_l) {
-                  changes[4] = std::make_tuple("/filter_l", message.filter_l);
+                  changes[4] =
+                      std::make_tuple("/L/A/MIX/fx_mix", message.filter_l);
                 }
 
                 if (previous.gain_r != message.gain_r) {
-                  changes[5] = std::make_tuple("/gain_r", message.gain_r);
+                  changes[5] =
+                      std::make_tuple("/L/B/MIX/fx_gain", message.gain_r);
                 }
 
                 if (previous.hi_r != message.hi_r) {
-                  changes[6] = std::make_tuple("/hi_r", message.hi_r);
+                  changes[6] = std::make_tuple("/L/B/EQU/high", message.hi_r);
                 }
 
                 if (previous.mid_r != message.mid_r) {
-                  changes[7] = std::make_tuple("/mid_r", message.mid_r);
+                  changes[7] = std::make_tuple("/L/B/EQU/mid", message.mid_r);
                 }
 
                 if (previous.low_r != message.low_r) {
-                  changes[8] = std::make_tuple("/low_r", message.low_r);
+                  changes[8] = std::make_tuple("/L/B/EQU/low", message.low_r);
                 }
 
                 if (previous.filter_r != message.filter_r) {
-                  changes[9] = std::make_tuple("/filter_r", message.filter_r);
+                  changes[9] =
+                      std::make_tuple("/L/B/MIX/fx_mix", message.filter_r);
                 }
 
                 if (previous.cue_mix != message.cue_mix) {
@@ -121,11 +125,13 @@ int main(int argc, char *argv[]) {
                 }
 
                 if (previous.fader_l != message.fader_l) {
-                  changes[11] = std::make_tuple("/fader_l", message.fader_l);
+                  changes[11] =
+                      std::make_tuple("/L/A/EQU/master", message.fader_l);
                 }
 
                 if (previous.fader_r != message.fader_r) {
-                  changes[12] = std::make_tuple("/fader_r", message.fader_r);
+                  changes[12] =
+                      std::make_tuple("/L/B/EQU/master", message.fader_r);
                 }
 
                 if (previous.cross_fader != message.cross_fader) {
