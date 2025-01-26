@@ -55,7 +55,7 @@ int main(int argc, char *argv[]) {
   bool is_init(true);
 
   pwcpp::filter::AppBuilder<std::nullptr_t> builder;
-  builder.set_filter_name("pmx-midi-router")
+  builder.set_filter_name("pmx-traktor-z1-router")
       .set_media_type("Osc")
       .set_media_class("Osc/Source")
       .add_arguments(argc, argv)
