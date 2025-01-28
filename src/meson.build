@@ -33,3 +33,8 @@ executable(
   dependencies: [pipewire_dep],
   include_directories: [include_directory])
 
+executable(
+  'pmx-grpc-api',
+  'applications/grpc_api.cpp',
+  dependencies: [wireplumber_dep, grpc_dep, protobuf_dep],
+  include_directories: [include_directory, pmx_grpc_include_directory])
