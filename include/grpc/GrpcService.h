@@ -4,17 +4,48 @@
 #include "wpcpp/port.h"
 
 #include <grpcpp/support/status.h>
+#include <wpcpp/metadata_collection.h>
 #include <wpcpp/port_collection.h>
 
 namespace grpc {
 class GrpcService final : public pmx::grpc::PmxGrpc::Service {
 public:
-  explicit GrpcService(wpcpp::PortCollection &collection): _port_collection(
-    collection) {}
+  GrpcService(wpcpp::PortCollection &port_collection,
+              wpcpp::MetadataCollection &metadata) : _port_collection(
+      port_collection),
+    _metadata(metadata) {}
 
-  Status ListPorts(ServerContext *context,
-                   const pmx::grpc::ListPortsRequest *request,
-                   pmx::grpc::ListPortsResponse *response) override {
+  Status SetOutputPorts(ServerContext * context,
+                        const pmx::grpc::SetOutputPortsRequest * request,
+                        pmx::grpc::SetOutputPortsResponse * response) override {
+    std::ostringstream left_ss;
+    std::ostringstream right_ss;
+    left_ss << "[";
+    right_ss << "[";
+    for (auto &&port : request->ports()) {
+      left_ss << "'" << port.left() << "', ";
+      right_ss << "'" << port.right() << "', ";
+    }
+
+    if (left_ss.str().size() > 2) {
+      left_ss.seekp(-2, std::ios_base::end);
+      left_ss << "]";
+    }
+
+    if (right_ss.str().size() > 2) {
+      right_ss.seekp(-2, std::ios_base::end);
+      right_ss << "]";
+    }
+
+    _metadata.set_metadata_value("left_outputs", left_ss.str());
+    _metadata.set_metadata_value("right_outputs", right_ss.str());
+    response->set_success(true);
+    return Status::OK;
+  };
+
+  Status ListPorts(ServerContext * context,
+                   const pmx::grpc::ListPortsRequest * request,
+                   pmx::grpc::ListPortsResponse * response) override {
     auto ports = _port_collection.get_ports();
     for (auto &port : ports) {
       auto response_port = response->add_ports();
@@ -26,11 +57,11 @@ public:
       pmx::grpc::PortDirection direction;
       if (port.direction == wpcpp::pipewire_port::Direction::IN) {
         direction = pmx::grpc::PortDirection::IN;
-      } else if (port.direction == wpcpp::pipewire_port::Direction::OUT) {
-        direction = pmx::grpc::PortDirection::OUT;
-      } else {
-        direction = pmx::grpc::UNKNOWN;
       }
+      else if (port.direction == wpcpp::pipewire_port::Direction::OUT) {
+        direction = pmx::grpc::PortDirection::OUT;
+      }
+      else { direction = pmx::grpc::UNKNOWN; }
 
       response_port->set_direction(direction);
       response_port->set_physical(port.physical);
@@ -45,5 +76,7 @@ public:
 
 private:
   wpcpp::PortCollection &_port_collection;
+  wpcpp::MetadataCollection &_metadata;
 };
+
 } // namespace grpc
