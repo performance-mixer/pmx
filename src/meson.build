@@ -36,5 +36,9 @@ executable(
 executable(
   'pmx-grpc-api',
   'applications/grpc_api.cpp',
-  dependencies: [wireplumber_dep, grpc_dep, protobuf_dep],
+  '../../pmx-grpc/cpp/port.pb.cc',
+  '../../pmx-grpc/cpp/port.grpc.pb.cc',
+  '../../pmx-grpc/cpp/pmx_grpc.pb.cc',
+  '../../pmx-grpc/cpp/pmx_grpc.grpc.pb.cc',
+  dependencies: [wireplumber_dep, grpc_dep, protobuf_dep, grcpp_dep],
   include_directories: [include_directory, pmx_grpc_include_directory])

@@ -5,6 +5,7 @@ wireplumber_dep = dependency('wireplumber-0.5')
 
 boost_dep = dependency('boost', modules : ['system'])
 grpc_dep = dependency('grpc')
+grcpp_dep = dependency('grpc++')
 protobuf_dep = dependency('protobuf')
 
 include_directory = include_directories('include', '../pwcpp/include')
