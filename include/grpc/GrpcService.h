@@ -69,8 +69,8 @@ public:
       response_port->set_group(port.group);
       response_port->set_path(port.path);
       response_port->set_dsp_format(port.dsp_format);
-      response_port->set_audio_channel(port.audio_channel);
     }
+
     return Status::OK;
   }
 

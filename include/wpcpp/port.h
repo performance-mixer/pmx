@@ -10,13 +10,9 @@ struct pipewire_port {
   std::string group;
   std::string path;
   std::string dsp_format;
-  std::string audio_channel;
   int node_id;
 
-  enum class Direction {
-    IN,
-    OUT
-  } direction;
+  enum class Direction { IN, OUT } direction;
 
   bool physical;
   int object_serial;

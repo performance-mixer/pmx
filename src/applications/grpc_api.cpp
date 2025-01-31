@@ -18,18 +18,6 @@ struct WirePlumberControl {
   WpObjectManager * om = nullptr;
 };
 
-
-auto port_added_callback = +[ ](WpObjectManager * object_manager,
-                                const gpointer object,
-                                const gpointer user_data) {
-  auto * port_collection = static_cast<wpcpp::PortCollection *>(user_data);
-  const auto g_object = static_cast<WpPipewireObject *>(object);
-
-  const auto alias = wp_pipewire_object_get_property(
-    g_object, PW_KEY_PORT_ALIAS);
-  port_collection->push_back(wpcpp::pipewire_port{.alias = std::string(alias)});
-};
-
 int main(int argc, char ** argv) {
   WirePlumberControl wire_plumber_control;
   wp_init(WP_INIT_ALL);
@@ -49,8 +37,7 @@ int main(int argc, char ** argv) {
                                    wire_plumber_control.om);
 
     wpcpp::PortCollection port_collection;
-    g_signal_connect(wire_plumber_control.om, "object-added",
-                     G_CALLBACK(+port_added_callback), &port_collection);
+    port_collection.setup(wire_plumber_control.om);
 
     wpcpp::MetadataCollection metadata;
 

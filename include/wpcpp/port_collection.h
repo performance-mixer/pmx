@@ -5,6 +5,8 @@
 #include <vector>
 #include <mutex>
 
+#include <wp/wp.h>
+
 namespace wpcpp {
 class PortCollection {
 public:
@@ -19,6 +21,8 @@ public:
     std::copy(_ports.begin(), _ports.end(), std::back_inserter(result_ports));
     return result_ports;
   }
+
+  void setup(WpObjectManager * object_manager);
 
 private:
   std::vector<pipewire_port> _ports;

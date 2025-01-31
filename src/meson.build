@@ -36,6 +36,7 @@ executable(
 executable(
   'pmx-grpc-api',
   'applications/grpc_api.cpp',
+  'port_collection.cpp',
   '../../pmx-grpc/cpp/output_ports.pb.cc',
   '../../pmx-grpc/cpp/output_ports.grpc.pb.cc',
   '../../pmx-grpc/cpp/port.pb.cc',
