@@ -1773,11 +1773,11 @@ local input_channels_filter_graph_definition = [[
     ]
   },
   "capture.props": {
-    "node.name": "pmx input channels",
+    "node.name": "pmx input channels - ins",
     "node.autoconnect": false
   },
   "playback.props": {
-    "node.name": "pmx input channels",
+    "node.name": "pmx input channels - outs",
     "node.autoconnect": false
   }
 }

@@ -17,7 +17,7 @@ public:
 
   Status SetOutputPorts(ServerContext * context,
                         const pmx::grpc::SetOutputPortsRequest * request,
-                        pmx::grpc::SetOutputPortsResponse * response) override {
+                        pmx::grpc::Response * response) override {
     std::ostringstream left_ss;
     std::ostringstream right_ss;
     left_ss << "[";
@@ -43,11 +43,21 @@ public:
     return Status::OK;
   };
 
+  Status SetupInputPort(grpc::ServerContext * context,
+                        const pmx::grpc::SetupInputPortRequest * request,
+                        pmx::grpc::Response * response) override {
+    std::ostringstream metadata_key_ss;
+    metadata_key_ss << "channel_" << request->channel_id();
+    _metadata.set_metadata_value(metadata_key_ss.str(), request->port());
+
+    response->set_success(true);
+    return Status::OK;
+  }
+
   Status ListPorts(ServerContext * context,
                    const pmx::grpc::ListPortsRequest * request,
                    pmx::grpc::ListPortsResponse * response) override {
-    auto ports = _port_collection.get_ports();
-    for (auto &port : ports) {
+    for (auto ports = _port_collection.get_ports(); auto &port : ports) {
       auto response_port = response->add_ports();
       response_port->set_id(port.id);
       response_port->set_node_id(port.node_id);

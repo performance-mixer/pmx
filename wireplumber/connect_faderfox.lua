@@ -38,10 +38,6 @@ local function connect()
 	if MyLink == nil then
 		for source_port in source_port_om:iterate() do
 			for target_port in target_port_om:iterate() do
-				print("output port id", source_port.properties["port.id"])
-				print("input port id", target_port.properties["port.id"])
-				print("output node id", source_port.properties["node.id"])
-				print("input node id", target_port.properties["node.id"])
 				MyLink = Link("link-factory", {
 					["link.output.port"] = source_port.properties["port.id"],
 					["link.input.port"] = target_port.properties["port.id"],
