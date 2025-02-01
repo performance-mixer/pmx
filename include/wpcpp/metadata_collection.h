@@ -34,15 +34,43 @@ public:
       std::condition_variable condition;
     };
 
-    auto user_data = user_data_t{_metadata, _wait_for_completion_mutex, key, value};
+    auto user_data = user_data_t{
+      _metadata, _wait_for_completion_mutex, key, value
+    };
     std::unique_lock wait_lock(_wait_for_completion_mutex);
 
     g_idle_add_once([](gpointer user_data) {
       auto * data = static_cast<user_data_t *>(user_data);
       std::lock_guard lock(data->wait_for_completion_mutex);
+      wp_metadata_set(data->metadata, 0,
+                      data->key.c_str(), "Spa:String:JSON",
+                      data->value.c_str());
       data->condition.notify_all();
-    wp_metadata_set(data->metadata, 0,
-                    data->key.c_str(), "Spa:String:JSON", data->value.c_str());
+    }, &user_data);
+
+    user_data.condition.wait(wait_lock);
+  }
+
+  void clear_metadata_value(const std::string &key) {
+    std::lock_guard lock(_no_parallel_calls_mutex);
+
+    struct user_data_t {
+      WpMetadata * metadata;
+      std::mutex &wait_for_completion_mutex;
+      std::string key;
+      std::condition_variable condition;
+    };
+
+    auto user_data = user_data_t{
+      _metadata, _wait_for_completion_mutex, key
+    };
+    std::unique_lock wait_lock(_wait_for_completion_mutex);
+
+    g_idle_add_once([](gpointer user_data) {
+      auto * data = static_cast<user_data_t *>(user_data);
+      std::lock_guard lock(data->wait_for_completion_mutex);
+      wp_metadata_clear(data->metadata);
+      data->condition.notify_all();
     }, &user_data);
 
     user_data.condition.wait(wait_lock);

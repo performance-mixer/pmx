@@ -1,32 +1,16 @@
 source_port_om = ObjectManager({
 	Interest({
 		type = "port",
-		Constraint({
-			"port.alias",
-			"=",
-			"Faderfox PC4:Faderfox PC4 MIDI 1",
-		}),
-		Constraint({
-			"port.direction",
-			"=",
-			"out",
-		}),
+		Constraint({ "port.alias", "=", "Faderfox PC4:Faderfox PC4 MIDI 1" }),
+		Constraint({ "port.direction", "=", "out" }),
 	}),
 })
 
 target_port_om = ObjectManager({
 	Interest({
 		type = "port",
-		Constraint({
-			"port.alias",
-			"=",
-			"pmx-midi-router:input channels",
-		}),
-		Constraint({
-			"port.direction",
-			"=",
-			"in",
-		}),
+		Constraint({ "port.alias", "=", "pmx-midi-router:input channels" }),
+		Constraint({ "port.direction", "=", "in" }),
 	}),
 })
 

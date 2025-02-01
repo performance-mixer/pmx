@@ -54,6 +54,17 @@ public:
     return Status::OK;
   }
 
+  Status ClearInputPort(ServerContext * context,
+                        const pmx::grpc::ClearInputPortRequest * request,
+                        pmx::grpc::Response * response) override {
+    std::ostringstream metadata_key_ss;
+    metadata_key_ss << "channel_" << request->channel_id();
+    _metadata.clear_metadata_value(metadata_key_ss.str());
+
+    response->set_success(true);
+    return Status::OK;
+  }
+
   Status ListPorts(ServerContext * context,
                    const pmx::grpc::ListPortsRequest * request,
                    pmx::grpc::ListPortsResponse * response) override {
