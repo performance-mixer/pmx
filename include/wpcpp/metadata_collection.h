@@ -69,7 +69,10 @@ public:
     g_idle_add_once([](gpointer user_data) {
       auto * data = static_cast<user_data_t *>(user_data);
       std::lock_guard lock(data->wait_for_completion_mutex);
-      wp_metadata_clear(data->metadata);
+      //wp_metadata_clear(data->metadata);
+      wp_metadata_set(data->metadata, 0,
+                      data->key.c_str(), "Spa:String:JSON",
+                      nullptr);
       data->condition.notify_all();
     }, &user_data);
 

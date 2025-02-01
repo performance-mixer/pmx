@@ -12,12 +12,12 @@ class GrpcService final : public pmx::grpc::PmxGrpc::Service {
 public:
   GrpcService(wpcpp::PortCollection &port_collection,
               wpcpp::MetadataCollection &metadata) : _port_collection(
-      port_collection),
-    _metadata(metadata) {}
+                                                       port_collection),
+                                                     _metadata(metadata) {}
 
-  Status SetOutputPorts(ServerContext * context,
-                        const pmx::grpc::SetOutputPortsRequest * request,
-                        pmx::grpc::Response * response) override {
+  Status SetOutputPorts(ServerContext *context,
+                        const pmx::grpc::SetOutputPortsRequest *request,
+                        pmx::grpc::Response *response) override {
     std::ostringstream left_ss;
     std::ostringstream right_ss;
     left_ss << "[";
@@ -43,9 +43,9 @@ public:
     return Status::OK;
   };
 
-  Status SetupInputPort(grpc::ServerContext * context,
-                        const pmx::grpc::SetupInputPortRequest * request,
-                        pmx::grpc::Response * response) override {
+  Status SetupInputPort(grpc::ServerContext *context,
+                        const pmx::grpc::SetupInputPortRequest *request,
+                        pmx::grpc::Response *response) override {
     std::ostringstream metadata_key_ss;
     metadata_key_ss << "channel_" << request->channel_id();
     _metadata.set_metadata_value(metadata_key_ss.str(), request->port());
@@ -54,9 +54,9 @@ public:
     return Status::OK;
   }
 
-  Status ClearInputPort(ServerContext * context,
-                        const pmx::grpc::ClearInputPortRequest * request,
-                        pmx::grpc::Response * response) override {
+  Status ClearInputPort(ServerContext *context,
+                        const pmx::grpc::ClearInputPortRequest *request,
+                        pmx::grpc::Response *response) override {
     std::ostringstream metadata_key_ss;
     metadata_key_ss << "channel_" << request->channel_id();
     _metadata.clear_metadata_value(metadata_key_ss.str());
@@ -65,9 +65,16 @@ public:
     return Status::OK;
   }
 
-  Status ListPorts(ServerContext * context,
-                   const pmx::grpc::ListPortsRequest * request,
-                   pmx::grpc::ListPortsResponse * response) override {
+  Status ListInputPortsSetup(ServerContext *context,
+                             const pmx::grpc::EmptyRequest *request,
+                             pmx::grpc::ListInputPortSetupResponse *
+                             response) override {
+
+  }
+
+  Status ListPorts(ServerContext *context,
+                   const pmx::grpc::ListPortsRequest *request,
+                   pmx::grpc::ListPortsResponse *response) override {
     for (auto ports = _port_collection.get_ports(); auto &port : ports) {
       auto response_port = response->add_ports();
       response_port->set_id(port.id);
@@ -78,11 +85,9 @@ public:
       pmx::grpc::PortDirection direction;
       if (port.direction == wpcpp::pipewire_port::Direction::IN) {
         direction = pmx::grpc::PortDirection::IN;
-      }
-      else if (port.direction == wpcpp::pipewire_port::Direction::OUT) {
+      } else if (port.direction == wpcpp::pipewire_port::Direction::OUT) {
         direction = pmx::grpc::PortDirection::OUT;
-      }
-      else { direction = pmx::grpc::UNKNOWN; }
+      } else { direction = pmx::grpc::UNKNOWN; }
 
       response_port->set_direction(direction);
       response_port->set_physical(port.physical);
@@ -99,5 +104,4 @@ private:
   wpcpp::PortCollection &_port_collection;
   wpcpp::MetadataCollection &_metadata;
 };
-
 } // namespace grpc
