@@ -12,13 +12,13 @@
 #include <wp/wp.h>
 
 struct WirePlumberControl {
-  GOptionContext * context = nullptr;
-  GMainLoop * loop = nullptr;
-  WpCore * core = nullptr;
-  WpObjectManager * om = nullptr;
+  GOptionContext *context = nullptr;
+  GMainLoop *loop = nullptr;
+  WpCore *core = nullptr;
+  WpObjectManager *om = nullptr;
 };
 
-int main(int argc, char ** argv) {
+int main(int argc, char **argv) {
   WirePlumberControl wire_plumber_control;
   wp_init(WP_INIT_ALL);
 
@@ -51,7 +51,7 @@ int main(int argc, char ** argv) {
       server->Wait();
     });
 
-    metadata.register_initial_metadata_object(wire_plumber_control.core);
+    metadata.get_existing_metadata_object(wire_plumber_control.core);
     g_main_loop_run(wire_plumber_control.loop);
 
     grpc_service_thread.join();

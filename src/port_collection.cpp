@@ -37,10 +37,16 @@ auto port_added_callback = +[ ](WpObjectManager * object_manager,
   if (pw_direction == "in") { direction = wpcpp::pipewire_port::Direction::IN; }
   else { direction = wpcpp::pipewire_port::Direction::OUT; }
 
+  auto is_monitor_string = wp_pipewire_object_get_property(g_object, PW_KEY_PORT_MONITOR);
+  bool is_monitor(false);
+  if (is_monitor_string != nullptr) {
+    is_monitor = std::string(is_monitor_string) == "true";
+  }
+
   port_collection->push_back(
     wpcpp::pipewire_port{
       id, name, alias, group, path, dsp_format, node_id, direction, physical,
-      object_serial
+      object_serial, is_monitor
     });
 };
 

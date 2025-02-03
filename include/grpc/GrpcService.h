@@ -8,6 +8,8 @@
 #include <wpcpp/port_collection.h>
 
 namespace grpc {
+inline const char *CHANNEL_PREFIX = "channel_";
+
 class GrpcService final : public pmx::grpc::PmxGrpc::Service {
 public:
   GrpcService(wpcpp::PortCollection &port_collection,
@@ -15,39 +17,11 @@ public:
                                                        port_collection),
                                                      _metadata(metadata) {}
 
-  Status SetOutputPorts(ServerContext *context,
-                        const pmx::grpc::SetOutputPortsRequest *request,
-                        pmx::grpc::Response *response) override {
-    std::ostringstream left_ss;
-    std::ostringstream right_ss;
-    left_ss << "[";
-    right_ss << "[";
-    for (auto &&port : request->ports()) {
-      left_ss << "'" << port.left() << "', ";
-      right_ss << "'" << port.right() << "', ";
-    }
-
-    if (left_ss.str().size() > 2) {
-      left_ss.seekp(-2, std::ios_base::end);
-      left_ss << "]";
-    }
-
-    if (right_ss.str().size() > 2) {
-      right_ss.seekp(-2, std::ios_base::end);
-      right_ss << "]";
-    }
-
-    _metadata.set_metadata_value("left_outputs", left_ss.str());
-    _metadata.set_metadata_value("right_outputs", right_ss.str());
-    response->set_success(true);
-    return Status::OK;
-  };
-
   Status SetupInputPort(grpc::ServerContext *context,
                         const pmx::grpc::SetupInputPortRequest *request,
                         pmx::grpc::Response *response) override {
     std::ostringstream metadata_key_ss;
-    metadata_key_ss << "channel_" << request->channel_id();
+    metadata_key_ss << CHANNEL_PREFIX << request->channel_id();
     _metadata.set_metadata_value(metadata_key_ss.str(), request->port());
 
     response->set_success(true);
@@ -58,7 +32,7 @@ public:
                         const pmx::grpc::ClearInputPortRequest *request,
                         pmx::grpc::Response *response) override {
     std::ostringstream metadata_key_ss;
-    metadata_key_ss << "channel_" << request->channel_id();
+    metadata_key_ss << CHANNEL_PREFIX << request->channel_id();
     _metadata.clear_metadata_value(metadata_key_ss.str());
 
     response->set_success(true);
@@ -69,7 +43,24 @@ public:
                              const pmx::grpc::EmptyRequest *request,
                              pmx::grpc::ListInputPortSetupResponse *
                              response) override {
+    auto metadata = _metadata.get_metadata_values();
+    std::sort(metadata.begin(), metadata.end(),
+              [](const auto &a, const auto &b) {
+                return std::stoi(std::get<0>(a).substr(8)) < std::stoi(
+                  std::get<0>(b).substr(8));
+              });
 
+    for (auto &metadata_value : metadata) {
+      if (std::get<0>(metadata_value).starts_with(CHANNEL_PREFIX)) {
+        auto response_setup = response->add_setups();
+        auto id_string = std::get<0>(metadata_value).substr(8);
+        auto id = std::stoi(id_string);
+        response_setup->set_channel_id(id);
+        response_setup->set_port(std::get<1>(metadata_value));
+      }
+    }
+
+    return Status::OK;
   }
 
   Status ListPorts(ServerContext *context,
@@ -95,6 +86,7 @@ public:
       response_port->set_group(port.group);
       response_port->set_path(port.path);
       response_port->set_dsp_format(port.dsp_format);
+      response_port->set_is_monitor(port.is_monitor);
     }
 
     return Status::OK;

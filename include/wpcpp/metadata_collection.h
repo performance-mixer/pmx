@@ -1,77 +1,124 @@
 #pragma once
 
 #include <condition_variable>
+#include <mutex>
+#include <string>
+#include <tuple>
+#include <vector>
+
 #include <wp/wp.h>
 
 namespace wpcpp {
-
 class MetadataCollection {
 public:
-  void register_initial_metadata_object(WpCore * core) {
+  void register_initial_metadata_object(WpCore *core) {
     auto metadata = wp_impl_metadata_new_full(core, "performance-mixer",
                                               nullptr);
 
-    wp_metadata_set(reinterpret_cast<WpMetadata *>(metadata), 0,
-                    "left_outputs", "Spa:String:JSON", "[]");
-    wp_metadata_set(reinterpret_cast<WpMetadata *>(metadata), 0,
-                    "right_outputs", "Spa:String:JSON", "[]");
-
-    wp_object_activate(reinterpret_cast<WpObject *>(metadata),
+    wp_object_activate(reinterpret_cast<WpObject*>(metadata),
                        WP_OBJECT_FEATURES_ALL, nullptr,
-                       [](GObject * source_object, GAsyncResult * res,
+                       [](GObject *source_object, GAsyncResult *res,
                           gpointer data) {}, nullptr);
-    _metadata = reinterpret_cast<WpMetadata *>(metadata);
+    _metadata = reinterpret_cast<WpMetadata*>(metadata);
+  }
+
+  void register_initial_metadata_object(WpCore *core,
+                                        GAsyncReadyCallback callback,
+                                        void *data) {
+    auto metadata = wp_impl_metadata_new_full(core, "performance-mixer",
+                                              nullptr);
+
+    wp_object_activate(reinterpret_cast<WpObject*>(metadata),
+                       WP_OBJECT_FEATURES_ALL, nullptr, callback, data);
+    _metadata = reinterpret_cast<WpMetadata*>(metadata);
+  }
+
+  bool get_existing_metadata_object(WpCore *core);
+
+  std::vector<std::tuple<std::string, std::string>> get_metadata_values() {
+    std::lock_guard lock(_no_parallel_calls_mutex);
+
+    struct user_data_t {
+      WpMetadata *metadata;
+      std::mutex &wait_for_completion_mutex;
+      std::condition_variable condition;
+      std::vector<std::tuple<std::string, std::string>> result;
+    };
+
+    auto user_data = user_data_t{_metadata, _wait_for_completion_mutex};
+
+    std::unique_lock wait_lock(_wait_for_completion_mutex);
+
+    g_idle_add_once([](gpointer user_data) {
+      auto *data = static_cast<user_data_t*>(user_data);
+      std::lock_guard lock(data->wait_for_completion_mutex);
+
+      auto metadata_iterator = wp_metadata_new_iterator(data->metadata, 0);
+      GValue value = {0};
+      while (wp_iterator_next(metadata_iterator, &value)) {
+        auto metadata_item = reinterpret_cast<WpMetadataItem*>(value.data->
+                                                                     v_pointer);
+        auto key = wp_metadata_item_get_key(metadata_item);
+        auto metadata_value = wp_metadata_item_get_value(metadata_item);
+        data->result.push_back(std::make_tuple(key, metadata_value));
+      }
+
+      data->condition.notify_all();
+    }, &user_data);
+
+    user_data.condition.wait(wait_lock);
+    return user_data.result;
   }
 
   void set_metadata_value(const std::string &key, const std::string &value) {
     std::lock_guard lock(_no_parallel_calls_mutex);
 
     struct user_data_t {
-      WpMetadata * metadata;
+      WpMetadata *metadata;
       std::mutex &wait_for_completion_mutex;
       std::string key;
       std::string value;
       std::condition_variable condition;
     };
 
-    auto user_data = user_data_t{
-      _metadata, _wait_for_completion_mutex, key, value
-    };
-    std::unique_lock wait_lock(_wait_for_completion_mutex);
+    if (g_main_context_is_owner(g_main_context_default())) {
+      wp_metadata_set(_metadata, 0, key.c_str(), "Spa:String:JSON",
+                      value.c_str());
+    } else {
+      auto user_data = user_data_t{
+        _metadata, _wait_for_completion_mutex, key, value
+      };
+      std::unique_lock wait_lock(_wait_for_completion_mutex);
 
-    g_idle_add_once([](gpointer user_data) {
-      auto * data = static_cast<user_data_t *>(user_data);
-      std::lock_guard lock(data->wait_for_completion_mutex);
-      wp_metadata_set(data->metadata, 0,
-                      data->key.c_str(), "Spa:String:JSON",
-                      data->value.c_str());
-      data->condition.notify_all();
-    }, &user_data);
+      g_idle_add_once([](gpointer user_data) {
+        auto *data = static_cast<user_data_t*>(user_data);
+        std::lock_guard lock(data->wait_for_completion_mutex);
+        wp_metadata_set(data->metadata, 0, data->key.c_str(), "Spa:String:JSON",
+                        data->value.c_str());
+        data->condition.notify_all();
+      }, &user_data);
 
-    user_data.condition.wait(wait_lock);
+      user_data.condition.wait(wait_lock);
+    }
   }
 
   void clear_metadata_value(const std::string &key) {
     std::lock_guard lock(_no_parallel_calls_mutex);
 
     struct user_data_t {
-      WpMetadata * metadata;
+      WpMetadata *metadata;
       std::mutex &wait_for_completion_mutex;
       std::string key;
       std::condition_variable condition;
     };
 
-    auto user_data = user_data_t{
-      _metadata, _wait_for_completion_mutex, key
-    };
+    auto user_data = user_data_t{_metadata, _wait_for_completion_mutex, key};
     std::unique_lock wait_lock(_wait_for_completion_mutex);
 
     g_idle_add_once([](gpointer user_data) {
-      auto * data = static_cast<user_data_t *>(user_data);
+      auto *data = static_cast<user_data_t*>(user_data);
       std::lock_guard lock(data->wait_for_completion_mutex);
-      //wp_metadata_clear(data->metadata);
-      wp_metadata_set(data->metadata, 0,
-                      data->key.c_str(), "Spa:String:JSON",
+      wp_metadata_set(data->metadata, 0, data->key.c_str(), "Spa:String:JSON",
                       nullptr);
       data->condition.notify_all();
     }, &user_data);
@@ -79,10 +126,13 @@ public:
     user_data.condition.wait(wait_lock);
   }
 
+  void set_metadata(WpMetadata *const metadata) { _metadata = metadata; }
+  [[nodiscard]] WpMetadata * metadata() const { return _metadata; }
+
 private:
   std::mutex _no_parallel_calls_mutex;
   std::mutex _wait_for_completion_mutex;
-  WpMetadata * _metadata = nullptr;
+  WpMetadata *_metadata = nullptr;
+  WpObjectManager *_object_manager = nullptr;
 };
-
 }

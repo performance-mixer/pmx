@@ -16,5 +16,6 @@ struct pipewire_port {
 
   bool physical;
   int object_serial;
+  bool is_monitor;
 };
 } // namespace wpcpp
