@@ -1,0 +1,16 @@
+[Unit]
+Description=Manages metadata for pmx
+Before=
+After=network.target pipewire.service wireplumber.service
+Requires=pipewire.service wireplumber.service
+Wants=
+
+[Service]
+Type=notify
+ExecStart=@BINDIR@/pmx-metadata-manager
+ExecStop=
+Restart=on-failure
+
+[Install]
+WantedBy=performance-mixer.target
+Also=

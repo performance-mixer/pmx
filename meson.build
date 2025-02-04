@@ -8,9 +8,11 @@ grpc_dep = dependency('grpc')
 grcpp_dep = dependency('grpc++')
 protobuf_dep = dependency('protobuf')
 yaml_cpp_dep = dependency('yaml-cpp')
+libsystemd_dep = dependency('libsystemd')
 
 include_directory = include_directories('include', '../pwcpp/include')
 pmx_grpc_include_directory = include_directories('../pmx-grpc/cpp/')
 
 subdir('src')
 subdir('test')
+subdir('systemd')

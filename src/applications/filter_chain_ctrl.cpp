@@ -1,5 +1,7 @@
 #include "osc/parse_osc_path.h"
 
+#include <systemd/sd-daemon.h>
+
 #include <cstddef>
 #include <iostream>
 
@@ -82,6 +84,7 @@ int main(int argc, char *argv[]) {
 
   auto filter_app = builder.build();
   if (filter_app.has_value()) {
+    sd_notify(0, "READY=1");
     filter_app.value()->run();
   }
 }

@@ -1,5 +1,7 @@
 #include <pwcpp/filter/app_builder.h>
 
+#include <systemd/sd-daemon.h>
+
 #include <condition_variable>
 #include <iostream>
 #include <thread>
@@ -103,6 +105,7 @@ int main(int argc, char **argv) {
   });
 
   if (app.has_value()) {
+    sd_notify(0, "READY=1");
     app.value()->run();
   }
 

@@ -1,10 +1,12 @@
 executable(
     'pmx-midi-router',
-    'applications/midi_router.cpp',
-    'parameters.cpp',
-    'processing.cpp',
-    'interpolation.cpp',
-    dependencies : [pipewire_dep],
+    sources : [
+        'applications/midi_router.cpp',
+        'parameters.cpp',
+        'processing.cpp',
+        'interpolation.cpp',
+    ],
+    dependencies : [pipewire_dep, libsystemd_dep],
     include_directories : [include_directory])
 
 executable(
@@ -15,18 +17,29 @@ executable(
         'processing.cpp',
         'parse_osc_path.cpp',
     ],
-    dependencies : [pipewire_dep],
+    dependencies : [pipewire_dep, libsystemd_dep],
     include_directories : [include_directory])
 
 executable(
-    'pmx-osc-network-router',
+    'pmx-osc-network-sender',
     sources : [
-        'applications/osc_network_router.cpp',
+        'applications/osc_network_sender.cpp',
         'parameters.cpp',
         'processing.cpp',
         'parse_osc_path.cpp',
     ],
-    dependencies : [pipewire_dep, boost_dep],
+    dependencies : [pipewire_dep, boost_dep, libsystemd_dep],
+    include_directories : [include_directory])
+
+executable(
+    'pmx-osc-network-receiver',
+    sources : [
+        'applications/osc_network_receiver.cpp',
+        'parameters.cpp',
+        'processing.cpp',
+        'parse_osc_path.cpp',
+    ],
+    dependencies : [pipewire_dep, boost_dep, libsystemd_dep],
     include_directories : [include_directory])
 
 executable(
@@ -36,7 +49,7 @@ executable(
         'parameters.cpp',
         'interpolation.cpp',
     ],
-    dependencies : [pipewire_dep],
+    dependencies : [pipewire_dep, libsystemd_dep],
     include_directories : [include_directory])
 
 executable(
@@ -45,9 +58,10 @@ executable(
         'applications/metadata_manager.cpp',
         'metadata_collection.cpp',
         'metadata_watcher.cpp',
+        'prefix.cpp',
         'config.cpp'
     ],
-    dependencies : [pipewire_dep, wireplumber_dep, yaml_cpp_dep],
+    dependencies : [pipewire_dep, wireplumber_dep, yaml_cpp_dep, libsystemd_dep],
     include_directories : [include_directory])
 
 executable(
@@ -56,6 +70,7 @@ executable(
         'applications/grpc_api.cpp',
         'port_collection.cpp',
         'metadata_collection.cpp',
+        'prefix.cpp',
         '../../pmx-grpc/cpp/input_ports.grpc.pb.cc',
         '../../pmx-grpc/cpp/input_ports.pb.cc',
         '../../pmx-grpc/cpp/mono_port.grpc.pb.cc',
@@ -71,5 +86,5 @@ executable(
         '../../pmx-grpc/cpp/stereo_port.grpc.pb.cc',
         '../../pmx-grpc/cpp/stereo_port.pb.cc',
     ],
-    dependencies : [wireplumber_dep, grpc_dep, protobuf_dep, grcpp_dep],
+    dependencies : [wireplumber_dep, grpc_dep, protobuf_dep, grcpp_dep, libsystemd_dep],
     include_directories : [include_directory, pmx_grpc_include_directory])

@@ -2,6 +2,8 @@
 #include "wpcpp/port_collection.h"
 #include "wpcpp/metadata_collection.h"
 
+#include <systemd/sd-daemon.h>
+
 #include <thread>
 
 #include <grpcpp/security/server_credentials.h>
@@ -52,6 +54,7 @@ int main(int argc, char **argv) {
     });
 
     metadata.get_existing_metadata_object(wire_plumber_control.core);
+    sd_notify(0, "READY=1");
     g_main_loop_run(wire_plumber_control.loop);
 
     grpc_service_thread.join();

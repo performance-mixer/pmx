@@ -1,0 +1,16 @@
+[Unit]
+Description=Provides GRPC service for pmx
+Before=
+After=pmx-metadata-manager.service
+Requires=pipewire.service wireplumber.service pmx-metadata-manager.service
+Wants=
+
+[Service]
+Type=notify
+ExecStart=@BINDIR@/pmx-grpc-api
+ExecStop=
+Restart=on-failure
+
+[Install]
+WantedBy=performance-mixer.target
+Also=

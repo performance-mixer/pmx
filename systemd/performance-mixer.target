@@ -1,0 +1,9 @@
+[Unit]
+Description=Start all performance mixer services and applications
+Before=
+After=network.target pipewire.service wireplumber.service
+Requires=pipewire.service wireplumber.service
+Wants=
+
+[Install]
+WantedBy=

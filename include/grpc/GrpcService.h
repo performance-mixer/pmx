@@ -2,14 +2,13 @@
 
 #include "pmx_grpc.grpc.pb.h"
 #include "wpcpp/port.h"
+#include "config/prefix.h"
 
 #include <grpcpp/support/status.h>
 #include <wpcpp/metadata_collection.h>
 #include <wpcpp/port_collection.h>
 
 namespace grpc {
-inline const char *CHANNEL_PREFIX = "channel_";
-
 class GrpcService final : public pmx::grpc::PmxGrpc::Service {
 public:
   GrpcService(wpcpp::PortCollection &port_collection,
@@ -17,12 +16,23 @@ public:
                                                        port_collection),
                                                      _metadata(metadata) {}
 
-  Status SetupInputPort(grpc::ServerContext *context,
+  Status SetupInputPort(ServerContext *context,
                         const pmx::grpc::SetupInputPortRequest *request,
                         pmx::grpc::Response *response) override {
-    std::ostringstream metadata_key_ss;
-    metadata_key_ss << CHANNEL_PREFIX << request->channel_id();
-    _metadata.set_metadata_value(metadata_key_ss.str(), request->port());
+    if (request->has_port()) {
+      std::ostringstream metadata_key_ss;
+      metadata_key_ss << config::Prefix::CHANNEL_PORT_PREFIX << request->
+        channel_id();
+      _metadata.set_metadata_value(metadata_key_ss.str(), request->port());
+    }
+
+    if (request->has_group_channel_id()) {
+      std::ostringstream metadata_key_ss;
+      metadata_key_ss << config::Prefix::CHANNEL_GROUP_PREFIX << request->
+        channel_id();
+      _metadata.set_metadata_value(metadata_key_ss.str(),
+                                   std::to_string(request->group_channel_id()));
+    }
 
     response->set_success(true);
     return Status::OK;
@@ -32,7 +42,8 @@ public:
                         const pmx::grpc::ClearInputPortRequest *request,
                         pmx::grpc::Response *response) override {
     std::ostringstream metadata_key_ss;
-    metadata_key_ss << CHANNEL_PREFIX << request->channel_id();
+    metadata_key_ss << config::Prefix::CHANNEL_PORT_PREFIX << request->
+      channel_id();
     _metadata.clear_metadata_value(metadata_key_ss.str());
 
     response->set_success(true);
@@ -51,7 +62,8 @@ public:
               });
 
     for (auto &metadata_value : metadata) {
-      if (std::get<0>(metadata_value).starts_with(CHANNEL_PREFIX)) {
+      if (std::get<0>(metadata_value).starts_with(
+        config::Prefix::CHANNEL_PORT_PREFIX)) {
         auto response_setup = response->add_setups();
         auto id_string = std::get<0>(metadata_value).substr(8);
         auto id = std::stoi(id_string);

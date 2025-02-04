@@ -1,0 +1,16 @@
+[Unit]
+Description=Receives data from NI traktor over usb and sends osc messages via pipewire
+Before=
+After=pmx-metadata-manager.service
+Requires=pipewire.service wireplumber.service pmx-metadata-manager.service
+Wants=
+
+[Service]
+Type=notify
+ExecStart=@BINDIR@/pmx-traktor-z1-router
+ExecStop=
+Restart=on-failure
+
+[Install]
+WantedBy=performance-mixer.target
+Also=

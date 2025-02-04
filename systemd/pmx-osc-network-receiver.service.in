@@ -1,0 +1,16 @@
+[Unit]
+Description=Receives osc messages via network and send them out on a port
+Before=
+After=pmx-metadata-manager.service
+Requires=pipewire.service wireplumber.service pmx-metadata-manager.service
+Wants=
+
+[Service]
+Type=notify
+ExecStart=@BINDIR@/pmx-osc-network-receiver
+ExecStop=
+Restart=on-failure
+
+[Install]
+WantedBy=performance-mixer.target
+Also=

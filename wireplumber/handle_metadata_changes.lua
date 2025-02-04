@@ -61,7 +61,7 @@ SimpleEventHook({
         if filter_node ~= nil then
             for metadata in channel_metadata_om:iterate() do
                 for channel_id = 0, 31 do
-                    local channel_key = "channel_" .. channel_id
+                    local channel_key = "channel_port_" .. channel_id
                     local value = metadata:find(0, channel_key)
 
                     if value ~= nil then

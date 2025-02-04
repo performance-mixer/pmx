@@ -1,8 +1,13 @@
-#include <iostream>
-
 #include "config/config.h"
+#include "config/prefix.h"
 #include "wpcpp/metadata_collection.h"
 #include "metadata/metadata_watcher.h"
+
+#include <systemd/sd-daemon.h>
+
+#include <iostream>
+
+#include <systemd/sd-daemon.h>
 
 #include <wp/wp.h>
 
@@ -37,7 +42,8 @@ int main(int argc, char **argv) {
         for (size_t i = 0; i < callback_data->config.input_channels.size(); i
              ++) {
           if (callback_data->config.input_channels[i].has_value()) {
-            auto key = "channel_" + std::to_string(i + 1);
+            auto key = config::Prefix::CHANNEL_PORT_PREFIX + std::to_string(
+              i + 1);
             callback_data->metadata.set_metadata_value(
               key, callback_data->config.input_channels[i].value());
           }
@@ -61,7 +67,8 @@ int main(int argc, char **argv) {
                 update_event)) {
                 auto deletion = std::get<metadata::metadata_deletion>(
                   update_event);
-                if (deletion.key.starts_with("channel_")) {
+                if (deletion.key.starts_with(
+                  config::Prefix::CHANNEL_PORT_PREFIX)) {
                   auto channel_id = std::stoi(deletion.key.substr(8));
                   config.input_channels[channel_id - 1] = std::nullopt;
                   changed = true;
@@ -69,7 +76,8 @@ int main(int argc, char **argv) {
               } else if (std::holds_alternative<metadata::metadata_update>(
                 update_event)) {
                 auto update = std::get<metadata::metadata_update>(update_event);
-                if (update.key.starts_with("channel_")) {
+                if (update.key.
+                           starts_with(config::Prefix::CHANNEL_PORT_PREFIX)) {
                   auto channel_id = std::stoi(update.key.substr(8));
                   if (config.input_channels[channel_id - 1].has_value()) {
                     if (config.input_channels[channel_id - 1].value() != update.
@@ -98,7 +106,10 @@ int main(int argc, char **argv) {
       }
     };
 
+    sd_notify(0, "READY=1");
+
     g_main_loop_run(wire_plumber_control.loop);
+
     return 0;
   }
 }
