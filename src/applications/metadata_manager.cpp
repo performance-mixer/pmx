@@ -2,12 +2,11 @@
 #include "config/prefix.h"
 #include "wpcpp/metadata_collection.h"
 #include "metadata/metadata_watcher.h"
+#include "logging/logger.h"
 
 #include <systemd/sd-daemon.h>
 
 #include <iostream>
-
-#include <systemd/sd-daemon.h>
 
 #include <wp/wp.h>
 
@@ -20,8 +19,11 @@ struct WirePlumberControl {
 };
 
 int main(int argc, char **argv) {
+  sd_notify(0, "STATUS=Starting");
+  logging::Logger logger{"main"};
   auto config = config::read_config("pmx");
 
+  logger.log_info("Initializing wire plumber");
   WirePlumberControl wire_plumber_control;
   wp_init(WP_INIT_ALL);
   wire_plumber_control.context = g_option_context_new("metadata-manager");
@@ -35,6 +37,7 @@ int main(int argc, char **argv) {
 
     callback_data callback_data{config, wire_plumber_control.metadata};
 
+    logger.log_info("Creating metadata collection");
     wire_plumber_control.metadata.register_initial_metadata_object(
       wire_plumber_control.core,
       [](GObject *source_object, GAsyncResult *res, gpointer data) {
@@ -50,12 +53,15 @@ int main(int argc, char **argv) {
         }
       }, &callback_data);
 
+    logger.log_info("Setting up metadata watcher");
     metadata::MetadataWatcher watcher;
     watcher.set_metadata_and_connect_signal(
       wire_plumber_control.metadata.metadata());
 
-    std::thread thread{
+    logger.log_info("Starting config writer");
+    std::thread config_writer_thread{
       [&watcher, config]() mutable {
+        logging::Logger logger{"config_writer_thread"};
         std::vector<metadata::metadata_event> batch;
         while (true) {
           if (watcher.has_metadata_updates()) {
@@ -96,7 +102,7 @@ int main(int argc, char **argv) {
             batch.clear();
 
             if (changed) {
-              std::cout << "Writing config" << std::endl;
+              logger.log_info("Writing config");
               config::write_config("pmx", config);
             }
           } else {
@@ -108,6 +114,7 @@ int main(int argc, char **argv) {
 
     sd_notify(0, "READY=1");
 
+    logger.log_info("Starting main loop");
     g_main_loop_run(wire_plumber_control.loop);
 
     return 0;

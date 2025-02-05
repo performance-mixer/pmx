@@ -6,6 +6,7 @@
 #include <cstddef>
 #include <iostream>
 #include <ranges>
+#include <logging/logger.h>
 
 #include <oscpp/client.hpp>
 
@@ -14,7 +15,6 @@
 #include <pwcpp/midi/message.h>
 #include <pwcpp/midi/parse_midi.h>
 
-#include <spa/debug/pod.h>
 #include <spa/pod/builder.h>
 
 std::string build_input_channel_osc_path(pwcpp::midi::control_change &message,
@@ -29,7 +29,11 @@ std::string build_input_channel_osc_path(pwcpp::midi::control_change &message,
 }
 
 int main(int argc, char *argv[]) {
+  sd_notify(0, "STATUS=Starting");
+  logging::Logger logger{"main"};
+
   pwcpp::filter::AppBuilder<std::nullptr_t> builder;
+  logger.log_info("Building filter app");
   builder.set_filter_name("pmx-midi-router").set_media_type("Midi").
           set_media_class("Midi/Sink").add_arguments(argc, argv).
           add_input_port("input channels", "8 bit raw midi").
@@ -37,6 +41,7 @@ int main(int argc, char *argv[]) {
           add_output_port("osc", "8 bit raw midi").add_signal_processor(
             [](auto position, auto &in_ports, auto &out_ports, auto &user_data,
                auto &parameters) {
+              logging::Logger logger{"signal_processor"};
               auto in_buffers = in_ports | std::views::transform(
                 [](auto &&in_port) {
                   return in_port->get_buffer();
@@ -58,8 +63,7 @@ int main(int argc, char *argv[]) {
                       }
                     }
                   } else {
-                    std::cout << "Error while parsing midi message " <<
-                      buffer_midi_messages.error().message << std::endl;
+                    logger.log_error(buffer_midi_messages.error());
                   }
                   buffer.value().finish();
                 }
@@ -72,8 +76,6 @@ int main(int argc, char *argv[]) {
                                         });
 
               if (count > 0) {
-                std::cout << "received " << count << " midi messages" <<
-                  std::endl;
                 auto out_buffer = out_ports[0]->get_buffer();
                 if (out_buffer.has_value() == false) {
                   return;
@@ -121,6 +123,7 @@ int main(int argc, char *argv[]) {
 
   auto filter_app = builder.build();
   if (filter_app.has_value()) {
+    logger.log_info("Starting filter app");
     sd_notify(0, "READY=1");
     filter_app.value()->run();
   }

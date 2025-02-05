@@ -13,6 +13,7 @@
 #include <pwcpp/filter/app_builder.h>
 
 #include <boost/lockfree/spsc_queue.hpp>
+#include <logging/logger.h>
 
 struct traktor_z1_message {
   std::uint16_t gain_l;
@@ -32,9 +33,13 @@ struct traktor_z1_message {
 };
 
 int main(int argc, char *argv[]) {
-  std::string device = "/dev/hidraw8";
+  sd_notify(0, "STATUS=Starting");
+  logging::Logger logger{"main"};
+  std::string device_path = "/dev/hidraw8";
 
-  if (argc > 1) device = argv[1];
+  if (argc > 1) device_path = argv[1];
+  logger.log_info("Using device path: " + device_path, "DEVICE_PATH=",
+                  device_path);
 
   boost::lockfree::spsc_queue<traktor_z1_message> queue(128);
 
@@ -55,6 +60,7 @@ int main(int argc, char *argv[]) {
   previous.cross_fader = 0;
   bool is_init(true);
 
+  logger.log_info("Building filter app");
   pwcpp::filter::AppBuilder<std::nullptr_t> builder;
   builder.set_filter_name("pmx-traktor-z1-router").set_media_type("Osc").
           set_media_class("Osc/Source").add_arguments(argc, argv).
@@ -165,8 +171,6 @@ int main(int argc, char *argv[]) {
                           OSCPP::Client::Packet packet(osc_buffer, 4096);
 
                           auto [path, value] = change.value();
-                          std::cout << "sending: " << path << " " << value <<
-                            std::endl;
                           packet.openMessage(path.c_str(), 1).float32(value).
                                  closeMessage();
                           auto size = packet.size();
@@ -187,11 +191,13 @@ int main(int argc, char *argv[]) {
               }
             });
 
-  std::thread thread([&device, &queue]() {
-    std::ifstream file(device, std::ios::binary);
+  logger.log_info("Starting usd device reader");
+  std::thread device_reader_thread([&device_path, &queue]() {
+    logging::Logger logger{"device_reader_thread"};
+    std::ifstream file(device_path, std::ios::binary);
 
     if (!file.is_open()) {
-      std::cerr << "Unable to open device" << std::endl;
+      logger.log_error("Unable to open device", "DEVICE_PATH=", device_path);
       return 1;
     }
 
@@ -217,7 +223,7 @@ int main(int argc, char *argv[]) {
           report.cross_fader = (buffer[28] << 8) + buffer[27];
           queue.push(report);
         } else {
-          std::cout << "report had unexpected length" << std::endl;
+          logger.log_error("Invalid report size", "SIZE=", file.gcount());
         }
       }
     }
@@ -228,6 +234,7 @@ int main(int argc, char *argv[]) {
 
   auto app = builder.build();
   if (app.has_value()) {
+    logger.log_info("Starting filter app");
     sd_notify(0, "READY=1");
     app.value()->run();
   }

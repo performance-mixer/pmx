@@ -9,6 +9,7 @@
 #include <iostream>
 #include <array>
 #include <boost/lockfree/spsc_queue.hpp>
+#include <logging/logger.h>
 #include <pwcpp/osc/parse_osc.h>
 
 struct queue_message {
@@ -17,8 +18,11 @@ struct queue_message {
 };
 
 int main(int argc, char *argv[]) {
+  sd_notify(0, "STATUS=Starting");
+  logging::Logger logger{"main"};
   boost::lockfree::spsc_queue<queue_message> queue(128);
 
+  logger.log_info("Building filter app");
   pwcpp::filter::AppBuilder<std::nullptr_t> builder;
   builder.set_filter_name("pmx-osc-network-receiver").set_media_type("Osc").
           set_media_class("Osc/Source").add_output_port("osc", "8 bit raw midi")
@@ -43,6 +47,7 @@ int main(int argc, char *argv[]) {
                     spa_pod_builder_bytes(&builder, message.data, message.size);
                   }
 
+                  // ReSharper disable once CppDFAUnusedValue
                   auto pod = static_cast<spa_pod*>(spa_pod_builder_pop(
                     &builder, &frame));
 
@@ -53,6 +58,7 @@ int main(int argc, char *argv[]) {
             });
 
   bool is_running(true);
+  logger.log_info("Starting network receiver");
   std::thread network_receiver([&is_running, &queue]() {
     boost::asio::io_context io_context;
     boost::asio::ip::udp::socket socket(io_context,
@@ -71,8 +77,11 @@ int main(int argc, char *argv[]) {
   auto filter_app = builder.build();
   if (filter_app.has_value()) {
     sd_notify(0, "READY=1");
+    logger.log_info("Starting filter app");
     filter_app.value()->run();
   }
+
+  is_running = false;
   network_receiver.join();
   return 0;
 }
