@@ -1,3 +1,5 @@
+application_install_dir = join_paths(get_option('prefix'), get_option('bindir'))
+
 configure_file(
     input : 'pmx-metadata-manager.service.in',
     output : 'pmx-metadata-manager.service',
