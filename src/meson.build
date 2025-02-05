@@ -7,7 +7,8 @@ executable(
         'interpolation.cpp',
     ],
     dependencies : [pipewire_dep, libsystemd_dep],
-    include_directories : [include_directory])
+    include_directories : [include_directory],
+    install: true)
 
 executable(
     'pmx-filter-chain-ctrl',
@@ -18,7 +19,8 @@ executable(
         'parse_osc_path.cpp',
     ],
     dependencies : [pipewire_dep, libsystemd_dep],
-    include_directories : [include_directory])
+    include_directories : [include_directory],
+    install: true)
 
 executable(
     'pmx-osc-network-sender',
@@ -29,7 +31,8 @@ executable(
         'parse_osc_path.cpp',
     ],
     dependencies : [pipewire_dep, boost_dep, libsystemd_dep],
-    include_directories : [include_directory])
+    include_directories : [include_directory],
+    install: true)
 
 executable(
     'pmx-osc-network-receiver',
@@ -40,7 +43,8 @@ executable(
         'parse_osc_path.cpp',
     ],
     dependencies : [pipewire_dep, boost_dep, libsystemd_dep],
-    include_directories : [include_directory])
+    include_directories : [include_directory],
+    install: true)
 
 executable(
     'pmx-traktor-z1-router',
@@ -50,7 +54,8 @@ executable(
         'interpolation.cpp',
     ],
     dependencies : [pipewire_dep, libsystemd_dep],
-    include_directories : [include_directory])
+    include_directories : [include_directory],
+    install: true)
 
 executable(
     'pmx-metadata-manager',
@@ -62,7 +67,8 @@ executable(
         'config.cpp'
     ],
     dependencies : [pipewire_dep, wireplumber_dep, yaml_cpp_dep, libsystemd_dep],
-    include_directories : [include_directory])
+    include_directories : [include_directory],
+    install: true)
 
 executable(
     'pmx-grpc-api',
@@ -87,4 +93,5 @@ executable(
         '../../pmx-grpc/cpp/stereo_port.pb.cc',
     ],
     dependencies : [wireplumber_dep, grpc_dep, protobuf_dep, grcpp_dep, libsystemd_dep],
-    include_directories : [include_directory, pmx_grpc_include_directory])
+    include_directories : [include_directory, pmx_grpc_include_directory],
+    install: true)

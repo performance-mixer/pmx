@@ -1,10 +1,3 @@
-application_install_dir = join_paths(get_option('prefix'), get_option('bindir'))
-
-user_systemd_dir_cmd = run_command(
-    'sh', '-c', 'echo ${XDG_CONFIG_HOME:-$HOME/.config}/systemd/user', check : true)
-
-user_systemd_dir = user_systemd_dir_cmd.stdout().strip()
-
 configure_file(
     input : 'pmx-metadata-manager.service.in',
     output : 'pmx-metadata-manager.service',
@@ -12,7 +5,7 @@ configure_file(
         'BINDIR' : application_install_dir
     },
     install : true,
-    install_dir : user_systemd_dir
+    install_dir : 'lib/systemd/user'
 )
 
 configure_file(
@@ -22,7 +15,7 @@ configure_file(
         'BINDIR' : application_install_dir
     },
     install : true,
-    install_dir : user_systemd_dir
+    install_dir : 'lib/systemd/user'
 )
 
 configure_file(
@@ -32,7 +25,7 @@ configure_file(
         'BINDIR' : application_install_dir
     },
     install : true,
-    install_dir : user_systemd_dir
+    install_dir : 'lib/systemd/user'
 )
 
 configure_file(
@@ -42,7 +35,7 @@ configure_file(
         'BINDIR' : application_install_dir
     },
     install : true,
-    install_dir : user_systemd_dir
+    install_dir : 'lib/systemd/user'
 )
 
 configure_file(
@@ -52,7 +45,7 @@ configure_file(
         'BINDIR' : application_install_dir
     },
     install : true,
-    install_dir : user_systemd_dir
+    install_dir : 'lib/systemd/user'
 )
 
 configure_file(
@@ -62,7 +55,7 @@ configure_file(
         'BINDIR' : application_install_dir
     },
     install : true,
-    install_dir : user_systemd_dir
+    install_dir : 'lib/systemd/user'
 )
 
 configure_file(
@@ -72,5 +65,5 @@ configure_file(
         'BINDIR' : application_install_dir
     },
     install : true,
-    install_dir : user_systemd_dir
+    install_dir : 'lib/systemd/user'
 )
