@@ -69,3 +69,7 @@ configure_file(
     install : true,
     install_dir : 'lib/systemd/user'
 )
+
+install_data(
+    'performance-mixer.target',
+    install_dir : 'lib/systemd/user')
