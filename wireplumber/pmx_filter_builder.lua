@@ -84,9 +84,9 @@ local layer_filter_graph_definition = [[
 }
 ]]
 
-function pmx_filter_builder.build_layer_mixer()
+function pmx_filter_builder.build_layer_mixer(local_module)
 	print("Building layer mixer")
-	return LocalModule("libpipewire-module-filter-chain", layer_filter_graph_definition, {})
+	return local_module("libpipewire-module-filter-chain", layer_filter_graph_definition, {})
 end
 
 local group_channel_filter_graph_definition = [[
@@ -238,19 +238,21 @@ local group_channel_filter_graph_definition = [[
     ]
   },
   "capture.props": {
-    "node.name": "pmx group mixer {layer_id}",
+    "node.name": "pmx-group-channels-{layer_id_lc}-ins",
     "node.autoconnect": false
   },
   "playback.props": {
-    "node.name": "pmx group mixer {layer_id}",
+    "node.name": "pmx-group-channels-{layer_id_lc}-outs",
     "node.autoconnect": false
   }
 }
 ]]
 
-function pmx_filter_builder.create_group_channels_filter_chain(layer_id)
+function pmx_filter_builder.create_group_channels_filter_chain(layer_id, local_module)
+	print("Building group channels")
 	local definition = string.gsub(group_channel_filter_graph_definition, "{layer_id}", layer_id)
-	return LocalModule("libpipewire-module-filter-chain", definition, {})
+	definition = string.gsub(definition, "{layer_id_lc}", string.lower(layer_id))
+	return local_module("libpipewire-module-filter-chain", definition, {})
 end
 
 local input_channels_filter_graph_definition = [[
@@ -1773,21 +1775,19 @@ local input_channels_filter_graph_definition = [[
     ]
   },
   "capture.props": {
-    "node.name": "pmx input channels - ins",
+    "node.name": "pmx-input-channels-ins",
     "node.autoconnect": false
   },
   "playback.props": {
-    "node.name": "pmx input channels - outs",
+    "node.name": "pmx-input-channels-outs",
     "node.autoconnect": false
   }
 }
 ]]
 
-function pmx_filter_builder.build_input_channels()
-	return LocalModule("libpipewire-module-filter-chain", input_channels_filter_graph_definition, {})
+function pmx_filter_builder.build_input_channels(local_module)
+	print("Building input channels")
+	return local_module("libpipewire-module-filter-chain", input_channels_filter_graph_definition, {})
 end
 
-layer_mixer = pmx_filter_builder.build_layer_mixer()
-group_A = pmx_filter_builder.create_group_channels_filter_chain("A")
-group_B = pmx_filter_builder.create_group_channels_filter_chain("B")
-input_A = pmx_filter_builder.build_input_channels()
+return pmx_filter_builder

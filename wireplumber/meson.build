@@ -1,13 +1,11 @@
 install_data(
-    'connect_faderfox.lua',
-    'connect_group_mixers_to_layer_mixer.lua',
-    'connect_input_mixers_to_group_mixers.lua',
-    'handle_capture_ports.lua',
-    'handle_filters.lua',
-    'handle_metadata_changes.lua',
-    'handle_playback_ports.lua',
+    'pmx_control_watcher.lua',
+    'pmx_filter_builder.lua',
+    'pmx_filter_manager.lua',
+    'pmx_filter_watcher.lua',
+    'pmx_link_manager.lua',
+    'pmx_metadata.lua',
+    'pmx_metadata_watcher.lua',
+    'pmx_port_watcher.lua',
+    'pmx_utils.lua',
     install_dir : 'share/wireplumber/scripts/pmx')
-
-install_data(
-    'lib/pmx_filter_builder.lua',
-    install_dir : 'share/wireplumber/scripts/pmx/lib')
