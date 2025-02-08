@@ -9,3 +9,7 @@ install_data(
     'pmx_port_watcher.lua',
     'pmx_utils.lua',
     install_dir : 'share/wireplumber/scripts/pmx')
+
+install_data(
+    'pmx.conf',
+    install_dir : 'share/wireplumber/wireplumber.conf.d')
