@@ -27,8 +27,10 @@ int main(int argc, char **argv) {
   WirePlumberControl wire_plumber_control;
   wp_init(WP_INIT_ALL);
   wire_plumber_control.context = g_option_context_new("metadata-manager");
-  wire_plumber_control.loop = g_main_loop_new(nullptr, false);
-  wire_plumber_control.core = wp_core_new(nullptr, nullptr, nullptr);
+
+  auto main_context = g_main_context_new();
+  wire_plumber_control.loop = g_main_loop_new(main_context, false);
+  wire_plumber_control.core = wp_core_new(main_context, nullptr, nullptr);
   if (wp_core_connect(wire_plumber_control.core)) {
     struct callback_data {
       config::config &config;
@@ -38,23 +40,17 @@ int main(int argc, char **argv) {
     callback_data callback_data{config, wire_plumber_control.metadata};
 
     logger.log_info("Creating metadata collection");
-    wire_plumber_control.metadata.register_initial_metadata_object(
-      wire_plumber_control.core,
-      [](GObject *source_object, GAsyncResult *res, gpointer data) {
-        auto *callback_data = reinterpret_cast<struct callback_data*>(data);
-        for (size_t i = 0; i < callback_data->config.input_channels.size(); i
-             ++) {
-          if (callback_data->config.input_channels[i].has_value()) {
-            auto key = config::Prefix::CHANNEL_PORT_PREFIX + std::to_string(
-              i + 1);
-            callback_data->metadata.set_metadata_value(
-              key, callback_data->config.input_channels[i].value());
-          }
-        }
-      }, &callback_data);
+    wire_plumber_control.metadata.get_existing_metadata_object(
+      wire_plumber_control.core);
+
+    /* iterate the main loop until we found the metadata */
+    while (wire_plumber_control.metadata.metadata() == nullptr) {
+      g_main_context_iteration(main_context, true);
+    }
 
     logger.log_info("Setting up metadata watcher");
     metadata::MetadataWatcher watcher;
+    logger.log_info(" Setup metadata");
     watcher.set_metadata_and_connect_signal(
       wire_plumber_control.metadata.metadata());
 
