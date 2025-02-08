@@ -2,8 +2,6 @@
 
 #include <systemd/sd-daemon.h>
 
-#include <linux/input.h>
-
 #include <fstream>
 #include <iostream>
 #include <ranges>
@@ -156,8 +154,8 @@ int main(int argc, char *argv[]) {
                                       [](const auto &change) {
                                         return change.has_value();
                                       })) {
-                        struct spa_pod_builder builder;
-                        struct spa_pod_frame frame;
+                        spa_pod_builder builder;
+                        spa_pod_frame frame;
                         spa_pod_builder_init(&builder, spa_data->data,
                                              spa_data->maxsize);
                         spa_pod_builder_push_sequence(&builder, &frame, 0);
@@ -173,7 +171,7 @@ int main(int argc, char *argv[]) {
                           auto [path, value] = change.value();
                           packet.openMessage(path.c_str(), 1).float32(value).
                                  closeMessage();
-                          auto size = packet.size();
+                          const auto size = packet.size();
                           spa_pod_builder_bytes(&builder, osc_buffer, size);
                         }
 

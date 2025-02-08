@@ -1,6 +1,8 @@
 #include "osc/parse_osc_path.h"
 #include "parameters/parameters.h"
 #include <cctype>
+#include <ranges>
+#include <bits/fs_fwd.h>
 
 osc::osc_path osc::parse_osc_path(const std::string &path) {
   if (path.substr(0, 5) == "/I/A/") {
@@ -17,14 +19,15 @@ osc::osc_path osc::parse_osc_path(const std::string &path) {
     auto device_short_name = path.substr(consumed, 3);
     consumed += 4;
 
-    auto parameter_name = path.substr(consumed);
+    const auto parameter_name = path.substr(consumed);
 
-    auto parameter = std::find_if(
-        parameters::all.begin(), parameters::all.end(),
-        [&device_short_name, &parameter_name](const auto &parameter) {
-          return parameter->device_short_name == device_short_name &&
-                 parameter->name == parameter_name;
-        });
+    auto parameter = std::ranges::find_if(parameters::all,
+                                          [&device_short_name, &parameter_name](
+                                          const auto &parameter) {
+                                            return parameter->device_short_name
+                                              == device_short_name && parameter
+                                              ->name == parameter_name;
+                                          });
 
     return {channel, *parameter};
   }

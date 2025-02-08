@@ -11,7 +11,7 @@
 #include <pwcpp/filter/app_builder.h>
 #include <pwcpp/osc/parse_osc.h>
 
-int main(int argc, char *argv[]) {
+int main(const int argc, char *argv[]) {
   sd_notify(0, "STATUS=Starting");
 
   pwcpp::filter::AppBuilder<std::nullptr_t> builder;

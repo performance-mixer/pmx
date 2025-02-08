@@ -9,7 +9,7 @@ protobuf_dep = dependency('protobuf')
 yaml_cpp_dep = dependency('yaml-cpp')
 libsystemd_dep = dependency('libsystemd')
 
-include_directory = include_directories('include', '../pwcpp/include')
+include_directory = include_directories('include', '../pwcpp/include', 'external')
 pmx_grpc_include_directory = include_directories('../pmx-grpc/cpp/')
 
 subdir('src')

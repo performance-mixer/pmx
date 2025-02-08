@@ -2,7 +2,7 @@
 
 #include <string>
 
-void metadata::MetadataWatcher::push_metadata_update(guint subject,
+void metadata::MetadataWatcher::push_metadata_update(const guint subject,
                                                      const std::string &key,
                                                      const std::string &type,
                                                      const std::string &value) {
@@ -11,7 +11,7 @@ void metadata::MetadataWatcher::push_metadata_update(guint subject,
   _condition_variable.notify_all();
 }
 
-void metadata::MetadataWatcher::push_metadata_deletion(guint subject,
+void metadata::MetadataWatcher::push_metadata_deletion(const guint subject,
                                                        const std::string &key) {
   std::lock_guard<std::mutex> lock(_mutex);
   _metadata_updates.push(metadata_deletion{subject, key});
@@ -31,10 +31,10 @@ bool metadata::MetadataWatcher::has_metadata_updates() {
 }
 
 namespace metadata {
-auto metadata_changed_callback = [](WpMetadata *metadata, guint subject,
-                                    gchar *key, gchar *type, gchar *value,
+auto metadata_changed_callback = [](WpMetadata *metadata, const guint subject,
+                                    const gchar *key, const gchar *type, const gchar *value,
                                     gpointer user_data) {
-  auto metadata_watcher = reinterpret_cast<metadata::MetadataWatcher*>(
+  const auto metadata_watcher = static_cast<metadata::MetadataWatcher*>(
     user_data);
   if (value != nullptr) {
     metadata_watcher->push_metadata_update(subject, key, type, value);

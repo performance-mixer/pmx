@@ -72,7 +72,7 @@ int main(int argc, char **argv) {
 
     logger.log_info("Starting grpc service thread");
     std::thread grpc_service_thread([&port_collection, &metadata, &port]() {
-      auto address = std::string("0.0.0.0:") + std::to_string(port);
+      const auto address = std::string("0.0.0.0:") + std::to_string(port);
       logging::Logger logger{"grpc_service_thread"};
       grpc::GrpcService service(port_collection, metadata);
       grpc::ServerBuilder builder;

@@ -17,8 +17,8 @@
 
 #include <spa/pod/builder.h>
 
-std::string build_input_channel_osc_path(pwcpp::midi::control_change &message,
-                                         parameters::parameter &parameter) {
+std::string build_input_channel_osc_path(const pwcpp::midi::control_change &message,
+                                         const parameters::parameter &parameter) {
   std::stringstream osc_path;
 
   osc_path << std::format("/I/A/{}/{}/{}",
@@ -28,7 +28,7 @@ std::string build_input_channel_osc_path(pwcpp::midi::control_change &message,
   return osc_path.str();
 }
 
-int main(int argc, char *argv[]) {
+int main(const int argc, char *argv[]) {
   sd_notify(0, "STATUS=Starting");
   logging::Logger logger{"main"};
 

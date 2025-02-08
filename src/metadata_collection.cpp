@@ -5,16 +5,16 @@
 namespace wpcpp {
 auto metadata_added_callback = +[ ](WpObjectManager *object_manager,
                                     gpointer object, gpointer user_data) {
-  auto metadata_collection = reinterpret_cast<wpcpp::MetadataCollection*>(
+  const auto metadata_collection = static_cast<wpcpp::MetadataCollection*>(
     user_data);
 
-  auto metadata = reinterpret_cast<WpMetadata*>(object);
+  const auto metadata = static_cast<WpMetadata*>(object);
   GValue global_properties_gvalue{0};
   g_object_get_property(G_OBJECT(metadata), "global-properties",
                         &global_properties_gvalue);
 
   if (global_properties_gvalue.data->v_pointer) {
-    auto global_properties = reinterpret_cast<WpProperties*>(
+    const auto global_properties = static_cast<WpProperties*>(
       global_properties_gvalue.data->v_pointer);
     auto name_c = wp_properties_get(global_properties, "metadata.name");
     if (name_c) {

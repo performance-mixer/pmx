@@ -44,10 +44,10 @@ int main(int argc, char **argv) {
                 auto pod = buffer.value().get_pod(0);
                 if (pod.has_value()) {
                   if (spa_pod_is_sequence(pod.value())) {
-                    auto sequence = reinterpret_cast<struct spa_pod_sequence*>(
+                    const auto sequence = reinterpret_cast<struct spa_pod_sequence*>(
                       pod.value());
 
-                    struct spa_pod_control *pod_control;
+                    spa_pod_control *pod_control;
                     SPA_POD_SEQUENCE_FOREACH(sequence, pod_control) {
                       if (pod_control->type != SPA_CONTROL_OSC) {
                         continue;
@@ -58,8 +58,8 @@ int main(int argc, char **argv) {
                       spa_pod_get_bytes(&pod_control->value,
                                         (const void**)&data, &length);
 
-                      queue_message message;
-                      std::copy(data, data + length, message.data);
+                      queue_message message{};
+                      std::copy_n(data, length, message.data);
                       message.size = length;
 
                       queue.push(message);

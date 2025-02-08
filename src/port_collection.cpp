@@ -37,7 +37,7 @@ auto port_added_callback = +[ ](WpObjectManager * object_manager,
   if (pw_direction == "in") { direction = wpcpp::pipewire_port::Direction::IN; }
   else { direction = wpcpp::pipewire_port::Direction::OUT; }
 
-  auto is_monitor_string = wp_pipewire_object_get_property(g_object, PW_KEY_PORT_MONITOR);
+  const auto is_monitor_string = wp_pipewire_object_get_property(g_object, PW_KEY_PORT_MONITOR);
   bool is_monitor(false);
   if (is_monitor_string != nullptr) {
     is_monitor = std::string(is_monitor_string) == "true";

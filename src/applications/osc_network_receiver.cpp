@@ -2,15 +2,11 @@
 
 #include <systemd/sd-daemon.h>
 
-#include <oscpp/server.hpp>
-
 #include <thread>
 #include <boost/asio.hpp>
 #include <iostream>
-#include <array>
 #include <boost/lockfree/spsc_queue.hpp>
 #include <logging/logger.h>
-#include <pwcpp/osc/parse_osc.h>
 
 struct queue_message {
   char data[4096];

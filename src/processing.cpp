@@ -10,8 +10,8 @@
 #include <sstream>
 
 std::string
-processing::build_input_channel_osc_path(pwcpp::midi::control_change &message,
-                                         parameters::parameter &parameter) {
+processing::build_input_channel_osc_path(const pwcpp::midi::control_change &message,
+                                         const parameters::parameter &parameter) {
   std::stringstream osc_path;
 
   osc_path << std::format("/I/{}/{}/{}", static_cast<int>(message.channel) + 1,
@@ -37,7 +37,7 @@ void processing::write_osc_messages(pwcpp::Buffer &buffer,
       packet.openMessage(path.c_str(), 1)
           .float32(control_change.value)
           .closeMessage();
-      auto size = packet.size();
+      const auto size = packet.size();
       spa_pod_builder_bytes(&builder, osc_buffer, size);
     }
   }

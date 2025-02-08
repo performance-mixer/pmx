@@ -65,9 +65,9 @@ bool config::create_directory_if_not_exists(const std::string &path) {
 
 YAML::Node config::read_config_yaml_or_create_if_not_exists(
   const std::string &application_name) {
-  auto config_directory = get_config_directory(application_name);
+  const auto config_directory = get_config_directory(application_name);
   create_directory_if_not_exists(config_directory);
-  auto config_file_path = config_directory + "/config.yaml";
+  const auto config_file_path = config_directory + "/config.yaml";
 
   if (std::filesystem::exists(config_file_path)) {
     return YAML::LoadFile(config_file_path);

@@ -37,8 +37,6 @@ int main(int argc, char **argv) {
       wpcpp::MetadataCollection &metadata;
     };
 
-    callback_data callback_data{config, wire_plumber_control.metadata};
-
     logger.log_info("Creating metadata collection");
     wire_plumber_control.metadata.get_existing_metadata_object(
       wire_plumber_control.core);
@@ -71,7 +69,7 @@ int main(int argc, char **argv) {
                   update_event);
                 if (deletion.key.starts_with(
                   config::Prefix::CHANNEL_PORT_PREFIX)) {
-                  auto channel_id = std::stoi(deletion.key.substr(8));
+                  const auto channel_id = std::stoi(deletion.key.substr(8));
                   config.input_channels[channel_id - 1] = std::nullopt;
                   changed = true;
                 }

@@ -1,14 +1,14 @@
 local pmx_utils = require("pmx_utils")
 
-local filter_chain_ctrl = nil
-local midi_router = nil
-local network_receiver = nil
+local filter_chain_ctrl
+local midi_router
+local network_receiver
 local cmd_mm_1_port_alias = "CMD MM-1:CMD MM-1 MIDI 1"
-local cmd_mm_1_port = nil
+local cmd_mm_1_port
 local fader_fox_port_alias = "Faderfox PC4:Faderfox PC4 MIDI 1";
-local fader_fox_port = nil
-local traktor_z1_router = nil
-local network_sender = nil
+local fader_fox_port
+local traktor_z1_router
+local network_sender
 
 SimpleEventHook({
     name = "pmx/control_watcher/filter_chain_ctrl",

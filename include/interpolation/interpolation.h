@@ -6,6 +6,6 @@
 
 namespace interpolation {
 
-double interpolate(parameters::parameter &parameter, u_int8_t control_value);
+double interpolate(const parameters::parameter &parameter, u_int8_t control_value);
 
 } // namespace interpolation
