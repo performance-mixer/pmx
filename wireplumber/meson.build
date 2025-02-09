@@ -4,7 +4,6 @@ install_data(
     'pmx_filter_manager.lua',
     'pmx_filter_watcher.lua',
     'pmx_link_manager.lua',
-    'pmx_metadata.lua',
     'pmx_metadata_watcher.lua',
     'pmx_port_watcher.lua',
     'pmx_utils.lua',
