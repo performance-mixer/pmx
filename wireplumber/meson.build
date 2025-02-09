@@ -6,8 +6,11 @@ install_data(
     'pmx_link_manager.lua',
     'pmx_metadata_watcher.lua',
     'pmx_port_watcher.lua',
-    'pmx_utils.lua',
     install_dir : 'share/wireplumber/scripts/pmx')
+
+install_data(
+    'pmx_utils.lua',
+    install_dir : 'share/lua/5.4')
 
 install_data(
     'pmx.conf',
