@@ -1,6 +1,5 @@
 install_data(
     'pmx_control_watcher.lua',
-    'pmx_filter_builder.lua',
     'pmx_filter_manager.lua',
     'pmx_filter_watcher.lua',
     'pmx_link_manager.lua',
@@ -10,6 +9,7 @@ install_data(
 
 install_data(
     'pmx_utils.lua',
+    'pmx_filter_builder.lua',
     install_dir : 'share/lua/5.4')
 
 install_data(
