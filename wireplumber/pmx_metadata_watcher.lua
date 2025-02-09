@@ -1,13 +1,17 @@
 link_om = ObjectManager({
     Interest({ type = "link" })
-}):activate()
+})
+
+link_om:activate()
 
 input_channels_om = ObjectManager({
     Interest({
         type = "node",
         Constraint({ "node.name", "=", "pmx-input-channels-ins" })
     })
-}):activate()
+})
+
+input_channels_om:activate()
 
 port_om = ObjectManager({
     Interest({
@@ -15,7 +19,9 @@ port_om = ObjectManager({
         Constraint({ "port.direction", "=", "out" }),
         Constraint({ "port.monitor", "!", "true" }),
     })
-}):activate()
+})
+
+port_om:activate()
 
 SimpleEventHook({
     name = "pmx/metadata_watcher/watch/channel_port",

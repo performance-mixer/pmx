@@ -1,71 +1,23 @@
 SimpleEventHook({
-    name = "pmx/link_manager/connect/input_ports/input_channels",
+    name = "pmx/link_manager/create_link",
     interests = {
         EventInterest({
-            Constraint({ "event.type", "=", "connect/input_ports/input_channels" }),
-        }),
+            Constraint({ "event.type", "=", "pmx_connect_ports" }),
+        })
     },
     execute = function(event)
-        print('connecting ports to input channels')
-    end,
-}):register()
-
-SimpleEventHook({
-    name = "pmx/link_manager/connect/input_channels/group_channels_a",
-    interests = {
-        EventInterest({
-            Constraint({ "event.type", "=", "connect/input_channels/group_channels_a" }),
-        }),
-    },
-    execute = function(event)
-        print('connecting input channels to group channels a')
-    end,
-}):register()
-
-SimpleEventHook({
-    name = "pmx/link_manager/connect/input_channels/group_channels_b",
-    interests = {
-        EventInterest({
-            Constraint({ "event.type", "=", "connect/input_channels/group_channels_b" }),
-        }),
-    },
-    execute = function(event)
-        print('connecting input channels to group channels b')
-    end,
-}):register()
-
-SimpleEventHook({
-    name = "pmx/link_manager/connect/group_channels_a/layer_channels",
-    interests = {
-        EventInterest({
-            Constraint({ "event.type", "=", "connect/group_channels_a/layer_channels" }),
-        }),
-    },
-    execute = function(event)
-        print('connecting group channels b to layer channels')
-    end,
-}):register()
-
-SimpleEventHook({
-    name = "pmx/link_manager/connect/group_channels_b/layer_channels",
-    interests = {
-        EventInterest({
-            Constraint({ "event.type", "=", "connect/group_channels_b/layer_channels" }),
-        }),
-    },
-    execute = function(event)
-        print('connecting group channels b to layer channels')
-    end,
-}):register()
-
-SimpleEventHook({
-    name = "pmx/link_manager/connect/capture_port/input_port",
-    interests = {
-        EventInterest({
-            Constraint({ "event.type", "=", "connect/capture_port/input_port" }),
-        }),
-    },
-    execute = function(event)
-        print('connecting capture port to input port')
+        print("connecting ports")
+        local properties = event:properties()
+        local source_port_id = properties["source_port_id"]
+        local source_node_id = properties["source_node_id"]
+        local target_port_id = properties["target_port_id"]
+        local target_node_id = properties["target_node_id"]
+        local link = Link("link-factory", {
+            ["link.output.port"] = source_port_id,
+            ["link.input.port"] = target_port_id,
+            ["link.output.node"] = source_node_id,
+            ["link.input.node"] = target_node_id,
+        })
+        link:activate(1)
     end,
 }):register()

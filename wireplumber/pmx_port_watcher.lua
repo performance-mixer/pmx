@@ -3,14 +3,18 @@ channel_metadata_om = ObjectManager({
         type = "metadata",
         Constraint({ "metadata.name", "=", "performance-mixer" }),
     }),
-}):activate()
+})
+
+channel_metadata_om:activate()
 
 input_channels_om = ObjectManager({
     Interest({
         type = "node",
         Constraint({ "node.name", "=", "pmx-input-channels-ins" })
     })
-}):activate()
+})
+
+input_channels_om:activate()
 
 SimpleEventHook({
     name = "pmx/port_watcher/capture_ports",

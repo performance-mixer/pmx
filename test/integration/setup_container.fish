@@ -30,5 +30,5 @@ sudo systemd-nspawn -D ~/Development/testing/containers/$argv[1] -u pmx --chdir=
     /usr/bin/fish -c "systemctl --user enable wireplumber"
 
 sudo cp ./assertions/* ~/Development/testing/containers/$argv[1]/home/pmx
-sudo systemd-nspawn -D ~/Development/testing/containers/$argv[1] -u pmx --chdir=/home/pmx \
+sudo systemd-nspawn -D ~/Development/testing/containers/$argv[1] --chdir=/home/pmx \
     /usr/bin/fish -c "chown pmx *.lua"
