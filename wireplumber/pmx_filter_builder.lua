@@ -74,11 +74,11 @@ local layer_filter_graph_definition = [[
     ]
   },
   "capture.props": {
-    "node.name": "pmx layer mixer",
+    "node.name": "pmx-layer-channels-ins",
     "node.autoconnect": false
   },
   "playback.props": {
-    "node.name": "pmx layer mixer",
+    "node.name": "pmx-layer-channels-outs",
     "node.autoconnect": true
   }
 }
