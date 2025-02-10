@@ -2,7 +2,7 @@
 mkdir -p ~/Development/testing/containers/$argv[1]
 sudo pacstrap -c ~/Development/testing/containers/$argv[1] base base-devel systemd \
     pipewire wireplumber boost grpc protobuf yaml-cpp libsystemd dbus fish git \
-    meson neovim pipewire-audio pipewire-jack calf jalv dpf-plugins-lv2
+    meson neovim pipewire-audio pipewire-jack calf jalv dpf-plugins-lv2 tmux
 
 sudo systemd-nspawn -D ~/Development/testing/containers/$argv[1] \
     /usr/bin/fish -c "useradd -m -G wheel -s /usr/bin/fish pmx"
@@ -28,6 +28,9 @@ sudo systemd-nspawn -D ~/Development/testing/containers/$argv[1] -u pmx --chdir=
     /usr/bin/fish -c "systemctl --user enable pipewire"
 sudo systemd-nspawn -D ~/Development/testing/containers/$argv[1] -u pmx --chdir=/home/pmx/pmx-git-arch \
     /usr/bin/fish -c "systemctl --user enable wireplumber"
+
+sudo cp ./debug_log_level.conf \
+    ~/Development/testing/containers/$argv[1]/usr/share/wireplumber/wireplumber.conf.d
 
 sudo cp ./assertions/* ~/Development/testing/containers/$argv[1]/home/pmx
 sudo systemd-nspawn -D ~/Development/testing/containers/$argv[1] --chdir=/home/pmx \

@@ -1,3 +1,5 @@
+local pmx_utils = require("pmx_utils")
+
 channel_metadata_om = ObjectManager({
     Interest({
         type = "metadata",
@@ -39,20 +41,8 @@ SimpleEventHook({
                                     type = "node",
                                     Constraint({ "node.name", "=", "pmx-input-channels-ins" })
                                 }))
-
-                        if (input_ports_node ~= nil) then
-                            local input_port = input_ports_node:lookup_port(
-                                    Interest({ type = "port",
-                                               Constraint({ "port.id", "=", channel_id }),
-                                    }))
-                            if (input_port ~= nil) then
-                                local source = event:get_source()
-                                source:call("push-event",
-                                        "connect/capture_port/input_port",
-                                        port,
-                                        input_port)
-                            end
-                        end
+                        pmx_utils.raise_connect_event(port, input_ports_node,
+                                channel_id)
                     end
                 end
             end

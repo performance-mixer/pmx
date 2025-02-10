@@ -10,6 +10,8 @@ local fader_fox_port
 local traktor_z1_router
 local network_sender
 
+local log = Log.open_topic("s-ctrl-watcher")
+
 SimpleEventHook({
     name = "pmx/control_watcher/filter_chain_ctrl",
     interests = {
