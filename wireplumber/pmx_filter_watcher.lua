@@ -50,7 +50,7 @@ SimpleEventHook({
 
 function connect_input_channel_outs_to_group_channels_a(input_channels_outs,
         group_channels_a_ins)
-    local metadata = channel_metadata_om.lookup(
+    local metadata = channel_metadata_om:lookup(
             Interest({
                 type = "metadata",
                 Constraint({ "metadata.name", "=", "performance-mixer" }),
@@ -77,7 +77,7 @@ end
 
 function connect_input_channel_outs_to_group_channels_b(input_channels_outs,
         group_channels_b_ins)
-    local metadata = channel_metadata_om.lookup(
+    local metadata = channel_metadata_om:lookup(
             Interest({
                 type = "metadata",
                 Constraint({ "metadata.name", "=", "performance-mixer" }),
