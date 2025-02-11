@@ -1,5 +1,3 @@
-local pmx_utils = require("pmx_utils")
-
 InputChannelsIns = nil
 InputChannelsOuts = nil
 
@@ -48,8 +46,7 @@ SimpleEventHook({
     end,
 }):register()
 
-function connect_input_channel_outs_to_group_channels_a(input_channels_outs,
-        group_channels_a_ins)
+function connect_input_channel_outs_to_group_channels_a(source)
     local metadata = channel_metadata_om:lookup(
             Interest({
                 type = "metadata",
@@ -57,8 +54,8 @@ function connect_input_channel_outs_to_group_channels_a(input_channels_outs,
             }))
     if metadata ~= nil then
         for i = 1, 32 do
-            local port_meta_name = channel_group_id .. i
-            local value = metadata.find(0, port_meta_name)
+            local port_meta_name = "channel_group_id_" .. i
+            local value = metadata:find(0, port_meta_name)
             if value == nil then
                 value = 1
             end
@@ -69,14 +66,19 @@ function connect_input_channel_outs_to_group_channels_a(input_channels_outs,
             else
                 port_id = (value - 1) * 2 + 1
             end
-            pmx_utils.raise_connect_event(input_channels_outs,
-                    tostring(i - 1), group_channels_a_ins, port_id)
+            local props = {
+                ["source_port_id"] = tostring(i - 1),
+                ["source_node_id"] = InputChannelsOuts.properties["object.id"],
+                ["target_port_id"] = port_id,
+                ["target_node_id"] = GroupChannelsAIns.properties["object.id"],
+            }
+            source:call("push-event", "pmx_connect_ports", nil,
+                    props)
         end
     end
 end
 
-function connect_input_channel_outs_to_group_channels_b(input_channels_outs,
-        group_channels_b_ins)
+function connect_input_channel_outs_to_group_channels_b(source)
     local metadata = channel_metadata_om:lookup(
             Interest({
                 type = "metadata",
@@ -84,8 +86,8 @@ function connect_input_channel_outs_to_group_channels_b(input_channels_outs,
             }))
     if metadata ~= nil then
         for i = 33, 64 do
-            local port_meta_name = channel_group_id .. i
-            local value = metadata.find(0, port_meta_name)
+            local port_meta_name = "channel_group_id_" .. i
+            local value = metadata:find(0, port_meta_name)
             if value == nil then
                 value = 1
             end
@@ -96,8 +98,14 @@ function connect_input_channel_outs_to_group_channels_b(input_channels_outs,
             else
                 port_id = (value - 1) * 2 + 1
             end
-            pmx_utils.raise_connect_event(input_channels_outs,
-                    tostring(i - 1), group_channels_b_ins, port_id)
+            local props = {
+                ["source_port_id"] = tostring(i - 1),
+                ["source_node_id"] = InputChannelsOuts.properties["object.id"],
+                ["target_port_id"] = port_id,
+                ["target_node_id"] = GroupChannelsBIns.properties["object.id"],
+            }
+            source:call("push-event", "pmx_connect_ports", nil,
+                    props)
         end
     end
 end
@@ -111,20 +119,19 @@ SimpleEventHook({
         }),
     },
     execute = function(event)
+        local source = event:get_source()
         log:info("Added pmx-input-channels-outs ...")
         InputChannelsOuts = event:get_subject()
         if InputChannelsOuts ~= nil and GroupChannelsAIns ~= nil then
             log:info("... connecting to group-channels-a-ins")
-            connect_input_channel_outs_to_group_channels_a(InputChannelsOuts,
-                    GroupChannelsAIns)
+            connect_input_channel_outs_to_group_channels_a(source)
         else
             log:info("... but group-channels-a-ins still nil")
         end
 
         if InputChannelsOuts ~= nil and GroupChannelsBIns ~= nil then
             log:info("... connecting to group-channels-b-ins")
-            connect_input_channel_outs_to_group_channels_b(InputChannelsOuts,
-                    GroupChannelsBIns)
+            connect_input_channel_outs_to_group_channels_b(source)
         else
             log:info("... but group-channels-b-ins still nil")
         end
@@ -155,11 +162,11 @@ SimpleEventHook({
     },
     execute = function(event)
         log:info("Added pmx-group-channels-a-ins ...")
+        local source = event:get_source()
         GroupChannelsAIns = event:get_subject()
         if not InputChannelsOuts == nil and not GroupChannelsAIns == nil then
             log:info("... connecting to pmx-input-channels-outs")
-            connect_input_channel_outs_to_group_channels_a(InputChannelsOuts,
-                    GroupChannelsAIns)
+            connect_input_channel_outs_to_group_channels_a(source)
         else
             log:info("... but pmx-input-channels-outs still nil")
         end
@@ -190,11 +197,11 @@ SimpleEventHook({
     },
     execute = function(event)
         log:info("Added pmx-group-channels-b-ins ...")
+        local source = event:get_source()
         GroupChannelsBIns = event:get_subject()
         if not InputChannelsOuts == nil and not GroupChannelsBIns == nil then
             log:info("... connecting to pmx-input-channels-outs")
-            connect_input_channel_outs_to_group_channels_b(InputChannelsOuts,
-                    GroupChannelsBIns)
+            connect_input_channel_outs_to_group_channels_b(source)
         else
             log:info("... but pmx-input-channels-outs still nil")
         end
@@ -228,10 +235,25 @@ SimpleEventHook({
         GroupChannelsAOuts = event:get_subject()
         if not GroupChannelsAOuts == nil and not LayerChannelsIns == nil then
             log:info("... connecting to pmx-layer-channels-ins")
-            pmx_utils.raise_connect_event(GroupChannelsAOuts, "0",
-                    LayerChannelsIns, "0")
-            pmx_utils.raise_connect_event(GroupChannelsAOuts, "1",
-                    LayerChannelsIns, "1")
+            local source = event:get_source()
+
+            local props = {
+                ["source_port_id"] = 0,
+                ["source_node_id"] = GroupChannelsAOuts.properties["object.id"],
+                ["target_port_id"] = 0,
+                ["target_node_id"] = LayerChannelsIns.properties["object.id"],
+            }
+            source:call("push-event", "pmx_connect_ports", nil,
+                    props)
+
+            props = {
+                ["source_port_id"] = 1,
+                ["source_node_id"] = GroupChannelsAOuts.properties["object.id"],
+                ["target_port_id"] = 1,
+                ["target_node_id"] = LayerChannelsIns.properties["object.id"],
+            }
+            source:call("push-event", "pmx_connect_ports", nil,
+                    props)
         else
             log:info("... but pmx-layer-channels-ins still nil")
         end
@@ -265,10 +287,26 @@ SimpleEventHook({
         GroupChannelsBOuts = event:get_subject()
         if not GroupChannelsBOuts == nil and not LayerChannelsIns == nil then
             log:info("... connecting to pmx-layer-channels-ins")
-            pmx_utils.raise_connect_event(GroupChannelsBOuts, "0",
-                    LayerChannelsIns, "2")
-            pmx_utils.raise_connect_event(GroupChannelsBOuts, "1",
-                    LayerChannelsIns, "3")
+
+            local source = event:get_source()
+
+            local props = {
+                ["source_port_id"] = 0,
+                ["source_node_id"] = GroupChannelsBOuts.properties["object.id"],
+                ["target_port_id"] = 2,
+                ["target_node_id"] = LayerChannelsIns.properties["object.id"],
+            }
+            source:call("push-event", "pmx_connect_ports", nil,
+                    props)
+
+            props = {
+                ["source_port_id"] = 1,
+                ["source_node_id"] = GroupChannelsBOuts.properties["object.id"],
+                ["target_port_id"] = 3,
+                ["target_node_id"] = LayerChannelsIns.properties["object.id"],
+            }
+            source:call("push-event", "pmx_connect_ports", nil,
+                    props)
         else
             log:info("... but pmx-layer-channels-ins still nil")
         end
@@ -300,22 +338,49 @@ SimpleEventHook({
     execute = function(event)
         log:info("Added pmx-layer-channels-ins ...")
         LayerChannelsIns = event:get_subject()
+        local source = event:get_source()
         if not GroupChannelsAOuts == nil and not LayerChannelsIns == nil then
             log:info("... connecting to pmx-group-channels-a-outs")
-            pmx_utils.raise_connect_event(GroupChannelsAOuts, "0",
-                    LayerChannelsIns, "0")
-            pmx_utils.raise_connect_event(GroupChannelsAOuts, "1",
-                    LayerChannelsIns, "1")
+            local props = {
+                ["source_port_id"] = 0,
+                ["source_node_id"] = GroupChannelsAOuts.properties["object.id"],
+                ["target_port_id"] = 0,
+                ["target_node_id"] = LayerChannelsIns.properties["object.id"],
+            }
+            source:call("push-event", "pmx_connect_ports", nil,
+                    props)
+
+            props = {
+                ["source_port_id"] = 1,
+                ["source_node_id"] = GroupChannelsAOuts.properties["object.id"],
+                ["target_port_id"] = 1,
+                ["target_node_id"] = LayerChannelsIns.properties["object.id"],
+            }
+            source:call("push-event", "pmx_connect_ports", nil,
+                    props)
         else
             log:info("... but pmx-group-channels-a-outs still nil")
         end
 
-        if not GroupChannelsBOuts == nil and not LayerChannelsIns == nil then
+        if GroupChannelsBOuts ~= nil and LayerChannelsIns ~= nil then
             log:info("... connecting to pmx-group-channels-b-outs")
-            pmx_utils.raise_connect_event(GroupChannelsBOuts, "0",
-                    LayerChannelsIns, "2")
-            pmx_utils.raise_connect_event(GroupChannelsBOuts, "1",
-                    LayerChannelsIns, "3")
+            local props = {
+                ["source_port_id"] = 0,
+                ["source_node_id"] = GroupChannelsBOuts.properties["object.id"],
+                ["target_port_id"] = 0,
+                ["target_node_id"] = LayerChannelsIns.properties["object.id"],
+            }
+            source:call("push-event", "pmx_connect_ports", nil,
+                    props)
+
+            props = {
+                ["source_port_id"] = 1,
+                ["source_node_id"] = GroupChannelsBOuts.properties["object.id"],
+                ["target_port_id"] = 1,
+                ["target_node_id"] = LayerChannelsIns.properties["object.id"],
+            }
+            source:call("push-event", "pmx_connect_ports", nil,
+                    props)
         else
             log:info("... but pmx-group-channels-b-outs still nil")
         end
