@@ -22,6 +22,7 @@ SimpleEventHook({
             ["link.input.port"] = target_port_id,
             ["link.output.node"] = source_node_id,
             ["link.input.node"] = target_node_id,
+            ["linger"] = "true"
         })
         link:activate(1)
         properties["link"] = link
