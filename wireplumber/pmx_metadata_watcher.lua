@@ -1,5 +1,3 @@
-local pmx_utils = require("pmx_utils")
-
 link_om = ObjectManager({
     Interest({ type = "link" })
 })
@@ -45,22 +43,24 @@ SimpleEventHook({
         if input_ports_node ~= nil then
             if target_value ~= nil then
                 local output_port = port_om.lookup(
-                        Interest({ type = "port",
-                                   Constraint({ "port.alias", "=", target_value }),
+                        Interest({
+                            type = "port",
+                            Constraint({ "port.alias", "=", target_value }),
                         }))
-                pmx_utils.raise_connect_event_port_to_node(output_port,
-                        input_ports_node, channel_id)
+                local channel_id = string.sub(props["event.subject.key"], 14)
+                local link = Link("link-factory", {
+                    ["link.output.port"] = output_port.properties["object.id"],
+                    ["link.input.port"] = channel_id,
+                    ["link.input.node"] = input_ports_node.properties["object.id"],
+                    ["object.linger"] = true
+                })
+                link:activate(1)
             else
                 for link in link_om:iterate(Interest({
                     type = "link",
                     Constraint({ "link.input.port", "=", channel_id }),
                     Constraint({ "link.input.node", "=", input_ports_node.properties["object.id"] })
                 })) do
-                    local source = event:get_source()
-                    source:call("push-event",
-                            "delete/link",
-                            link,
-                            nil)
                     link:request_destroy()
                 end
             end

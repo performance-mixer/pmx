@@ -12,6 +12,12 @@ LayerChannelsOuts = nil
 
 local log = Log.open_topic("s-filter-watcher")
 
+local link_om = ObjectManager({
+    Interest({ type = "link" })
+})
+
+link_om:activate()
+
 local channel_metadata_om = ObjectManager({ Interest({
     type = "metadata",
     Constraint({ "metadata.name", "=", "performance-mixer" }),
@@ -236,5 +242,60 @@ SimpleEventHook({
     execute = function(_)
         print("Removed pmx-group-channels-b-ins ...")
         GroupChannelsBIns = nil
+    end,
+}):register()
+
+SimpleEventHook({
+    name = "pmx/metadata_watcher/watch/channel_port",
+    interests = {
+        EventInterest({
+            Constraint({ "event.type", "=", "metadata-changed" }),
+            Constraint({ "metadata.name", "=", "performance-mixer" }),
+            Constraint({ "event.subject.key", "matches", "channel_group_id_*" }),
+        }),
+    },
+    execute = function(event)
+        local channel_id = string.sub(props["event.subject.key"], 18)
+        local props = event:get_properties()
+        local target_value = props["event.subject.value"]
+
+        local source_node = InputChannelsOuts
+        local target_node = nil
+        if channel_id >= 32 then
+            target_node = GroupChannelsBIns
+        else
+            target_node = GroupChannelsAIns
+        end
+
+        local source_port = source_node:lookup_port({
+            Constraint({ "port.id", "=", channel_id }),
+            Constraint({ "port.direction", "=", "out" }),
+        })
+
+        local group_port_id = 0
+        if channel_id % 2 == 0 then
+            group_port_id = target_value * 2
+        else
+            group_port_id = target_value * 2 + 1
+        end
+        local target_port = target_port:lookup_port({
+            Constraint({ "port.id", "=", }),
+            Constraint({ "port.direction", "=", "out" }),
+        })
+
+        local old_link = link_om.lookup(Interest({
+            type = "link",
+            Constraint({ "link.output.port", "=", source_port.properties["object.id"] })
+        }))
+        if old_link ~= nil and old_link.properties["link.input.port"] ~= target_port.properties["object.id"] then
+            old_link:request_destroy()
+        elseif old_link == nil then
+            local link = Link("link-factory", {
+                ["link.output.port"] = source_port.properties["object.id"],
+                ["link.input.port"] = target_port.properties["object.id"],
+                ["object.linger"] = true
+            })
+            link:activate(1)
+        end
     end,
 }):register()
