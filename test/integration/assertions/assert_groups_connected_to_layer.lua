@@ -59,6 +59,7 @@ object_manager:connect("installed", function(om)
             print("target port b nil", group_port_id + 2)
         end
 
+        print("lookup link a")
         local link_a = object_manager:lookup(Interest({
             type = "link",
             Constraint({ "link.output.node", "=", source_port_a.properties["node.id"] }),

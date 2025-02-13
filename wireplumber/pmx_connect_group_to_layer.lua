@@ -52,8 +52,8 @@ function connect_group_b_to_layer(source)
         local link = Link("link-factory", {
             ["link.output.port"] = 0,
             ["link.input.port"] = 2,
-            ["link.output.node"] = tonumber(GroupChannelsBOuts.properties["object.id"]),
-            ["link.input.node"] = tonumber(LayerChannelsIns.properties["object.id"]),
+            ["link.output.node"] = GroupChannelsBOuts.properties["object.id"],
+            ["link.input.node"] = LayerChannelsIns.properties["object.id"],
             ["object.linger"] = true
         })
         link:activate(1)
@@ -65,8 +65,8 @@ function connect_group_b_to_layer(source)
         link = Link("link-factory", {
             ["link.output.port"] = 1,
             ["link.input.port"] = 3,
-            ["link.output.node"] = tonumber(GroupChannelsBOuts.properties["object.id"]),
-            ["link.input.node"] = tonumber(LayerChannelsIns.properties["object.id"]),
+            ["link.output.node"] = GroupChannelsBOuts.properties["object.id"],
+            ["link.input.node"] = LayerChannelsIns.properties["object.id"],
             ["object.linger"] = true
         })
         link:activate(1)

@@ -47,65 +47,82 @@ SimpleEventHook({
 }):register()
 
 function connect_input_channel_outs_to_group_channels_a(source)
+    print("connecting input channels to group a")
     local metadata = channel_metadata_om:lookup(
             Interest({
                 type = "metadata",
                 Constraint({ "metadata.name", "=", "performance-mixer" }),
             }))
     if metadata ~= nil then
-        for i = 1, 32 do
-            local port_meta_name = "channel_group_id_" .. i
+        for input_ports_id = 0, 31 do
+            local port_meta_name = "channel_group_id_" .. input_ports_id
+            print("... checking metadata " .. port_meta_name)
             local value = metadata:find(0, port_meta_name)
             if value == nil then
-                value = 1
+                print("... metadata not found, using group 1")
+                value = 0
             end
 
             port_id = 0
-            if (i - 1) % 2 == 0 then
-                port_id = (value - 1) * 2
+            if input_ports_id % 2 == 0 then
+                port_id = value * 2
             else
-                port_id = (value - 1) * 2 + 1
+                port_id = value * 2 + 1
             end
-            local props = {
-                ["source_port_id"] = tostring(i - 1),
-                ["source_node_id"] = InputChannelsOuts.properties["object.id"],
-                ["target_port_id"] = port_id,
-                ["target_node_id"] = GroupChannelsAIns.properties["object.id"],
-            }
-            source:call("push-event", "pmx_connect_ports", nil,
-                    props)
+            print("... connecting to port id " .. port_id)
+
+            local link = Link("link-factory", {
+                ["link.output.port"] = input_ports_id,
+                ["link.input.port"] = port_id,
+                ["link.output.node"] = InputChannelsOuts.properties["object.id"],
+                ["link.input.node"] = GroupChannelsAIns.properties["object.id"],
+                ["object.linger"] = true
+            })
+            link:activate(1)
         end
+    else
+        print("... couldn't find metadata performance-mixer")
     end
 end
 
 function connect_input_channel_outs_to_group_channels_b(source)
+    print("connecting input channels to group b")
     local metadata = channel_metadata_om:lookup(
             Interest({
                 type = "metadata",
                 Constraint({ "metadata.name", "=", "performance-mixer" }),
             }))
     if metadata ~= nil then
-        for i = 33, 64 do
-            local port_meta_name = "channel_group_id_" .. i
+        local input_node_id = GroupChannelsBIns.properties["object.id"]
+        for input_ports_id = 32, 63 do
+            local port_meta_name = "channel_group_id_" .. input_ports_id
+            print("... checking metadata " .. port_meta_name)
             local value = metadata:find(0, port_meta_name)
             if value == nil then
-                value = 1
+                print("... metadata not found, using group 1")
+                value = 0
             end
 
             port_id = 0
-            if (i - 1) % 2 == 0 then
-                port_id = (value - 1) * 2
+            if input_ports_id % 2 == 0 then
+                port_id = value * 2
             else
-                port_id = (value - 1) * 2 + 1
+                port_id = value * 2 + 1
             end
-            local props = {
-                ["source_port_id"] = tostring(i - 1),
-                ["source_node_id"] = InputChannelsOuts.properties["object.id"],
-                ["target_port_id"] = port_id,
-                ["target_node_id"] = GroupChannelsBIns.properties["object.id"],
-            }
-            source:call("push-event", "pmx_connect_ports", nil,
-                    props)
+            print("... connecting to port id " .. port_id)
+
+            local output_port = InputChannelsOuts:lookup_port({
+                Constraint({ "port.id", "=", input_ports_id }),
+                Constraint({ "port.direction", "=", "out" }),
+            })
+
+            local link = Link("link-factory", {
+                ["link.output.port"] = output_port.properties["object.id"],
+                ["link.input.port"] = port_id,
+                ["link.input.node"] = input_node_id,
+                ["object.linger"] = true
+            })
+            link:activate(1)
         end
     end
 end
@@ -124,14 +141,14 @@ SimpleEventHook({
         InputChannelsOuts = event:get_subject()
         if InputChannelsOuts ~= nil and GroupChannelsAIns ~= nil then
             print("... connecting to group-channels-a-ins")
-            -- connect_input_channel_outs_to_group_channels_a(source)
+            connect_input_channel_outs_to_group_channels_a(source)
         else
             print("... but group-channels-a-ins still nil")
         end
 
         if InputChannelsOuts ~= nil and GroupChannelsBIns ~= nil then
             print("... connecting to group-channels-b-ins")
-            -- connect_input_channel_outs_to_group_channels_b(source)
+            connect_input_channel_outs_to_group_channels_b(source)
         else
             print("... but group-channels-b-ins still nil")
         end
@@ -166,7 +183,7 @@ SimpleEventHook({
         GroupChannelsAIns = event:get_subject()
         if not InputChannelsOuts == nil and not GroupChannelsAIns == nil then
             print("... connecting to pmx-input-channels-outs")
-            -- connect_input_channel_outs_to_group_channels_a(source)
+            connect_input_channel_outs_to_group_channels_a(source)
         else
             print("... but pmx-input-channels-outs still nil")
         end
@@ -201,7 +218,7 @@ SimpleEventHook({
         GroupChannelsBIns = event:get_subject()
         if not InputChannelsOuts == nil and not GroupChannelsBIns == nil then
             print("... connecting to pmx-input-channels-outs")
-            -- connect_input_channel_outs_to_group_channels_b(source)
+            connect_input_channel_outs_to_group_channels_b(source)
         else
             print("... but pmx-input-channels-outs still nil")
         end
