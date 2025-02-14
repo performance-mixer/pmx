@@ -255,15 +255,22 @@ SimpleEventHook({
         }),
     },
     execute = function(event)
+        local props = event:get_properties()
+        print("Channel group metadata changed")
         local channel_id = string.sub(props["event.subject.key"], 18)
+        print("... channel id " .. channel_id)
+
         local props = event:get_properties()
         local target_value = props["event.subject.value"]
+        print("... target value " .. target_value)
 
         local source_node = InputChannelsOuts
         local target_node = nil
-        if channel_id >= 32 then
+        if tonumber(channel_id) >= 32 then
+            print("... using target node group a")
             target_node = GroupChannelsBIns
         else
+            print("... using target node group b")
             target_node = GroupChannelsAIns
         end
 
@@ -271,6 +278,7 @@ SimpleEventHook({
             Constraint({ "port.id", "=", channel_id }),
             Constraint({ "port.direction", "=", "out" }),
         })
+        print("... source port id", source_port.properties["object.id"])
 
         local group_port_id = 0
         if channel_id % 2 == 0 then
@@ -278,24 +286,37 @@ SimpleEventHook({
         else
             group_port_id = target_value * 2 + 1
         end
-        local target_port = target_port:lookup_port({
-            Constraint({ "port.id", "=", }),
-            Constraint({ "port.direction", "=", "out" }),
-        })
+        print("... group port id", group_port_id)
 
-        local old_link = link_om.lookup(Interest({
+        local target_port = target_node:lookup_port({
+            Constraint({ "port.id", "=", group_port_id }),
+            Constraint({ "port.direction", "=", "in" }),
+        })
+        print("... target port id", target_port.properties["object.id"])
+
+        local old_link = link_om:lookup(Interest({
             type = "link",
             Constraint({ "link.output.port", "=", source_port.properties["object.id"] })
         }))
         if old_link ~= nil and old_link.properties["link.input.port"] ~= target_port.properties["object.id"] then
+            print("... found old link, deleting and creating new one")
             old_link:request_destroy()
-        elseif old_link == nil then
             local link = Link("link-factory", {
                 ["link.output.port"] = source_port.properties["object.id"],
                 ["link.input.port"] = target_port.properties["object.id"],
                 ["object.linger"] = true
             })
             link:activate(1)
+        elseif old_link == nil then
+            print("... no existing link, deleting and creating new one")
+            local link = Link("link-factory", {
+                ["link.output.port"] = source_port.properties["object.id"],
+                ["link.input.port"] = target_port.properties["object.id"],
+                ["object.linger"] = true
+            })
+            link:activate(1)
+        else
+            print("... link target didn't change, no action")
         end
     end,
 }):register()
