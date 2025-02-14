@@ -54,21 +54,42 @@ public:
                              const pmx::grpc::EmptyRequest *request,
                              pmx::grpc::ListInputPortSetupResponse *
                              response) override {
+    std::unordered_map<size_t, std::string> channel_id_to_port;
+    std::unordered_map<size_t, size_t> channel_id_to_group_channel_id;
     auto metadata = _metadata.get_metadata_values();
-    std::sort(metadata.begin(), metadata.end(),
-              [](const auto &a, const auto &b) {
-                return std::stoi(std::get<0>(a).substr(8)) < std::stoi(
-                  std::get<0>(b).substr(8));
-              });
-
-    for (auto &metadata_value : metadata) {
-      if (std::get<0>(metadata_value).starts_with(
+    for (auto &&metadata_item : metadata) {
+      if (std::get<0>(metadata_item).starts_with(
         config::Prefix::CHANNEL_PORT_PREFIX)) {
-        auto response_setup = response->add_setups();
-        auto id_string = std::get<0>(metadata_value).substr(8);
-        auto id = std::stoi(id_string);
-        response_setup->set_channel_id(id);
-        response_setup->set_port(std::get<1>(metadata_value));
+        auto channel_id = std::stoi(std::get<0>(metadata_item).substr(13));
+        channel_id_to_port[channel_id] = std::get<1>(metadata_item);
+      } else if (std::get<0>(metadata_item).starts_with(
+        config::Prefix::CHANNEL_GROUP_PREFIX)) {
+        auto channel_id = std::stoi(std::get<0>(metadata_item).substr(14));
+        channel_id_to_group_channel_id[channel_id] = std::stoi(
+          std::get<1>(metadata_item));
+      }
+    }
+
+    std::unordered_set<size_t> union_keys;
+    for (const auto &pair : channel_id_to_port) {
+      union_keys.insert(pair.first);
+    }
+
+    for (const auto &pair : channel_id_to_group_channel_id) {
+      union_keys.insert(pair.first);
+    }
+
+    for (const auto &key : union_keys) {
+      auto response_setup = response->add_setups();
+      response_setup->set_channel_id(key);
+
+      if (channel_id_to_port.contains(key)) {
+        response_setup->set_port(channel_id_to_port[key]);
+      }
+
+      if (channel_id_to_group_channel_id.contains(key)) {
+        response_setup->set_group_channel_id(
+          channel_id_to_group_channel_id[key]);
       }
     }
 

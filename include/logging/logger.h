@@ -14,7 +14,7 @@ public:
     : _context(std::move(context)), _full_context("CONTEXT=" + context) {}
 
   void log_info(const std::string &message) {
-    log(message, _priority_info);
+    log(message, _priority_info, nullptr);
   }
 
   void log_info(const std::string &message, const char *log_fields, ...) {
@@ -22,7 +22,7 @@ public:
   }
 
   void log_error(const std::string &message) {
-    log(message, _priority_error);
+    log(message, _priority_error, nullptr);
   }
 
   void log_error(const std::string &message, const char *log_fields, ...) {
@@ -41,16 +41,6 @@ private:
   std::string _priority_warning = "PRIORITY=4";
   std::string _priority_error = "PRIORITY=3";
 
-  void log(const std::string &message, const std::string &priority) {
-    auto full_message = "MESSAGE=" + message;
-    std::array log_entry{
-      iovec{(void*)full_message.c_str(), full_message.size()},
-      iovec{(void*)_full_context.c_str(), _full_context.size()},
-      iovec{(void*)priority.c_str(), priority.size()}
-    };
-    sd_journal_sendv(log_entry.data(), log_entry.size());
-  }
-
   void log(const std::string &message, const std::string &priority,
            const char *log_fields, ...) {
     auto full_message = "MESSAGE=" + message;
@@ -59,17 +49,6 @@ private:
       iovec{(void*)_full_context.c_str(), _full_context.size()},
       iovec{(void*)priority.c_str(), priority.size()}
     };
-
-    va_list fields;
-    va_start(fields, log_fields);
-
-    while (log_fields != nullptr) {
-      auto field = va_arg(fields, char*);
-      log_entry.push_back(iovec{(void*)field, strlen(field)});
-      log_fields = va_arg(fields, char*);
-    }
-
-    va_end(fields);
 
     sd_journal_sendv(log_entry.data(), log_entry.size());
   }

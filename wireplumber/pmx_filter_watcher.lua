@@ -10,13 +10,23 @@ GroupChannelsBOuts = nil
 LayerChannelsIns = nil
 LayerChannelsOuts = nil
 
+local link_collection = {}
+SimpleEventHook({
+    name = "pmx/filter_watcher/links",
+    interest = {
+        EventInterest({
+            Constraint({ "event.type", "=", "link-added" }),
+            Constraint({ "node.name", "=", "pmx-input-channels-ins" }),
+        })
+    },
+    execute = function(event)
+        local link = event:get_subject()
+        print("Added link " .. link.get_properties("object.id"))
+        table.insert(link_collection, link)
+    end
+}):register()
+
 local log = Log.open_topic("s-filter-watcher")
-
-local link_om = ObjectManager({
-    Interest({ type = "link" })
-})
-
-link_om:activate()
 
 local channel_metadata_om = ObjectManager({ Interest({
     type = "metadata",
@@ -245,6 +255,12 @@ SimpleEventHook({
     end,
 }):register()
 
+link_om = ObjectManager({
+    Interest({ type = "link" })
+})
+
+link_om:activate()
+
 SimpleEventHook({
     name = "pmx/metadata_watcher/watch/channel_port",
     interests = {
@@ -255,12 +271,18 @@ SimpleEventHook({
         }),
     },
     execute = function(event)
+        for link in link_om:iterate(Interest({
+            type = "link",
+            Constraint({ "link.output.node", "=", InputChannelsOuts.properties["object.id"] })
+        })) do
+            print("found link " .. link.properties["link.output.node"])
+        end
+
         local props = event:get_properties()
         print("Channel group metadata changed")
         local channel_id = string.sub(props["event.subject.key"], 18)
         print("... channel id " .. channel_id)
 
-        local props = event:get_properties()
         local target_value = props["event.subject.value"]
         print("... target value " .. target_value)
 
@@ -278,7 +300,8 @@ SimpleEventHook({
             Constraint({ "port.id", "=", channel_id }),
             Constraint({ "port.direction", "=", "out" }),
         })
-        print("... source port id", source_port.properties["object.id"])
+        local source_port_id = source_port.properties["object.id"];
+        print("... source port id", source_port_id)
 
         local group_port_id = 0
         if channel_id % 2 == 0 then
@@ -294,13 +317,19 @@ SimpleEventHook({
         })
         print("... target port id", target_port.properties["object.id"])
 
-        local old_link = link_om:lookup(Interest({
-            type = "link",
-            Constraint({ "link.output.port", "=", source_port.properties["object.id"] })
-        }))
-        if old_link ~= nil and old_link.properties["link.input.port"] ~= target_port.properties["object.id"] then
-            print("... found old link, deleting and creating new one")
-            old_link:request_destroy()
+        local old_link = nil
+        if old_link ~= nil then
+            print("... found old link")
+
+            local old_input_port_id = old_link.properties["link.input.port"]
+            local new_input_port_id = target_port.properties["object.id"]
+            if old_input_port_id ~= new_input_port_id then
+                print("... changing input port from " .. old_input_port_id .. " to " .. new_input_port_id)
+                old_link:request_destroy()
+            else
+                print("... input port not changed " .. old_input_port_id .. " to " .. new_input_port_id)
+            end
+
             local link = Link("link-factory", {
                 ["link.output.port"] = source_port.properties["object.id"],
                 ["link.input.port"] = target_port.properties["object.id"],
@@ -308,15 +337,13 @@ SimpleEventHook({
             })
             link:activate(1)
         elseif old_link == nil then
-            print("... no existing link, deleting and creating new one")
+            print("... no existing link, creating new one")
             local link = Link("link-factory", {
                 ["link.output.port"] = source_port.properties["object.id"],
                 ["link.input.port"] = target_port.properties["object.id"],
                 ["object.linger"] = true
             })
             link:activate(1)
-        else
-            print("... link target didn't change, no action")
         end
     end,
 }):register()

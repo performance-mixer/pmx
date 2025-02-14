@@ -84,7 +84,7 @@ int main(int argc, char **argv) {
       server->Wait();
     });
 
-    logger.log_info(" Setup metadata");
+    logger.log_info("Setup metadata");
     metadata.get_existing_metadata_object(wire_plumber_control.core);
 
     sd_notify(0, "READY=1");
