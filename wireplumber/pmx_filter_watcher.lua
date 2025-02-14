@@ -271,13 +271,6 @@ SimpleEventHook({
         }),
     },
     execute = function(event)
-        for link in link_om:iterate(Interest({
-            type = "link",
-            Constraint({ "link.output.node", "=", InputChannelsOuts.properties["object.id"] })
-        })) do
-            print("found link " .. link.properties["link.output.node"])
-        end
-
         local props = event:get_properties()
         print("Channel group metadata changed")
         local channel_id = string.sub(props["event.subject.key"], 18)
@@ -317,27 +310,24 @@ SimpleEventHook({
         })
         print("... target port id", target_port.properties["object.id"])
 
-        local old_link = nil
-        if old_link ~= nil then
-            print("... found old link")
-
+        local create_new = true
+        local new_input_port_id = target_port.properties["object.id"]
+        for old_link in link_om:iterate(Interest({
+            type = "link",
+            Constraint({ "link.output.node", "=", InputChannelsOuts.properties["object.id"] })
+        })) do
             local old_input_port_id = old_link.properties["link.input.port"]
-            local new_input_port_id = target_port.properties["object.id"]
             if old_input_port_id ~= new_input_port_id then
-                print("... changing input port from " .. old_input_port_id .. " to " .. new_input_port_id)
+                print("... deleting link " .. old_link.properties["object.id"])
                 old_link:request_destroy()
             else
-                print("... input port not changed " .. old_input_port_id .. " to " .. new_input_port_id)
+                create_new = false
+                print("... found exising, not creating " .. old_input_port_id .. " to " .. new_input_port_id)
             end
+        end
 
-            local link = Link("link-factory", {
-                ["link.output.port"] = source_port.properties["object.id"],
-                ["link.input.port"] = target_port.properties["object.id"],
-                ["object.linger"] = true
-            })
-            link:activate(1)
-        elseif old_link == nil then
-            print("... no existing link, creating new one")
+        if create_new == true then
+            print("... creating new link")
             local link = Link("link-factory", {
                 ["link.output.port"] = source_port.properties["object.id"],
                 ["link.input.port"] = target_port.properties["object.id"],
