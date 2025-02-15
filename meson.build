@@ -1,5 +1,9 @@
 project('performance mixer', 'cpp', default_options : ['cpp_std=c++23'])
 
+add_project_arguments('-Wno-deprecated-declarations', language : 'cpp')
+add_project_arguments('-Wno-sign-compare', language : 'cpp')
+add_project_arguments('-Wno-deprecated-enum-enum-conversion', language: 'cpp')
+
 pipewire_dep = dependency('libpipewire-0.3')
 wireplumber_dep = dependency('wireplumber-0.5')
 boost_dep = dependency('boost', modules : ['system'])

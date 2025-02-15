@@ -29,10 +29,8 @@ node_om:connect("installed", function(om)
 
     if #filter_names == 0 then
         print("Success all filter chains were created")
-        return 0
     else
         print("Error not all filter chains were created")
         print("Remaining filter chains: " .. table.concat(filter_names, ", "))
-        return -1
     end
 end)

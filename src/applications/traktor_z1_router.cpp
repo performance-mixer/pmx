@@ -175,8 +175,8 @@ int main(int argc, char *argv[]) {
                           spa_pod_builder_bytes(&builder, osc_buffer, size);
                         }
 
-                        auto pod = static_cast<spa_pod*>(spa_pod_builder_pop(
-                          &builder, &frame));
+                        [[maybe_unused]] auto pod = static_cast<spa_pod*>(
+                          spa_pod_builder_pop(&builder, &frame));
 
                         spa_data->chunk->size = builder.state.offset;
                       }

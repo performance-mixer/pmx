@@ -44,7 +44,7 @@ int main(int argc, char *argv[]) {
                   }
 
                   // ReSharper disable once CppDFAUnusedValue
-                  auto pod = static_cast<spa_pod*>(spa_pod_builder_pop(
+                  [[maybe_unused]] auto pod = static_cast<spa_pod*>(spa_pod_builder_pop(
                     &builder, &frame));
 
                   spa_data->chunk->size = builder.state.offset;
