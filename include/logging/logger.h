@@ -21,6 +21,10 @@ public:
     log(message, _priority_info, log_fields);
   }
 
+  void log_warning(const std::string &message) {
+    log(message, _priority_warning, nullptr);
+  }
+
   void log_error(const std::string &message) {
     log(message, _priority_error, nullptr);
   }

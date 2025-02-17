@@ -6,14 +6,14 @@ void metadata::MetadataWatcher::push_metadata_update(const guint subject,
                                                      const std::string &key,
                                                      const std::string &type,
                                                      const std::string &value) {
-  std::lock_guard<std::mutex> lock(_mutex);
+  std::lock_guard lock(_mutex);
   _metadata_updates.push(metadata_update{subject, key, type, value});
   _condition_variable.notify_all();
 }
 
 void metadata::MetadataWatcher::push_metadata_deletion(const guint subject,
                                                        const std::string &key) {
-  std::lock_guard<std::mutex> lock(_mutex);
+  std::lock_guard lock(_mutex);
   _metadata_updates.push(metadata_deletion{subject, key});
   _condition_variable.notify_all();
 }
@@ -26,14 +26,14 @@ metadata::metadata_event metadata::MetadataWatcher::pop_metadata_update() {
 }
 
 bool metadata::MetadataWatcher::has_metadata_updates() {
-  std::lock_guard<std::mutex> lock(_mutex);
+  std::lock_guard lock(_mutex);
   return !_metadata_updates.empty();
 }
 
 namespace metadata {
 auto metadata_changed_callback = [](WpMetadata *metadata, const guint subject,
-                                    const gchar *key, const gchar *type, const gchar *value,
-                                    gpointer user_data) {
+                                    const gchar *key, const gchar *type,
+                                    const gchar *value, gpointer user_data) {
   const auto metadata_watcher = static_cast<metadata::MetadataWatcher*>(
     user_data);
   if (value != nullptr) {

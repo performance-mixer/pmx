@@ -1,20 +1,13 @@
-#include "interpolation/interpolation.h"
 #include "parameters/parameters.h"
 #include "midi/router/midi_router.h"
 
 #include <systemd/sd-daemon.h>
 
 #include <cstddef>
-#include <iostream>
-#include <ranges>
 #include <logging/logger.h>
-
-#include <oscpp/client.hpp>
 
 #include <pwcpp/filter/app_builder.h>
 #include <pwcpp/midi/control_change.h>
-#include <pwcpp/midi/message.h>
-#include <pwcpp/midi/parse_midi.h>
 
 #include <spa/pod/builder.h>
 
@@ -43,29 +36,37 @@ int main(const int argc, char *argv[]) {
           add_output_port("osc", "8 bit raw midi").add_signal_processor(
             [](auto position, auto &in_ports, auto &out_ports, auto &user_data,
                auto &parameters) {
+              logging::Logger logger{"signal_processor"};
               auto out_buffer = out_ports[0]->get_buffer();
               if (out_buffer.has_value() == false) {
                 return;
               }
 
               auto spa_data = out_buffer->get_spa_data(0);
-              spa_pod_builder builder{};
+              spa_pod_builder pod_builder{};
               spa_pod_frame frame{};
-              spa_pod_builder_init(&builder, spa_data->data, spa_data->maxsize);
-              spa_pod_builder_push_sequence(&builder, &frame, 0);
+              spa_pod_builder_init(&pod_builder, spa_data->data,
+                                   spa_data->maxsize);
+              spa_pod_builder_push_sequence(&pod_builder, &frame, 0);
 
-              logging::Logger logger{"signal_processor"};
               auto input_channels_buffer = in_ports.at(0)->get_buffer();
 
               if (input_channels_buffer.has_value()) {
                 midi::router::process_input_channels_port(
-                  logger, input_channels_buffer.value(), builder);
+                  logger, input_channels_buffer.value(), pod_builder);
               }
 
-              [[maybe_unused]] auto pod = static_cast<spa_pod*>(spa_pod_builder_pop(
-                &builder, &frame));
+              auto group_channels_buffer = in_ports.at(1)->get_buffer();
 
-              spa_data->chunk->size = builder.state.offset;
+              if (group_channels_buffer.has_value()) {
+                midi::router::process_group_channels_port(
+                  logger, group_channels_buffer.value(), pod_builder);
+              }
+
+              [[maybe_unused]] auto pod = static_cast<spa_pod*>(
+                spa_pod_builder_pop(&pod_builder, &frame));
+
+              spa_data->chunk->size = pod_builder.state.offset;
               out_buffer->finish();
             });
 

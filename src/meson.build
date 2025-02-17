@@ -8,7 +8,7 @@ executable(
     ],
     dependencies : [pipewire_dep, libsystemd_dep],
     include_directories : [include_directory],
-    install: true)
+    install : true)
 
 executable(
     'pmx-filter-chain-ctrl',
@@ -20,7 +20,7 @@ executable(
     ],
     dependencies : [pipewire_dep, libsystemd_dep],
     include_directories : [include_directory],
-    install: true)
+    install : true)
 
 executable(
     'pmx-osc-network-sender',
@@ -32,7 +32,7 @@ executable(
     ],
     dependencies : [pipewire_dep, boost_dep, libsystemd_dep],
     include_directories : [include_directory],
-    install: true)
+    install : true)
 
 executable(
     'pmx-osc-network-receiver',
@@ -44,7 +44,7 @@ executable(
     ],
     dependencies : [pipewire_dep, boost_dep, libsystemd_dep],
     include_directories : [include_directory],
-    install: true)
+    install : true)
 
 executable(
     'pmx-traktor-z1-router',
@@ -55,7 +55,7 @@ executable(
     ],
     dependencies : [pipewire_dep, libsystemd_dep],
     include_directories : [include_directory],
-    install: true)
+    install : true)
 
 executable(
     'pmx-metadata-manager',
@@ -68,7 +68,16 @@ executable(
     ],
     dependencies : [pipewire_dep, wireplumber_dep, yaml_cpp_dep, libsystemd_dep],
     include_directories : [include_directory],
-    install: true)
+    install : true)
+
+executable(
+    'pmx-console',
+    sources : [
+        'applications/console.cpp'
+    ],
+    dependencies : [pipewire_dep, replxx_dep],
+    include_directories : [include_directory],
+    install : true)
 
 executable(
     'pmx-grpc-api',
@@ -94,4 +103,4 @@ executable(
     ],
     dependencies : [wireplumber_dep, grpc_dep, protobuf_dep, grcpp_dep, libsystemd_dep],
     include_directories : [include_directory, pmx_grpc_include_directory],
-    install: true)
+    install : true)

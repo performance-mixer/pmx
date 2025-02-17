@@ -1,8 +1,8 @@
 #include "interpolation/interpolation.h"
 
-#include <microtest/microtest.h>
+#include <gtest/gtest.h>
 
-TEST(SimpleLinearInterpolation) {
+TEST(Interpolation, LinearInterpolation) {
   auto parameter = parameters::parameter(1, "param", "CMP", 2.3, 5.6, "CMP");
   const auto lowest_value = interpolation::interpolate(parameter, 0);
   ASSERT_EQ(lowest_value, 2.3);
@@ -13,5 +13,3 @@ TEST(SimpleLinearInterpolation) {
   const auto mid_point = interpolation::interpolate(parameter, 64);
   ASSERT_TRUE(3.96 < mid_point && mid_point < 3.97);
 }
-
-TEST_MAIN()
