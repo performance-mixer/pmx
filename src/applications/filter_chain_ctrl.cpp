@@ -58,20 +58,22 @@ int main(const int argc, char *argv[]) {
                       if (osc_path.has_value()) {
                         switch (osc_path->channel_type) {
                         case osc::osc_path_channel_type::input:
-                          if (
-                            filter_chain_control::get_filter_chain_id_and_add_to_queue(
-                              logger, queue, 1, parameters, *osc_path,
-                              message)) {
-                            wakeup_consumer = true;
+                          {
+                            if (
+                              filter_chain_control::get_filter_chain_id_and_add_to_queue(
+                                logger, queue, 1, parameters, *osc_path,
+                                message)) {
+                              wakeup_consumer = true;
+                            }
+                            break;
                           }
-                          break;
                         case osc::osc_path_channel_type::group:
                           {
                             std::uint32_t node_parameter_id(0);
                             if (osc_path->layer == osc::osc_path_layer::A) {
                               node_parameter_id = 2;
                             } else {
-                              node_parameter_id = 2;
+                              node_parameter_id = 3;
                             }
 
                             if (
@@ -111,8 +113,15 @@ int main(const int argc, char *argv[]) {
                   logger.log_error(
                     "Failed to parse OSC packets, " + packets.error().message);
                 }
+
+                auto spa_data = buffer.value().buffer->buffer->datas[0];
+                spa_data.chunk->offset = 0;
+                spa_data.chunk->size = 0;
+                spa_data.chunk->stride = 1;
+                spa_data.chunk->flags = 0;
+                logger.log_info("Finishing buffer");
+                buffer.value().finish();
               }
-              buffer.value().finish();
             });
 
   proxy::ProxyWatcher proxy_watcher;
@@ -218,6 +227,6 @@ int main(const int argc, char *argv[]) {
     auto registry = pw_core_get_registry(core, PW_VERSION_REGISTRY, 0);
     proxy_watcher.register_callback(registry);
     sd_notify(0, "READY=1");
-    filter_app.value()->run();
+    filter_app.value()->run(PW_FILTER_FLAG_NONE);
   }
 }

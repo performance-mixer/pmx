@@ -11,12 +11,11 @@ int main(const int argc, char *argv[]) {
   replxx::Replxx repl;
   std::string prompt("pmx ~> ");
 
-  console::request_message request;
+  console::request_message request{};
   console::response_message response;
 
-  std::mutex mutex;
-  std::atomic<bool> has_request(false);
-  std::atomic<bool> has_response(false);
+  std::atomic has_request(false);
+  std::atomic has_response(false);
 
   pwcpp::filter::AppBuilder<std::nullptr_t> builder;
   builder.set_filter_name("pmx-console").set_media_type("OSC").
@@ -25,6 +24,8 @@ int main(const int argc, char *argv[]) {
             [&has_request, &response, &has_response, &request](
             auto position, auto &in_ports, auto &out_ports, auto &user_data,
             auto &parameters) {
+              if (!has_request) { return; }
+
               auto out_buffer = out_ports[0]->get_buffer();
               if (out_buffer.has_value()) {
                 if (has_request) {
@@ -54,6 +55,12 @@ int main(const int argc, char *argv[]) {
                   response.message = "OK";
                   has_response = true;
                   has_response.notify_all();
+                } else {
+                  auto spa_data = out_buffer.value().buffer->buffer->datas[0];
+                  spa_data.chunk->offset = 0;
+                  spa_data.chunk->size = 0;
+                  spa_data.chunk->stride = 1;
+                  spa_data.chunk->flags = 0;
                 }
                 out_buffer->finish();
               } else if (has_request) {
@@ -62,6 +69,7 @@ int main(const int argc, char *argv[]) {
                 has_request = false;
                 has_response = true;
                 has_response.notify_all();
+                out_buffer->finish();
               }
             });
 
@@ -71,6 +79,8 @@ int main(const int argc, char *argv[]) {
       filter_app.value()->run();
     }
   });
+
+  repl.install_window_change_handler();
 
   while (true) {
     char const *line = repl.input(prompt);
@@ -91,6 +101,7 @@ int main(const int argc, char *argv[]) {
       std::string token;
       if (iss >> token) {
         if (token == "send") {
+          repl.history_add(line);
           auto result = console::send_command(iss, request);
           if (result) {
             has_request = true;
