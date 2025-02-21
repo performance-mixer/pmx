@@ -61,7 +61,7 @@ executable(
     'pmx-metadata-manager',
     sources : [
         'applications/metadata_manager.cpp',
-        'metadata_collection.cpp',
+        'metadata.cpp',
         'metadata_watcher.cpp',
         'prefix.cpp',
         'config.cpp'
@@ -73,9 +73,12 @@ executable(
 executable(
     'pmx-console',
     sources : [
-        'applications/console.cpp'
+        'applications/console.cpp',
+        'metadata.cpp',
+        'link_collection.cpp',
+        'proxy_collection.cpp'
     ],
-    dependencies : [pipewire_dep, replxx_dep],
+    dependencies : [pipewire_dep, wireplumber_dep, replxx_dep, libsystemd_dep],
     include_directories : [include_directory],
     install : true)
 
@@ -84,7 +87,7 @@ executable(
     sources : [
         'applications/grpc_api.cpp',
         'port_collection.cpp',
-        'metadata_collection.cpp',
+        'metadata.cpp',
         'prefix.cpp',
         '../../pmx-grpc/cpp/input_ports.grpc.pb.cc',
         '../../pmx-grpc/cpp/input_ports.pb.cc',

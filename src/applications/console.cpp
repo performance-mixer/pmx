@@ -1,11 +1,19 @@
 #include "console/messages.h"
 #include "console/send_command.h"
+#include "console/meta_command.h"
+#include "console/pmx_command.h"
+#include "console/list_command.h"
+#include "console/describe_command.h"
+#include "wpcpp/proxy_collection_builder.h"
+#include "wpcpp/link_collection.h"
 
 #include <iostream>
 #include <replxx.hxx>
 #include <sstream>
 #include <pwcpp/filter/app_builder.h>
 #include <condition_variable>
+#include <logging/logger.h>
+#include <wpcpp/metadata.h>
 
 int main(const int argc, char *argv[]) {
   replxx::Replxx repl;
@@ -80,6 +88,43 @@ int main(const int argc, char *argv[]) {
     }
   });
 
+  struct WirePlumberControl {
+    GOptionContext *context = nullptr;
+    GMainLoop *loop = nullptr;
+    WpCore *core = nullptr;
+    WpObjectManager *object_manager = nullptr;
+  };
+
+  std::atomic<bool> initialized = false;
+  std::shared_ptr<wpcpp::ProxyCollection> proxy_collection;
+  std::shared_ptr<wpcpp::LinkCollection> link_collection;
+  wpcpp::Metadata metadata;
+
+  std::thread wp_thread(
+    [&proxy_collection, &initialized, &metadata, &link_collection]() {
+      logging::Logger logger{"main"};
+      logger.log_info("Initializing wire plumber");
+      WirePlumberControl wire_plumber_control;
+      wp_init(WP_INIT_ALL);
+
+      wire_plumber_control.context = g_option_context_new("pmx-grpc-api");
+      wire_plumber_control.loop = g_main_loop_new(nullptr, false);
+      wire_plumber_control.core = wp_core_new(nullptr, nullptr, nullptr);
+      if (wp_core_connect(wire_plumber_control.core)) {
+        logger.log_info("Creating proxy collection");
+        wpcpp::ProxyCollectionBuilder builder;
+        builder.add_interest(WP_TYPE_NODE).add_interest(WP_TYPE_PORT);
+        proxy_collection = builder.build(wire_plumber_control.core);
+        link_collection = wpcpp::LinkCollection::create_and_setup(
+          wire_plumber_control.core);
+        metadata.get_existing_metadata_object(wire_plumber_control.core);
+        initialized = true;
+        initialized.notify_all();
+        g_main_loop_run(wire_plumber_control.loop);
+      }
+    });
+
+  initialized.wait(false);
   repl.install_window_change_handler();
 
   while (true) {
@@ -108,15 +153,40 @@ int main(const int argc, char *argv[]) {
             has_response.wait(false);
             has_response = false;
             std::cout << response.message << std::endl;
-            continue;
           } else {
             std::cout << "There was an error: " << result.error().message <<
               std::endl;
-            continue;
           }
+        } else if (token == "list") {
+          repl.history_add(line);
+          auto result = console::list_command(iss, *link_collection,
+                                              *proxy_collection);
+          if (!result) {
+            std::cout << "There was an error: " << result.error().message <<
+              std::endl;
+          }
+        } else if (token == "describe") {
+          repl.history_add(line);
+          auto result = console::describe_command(iss, *proxy_collection,
+                                                  *link_collection);
+        } else if (token == "meta") {
+          repl.history_add(line);
+          auto result = console::meta_command(iss, metadata);
+          if (!result) {
+            std::cout << "There was an error: " << result.error().message <<
+              std::endl;
+          }
+        } else if (token == "pmx") {
+          repl.history_add(line);
+          auto result = console::pmx_command(iss, metadata, *proxy_collection,
+                                             *link_collection);
+          if (!result) {
+            std::cout << "There was an error: " << result.error().message <<
+              std::endl;
+          }
+        } else {
+          std::cout << "Unknown command: " << token << std::endl;
         }
-
-        std::cout << "Unknown command: " << token << std::endl;
       }
     }
   }

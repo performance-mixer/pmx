@@ -1,6 +1,6 @@
 #include "config/config.h"
 #include "config/prefix.h"
-#include "wpcpp/metadata_collection.h"
+#include "wpcpp/metadata.h"
 #include "metadata/metadata_watcher.h"
 #include "logging/logger.h"
 
@@ -15,7 +15,7 @@ struct WirePlumberControl {
   GMainLoop *loop = nullptr;
   WpCore *core = nullptr;
   WpObjectManager *om = nullptr;
-  wpcpp::MetadataCollection metadata;
+  wpcpp::Metadata metadata;
 };
 
 int main(int argc, char **argv) {
@@ -34,7 +34,7 @@ int main(int argc, char **argv) {
   if (wp_core_connect(wire_plumber_control.core)) {
     struct callback_data {
       config::config &config;
-      wpcpp::MetadataCollection &metadata;
+      wpcpp::Metadata &metadata;
     };
 
     logger.log_info("Creating metadata collection");

@@ -1,11 +1,11 @@
-#include "wpcpp/metadata_collection.h"
+#include "wpcpp/metadata.h"
 
 #include <pipewire/keys.h>
 
 namespace wpcpp {
 auto metadata_added_callback = +[ ](WpObjectManager *object_manager,
                                     gpointer object, gpointer user_data) {
-  const auto metadata_collection = static_cast<wpcpp::MetadataCollection*>(
+  const auto metadata_collection = static_cast<wpcpp::Metadata*>(
     user_data);
 
   const auto metadata = static_cast<WpMetadata*>(object);
@@ -27,7 +27,7 @@ auto metadata_added_callback = +[ ](WpObjectManager *object_manager,
 };
 }
 
-bool wpcpp::MetadataCollection::get_existing_metadata_object(WpCore *core) {
+bool wpcpp::Metadata::get_existing_metadata_object(WpCore *core) {
   _object_manager = wp_object_manager_new();
   wp_object_manager_add_interest(_object_manager, WP_TYPE_METADATA, nullptr);
   wp_object_manager_request_object_features(_object_manager,

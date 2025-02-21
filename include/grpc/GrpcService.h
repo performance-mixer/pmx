@@ -5,14 +5,14 @@
 #include "config/prefix.h"
 
 #include <grpcpp/support/status.h>
-#include <wpcpp/metadata_collection.h>
+#include <wpcpp/metadata.h>
 #include <wpcpp/port_collection.h>
 
 namespace grpc {
 class GrpcService final : public pmx::grpc::PmxGrpc::Service {
 public:
   GrpcService(wpcpp::PortCollection &port_collection,
-              wpcpp::MetadataCollection &metadata) : _port_collection(
+              wpcpp::Metadata &metadata) : _port_collection(
                                                        port_collection),
                                                      _metadata(metadata) {}
 
@@ -127,6 +127,6 @@ public:
 
 private:
   wpcpp::PortCollection &_port_collection;
-  wpcpp::MetadataCollection &_metadata;
+  wpcpp::Metadata &_metadata;
 };
 } // namespace grpc

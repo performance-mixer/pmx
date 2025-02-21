@@ -66,10 +66,12 @@ int main(int argc, char *argv[]) {
             [&queue, &previous, &is_init](auto position, auto &in_ports,
                                           auto &out_ports, auto &user_data,
                                           auto &parameters) {
+              if (queue.read_available() == 0) return;
+
               auto buffer = out_ports[0]->get_buffer();
               if (buffer.has_value()) {
                 if (queue.read_available() > 0) {
-                  traktor_z1_message message;
+                  traktor_z1_message message{};
                   while (queue.pop(message)) {
                     if (is_init) {
                       previous = message;

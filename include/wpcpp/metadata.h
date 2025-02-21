@@ -9,7 +9,7 @@
 #include <wp/wp.h>
 
 namespace wpcpp {
-class MetadataCollection {
+class Metadata {
 public:
   void register_initial_metadata_object(WpCore *core) {
     auto metadata = wp_impl_metadata_new_full(core, "performance-mixer",
@@ -60,7 +60,7 @@ public:
                                                                      v_pointer);
         auto key = wp_metadata_item_get_key(metadata_item);
         auto metadata_value = wp_metadata_item_get_value(metadata_item);
-        data->result.push_back(std::make_tuple(key, metadata_value));
+        data->result.emplace_back(key, metadata_value);
       }
 
       data->condition.notify_all();

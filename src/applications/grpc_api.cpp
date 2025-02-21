@@ -1,6 +1,6 @@
 #include "grpc/GrpcService.h"
 #include "wpcpp/port_collection.h"
-#include "wpcpp/metadata_collection.h"
+#include "wpcpp/metadata.h"
 
 #include <systemd/sd-daemon.h>
 
@@ -68,7 +68,7 @@ int main(int argc, char **argv) {
     port_collection.setup(wire_plumber_control.om);
 
     logger.log_info("Creating metadata collection");
-    wpcpp::MetadataCollection metadata;
+    wpcpp::Metadata metadata;
 
     logger.log_info("Starting grpc service thread");
     std::thread grpc_service_thread([&port_collection, &metadata, &port]() {
