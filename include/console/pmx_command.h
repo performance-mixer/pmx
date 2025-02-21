@@ -11,10 +11,10 @@ inline std::expected<void, error::error> pmx_command(
   std::string sub_command;
   if (stream >> sub_command) {
     if (sub_command == "enable") {
-      metadata.set_metadata_value("pmx.enabled", "true");
+      metadata.set_metadata_value("enabled", "true");
       return {};
     } else if (sub_command == "disable") {
-      metadata.set_metadata_value("pmx.enabled", "false");
+      metadata.set_metadata_value("enabled", "false");
     } else if (sub_command == "list") {
       std::string object;
       if (stream >> object) {
