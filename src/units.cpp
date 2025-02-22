@@ -105,3 +105,32 @@ sdcpp::list_unit_files(sdcpp::Bus &bus) {
   sd_bus_message_unref(reply);
   return units;
 }
+
+std::expected<void, sdcpp::error> sdcpp::enable_units(
+  Bus &bus, const std::span<const std::string> &unit_names) {
+  sd_bus_error error = SD_BUS_ERROR_NULL;
+  sd_bus_message *reply = nullptr;
+
+  const char **unit_names_c = new const char*[unit_names.size()];
+  for (std::size_t i = 0; i < unit_names.size(); i++) {
+    unit_names_c[i] = unit_names[i].c_str();
+  }
+
+  auto result = sd_bus_call_method(bus.bus(), "org.freedesktop.systemd1",
+                                   "/org/freedesktop/systemd1",
+                                   "org.freedesktop.systemd1.Manager",
+                                   "EnableUnitFiles", &error, &reply, "asbb",
+                                   unit_names_c, 1, false, true);
+
+  delete[] unit_names_c;
+
+  if (result < 0) {
+    return std::unexpected(
+      error::error::systemd_call_method(strerror(-result)));
+  } else { return {}; }
+}
+
+std::expected<void, sdcpp::error> sdcpp::start_units(
+  Bus &bus, std::span<std::string> &unit_names) {
+  return {};
+}

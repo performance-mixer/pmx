@@ -5,6 +5,7 @@
 #include "console/list_command.h"
 #include "console/describe_command.h"
 #include "console/status_command.h"
+#include "console/start_command.h"
 #include "wpcpp/proxy_collection_builder.h"
 #include "wpcpp/link_collection.h"
 
@@ -202,6 +203,13 @@ int main(const int argc, char *argv[]) {
           repl.history_add(line);
           auto result = console::pmx_command(iss, metadata, *proxy_collection,
                                              *link_collection, sd_bus);
+          if (!result) {
+            std::cout << "There was an error: " << result.error().message <<
+              std::endl;
+          }
+        } else if (token == "start") {
+          repl.history_add(line);
+          auto result = console::start_command(iss, bus);
           if (!result) {
             std::cout << "There was an error: " << result.error().message <<
               std::endl;

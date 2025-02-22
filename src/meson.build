@@ -78,7 +78,8 @@ executable(
         'link_collection.cpp',
         'proxy_collection.cpp',
         'units.cpp',
-        'colors.cpp'
+        'colors.cpp',
+        'constants.cpp'
     ],
     dependencies : [pipewire_dep, wireplumber_dep, replxx_dep, libsystemd_dep],
     include_directories : [include_directory],

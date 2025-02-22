@@ -33,9 +33,16 @@ struct unit_file {
 
 
 inline std::ostream &operator<<(std::ostream &os, const unit_file &uf) {
-  os <<  uf.name << ": " << uf.status;
+  os << uf.name << ": " << uf.status;
   return os;
 }
 
 std::expected<std::vector<unit_file>, error> list_unit_files(Bus &bus);
+
+std::expected<void, error> enable_units(Bus &bus,
+                                        const std::span<const std::string> &
+                                        unit_names);
+
+std::expected<void, error> start_units(Bus &bus,
+                                       std::span<std::string> &unit_names);
 }
