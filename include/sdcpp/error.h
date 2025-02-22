@@ -2,9 +2,12 @@
 
 #include <string>
 
-namespace error {
+namespace sdcpp {
 enum class error_type {
-  NOT_IMPLEMENTED, INVALID_ARGUMENT, SYSTEMD_CALL_METHOD
+  NOT_IMPLEMENTED,
+  INVALID_ARGUMENT,
+  SYSTEMD_CALL_METHOD,
+  SYSTEMD_METHOD_PARSING_ERROR,
 };
 
 struct error {
@@ -21,6 +24,10 @@ struct error {
 
   static error systemd_call_method(const std::string &message) {
     return {message, error_type::SYSTEMD_CALL_METHOD};
+  }
+
+  static error systemd_method_parsing_error(const std::string &message) {
+    return {message, error_type::SYSTEMD_METHOD_PARSING_ERROR};
   }
 };
 }

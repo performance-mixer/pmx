@@ -2,12 +2,13 @@
 
 #include <wpcpp/link_collection.h>
 #include <wpcpp/proxy_collection.h>
+#include <systemd/sd-bus.h>
 
 namespace console {
 inline std::expected<void, error::error> pmx_command(
   std::istringstream &stream, wpcpp::Metadata &metadata,
   wpcpp::ProxyCollection &proxy_collection,
-  wpcpp::LinkCollection &link_collection) {
+  wpcpp::LinkCollection &link_collection, sd_bus *sd_bus) {
   std::string sub_command;
   if (stream >> sub_command) {
     if (sub_command == "enable") {

@@ -4,6 +4,7 @@
 #include "console/pmx_command.h"
 #include "console/list_command.h"
 #include "console/describe_command.h"
+#include "console/status_command.h"
 #include "wpcpp/proxy_collection_builder.h"
 #include "wpcpp/link_collection.h"
 
@@ -14,6 +15,10 @@
 #include <condition_variable>
 #include <logging/logger.h>
 #include <wpcpp/metadata.h>
+#include <systemd/sd-bus.h>
+
+#include <sdcpp/bus.h>
+#include <sdcpp/error.h>
 
 int main(const int argc, char *argv[]) {
   replxx::Replxx repl;
@@ -127,6 +132,16 @@ int main(const int argc, char *argv[]) {
   initialized.wait(false);
   repl.install_window_change_handler();
 
+  sd_bus *sd_bus = nullptr;
+  auto sd_result = sd_bus_open_user(&sd_bus);
+  if (sd_result < 0) {
+    std::cout << "could not open dbus system bus: " << strerror(-sd_result) <<
+      std::endl;
+    return -1;
+  }
+
+  sdcpp::Bus bus{sd_bus};
+
   while (true) {
     char const *line = repl.input(prompt);
     if (line == nullptr) {
@@ -176,10 +191,17 @@ int main(const int argc, char *argv[]) {
             std::cout << "There was an error: " << result.error().message <<
               std::endl;
           }
+        } else if (token == "status") {
+          repl.history_add(line);
+          auto result = console::status_command(iss, bus);
+          if (!result) {
+            std::cout << "There was an error: " << result.error().message <<
+              std::endl;
+          }
         } else if (token == "pmx") {
           repl.history_add(line);
           auto result = console::pmx_command(iss, metadata, *proxy_collection,
-                                             *link_collection);
+                                             *link_collection, sd_bus);
           if (!result) {
             std::cout << "There was an error: " << result.error().message <<
               std::endl;
@@ -191,5 +213,7 @@ int main(const int argc, char *argv[]) {
     }
   }
 
+  sd_bus_close(sd_bus);
+  sd_bus_unref(sd_bus);
   std::cout << "Goodbye!" << std::endl;
 }

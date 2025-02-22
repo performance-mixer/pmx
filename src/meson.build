@@ -76,7 +76,9 @@ executable(
         'applications/console.cpp',
         'metadata.cpp',
         'link_collection.cpp',
-        'proxy_collection.cpp'
+        'proxy_collection.cpp',
+        'units.cpp',
+        'colors.cpp'
     ],
     dependencies : [pipewire_dep, wireplumber_dep, replxx_dep, libsystemd_dep],
     include_directories : [include_directory],
