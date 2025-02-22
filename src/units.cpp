@@ -1,5 +1,6 @@
 #include "sdcpp/units.h"
 
+#include <iostream>
 #include <systemd/sd-bus.h>
 
 std::expected<std::vector<sdcpp::unit>, sdcpp::error>
@@ -110,20 +111,40 @@ std::expected<void, sdcpp::error> sdcpp::enable_units(
   Bus &bus, const std::span<const std::string> &unit_names) {
   sd_bus_error error = SD_BUS_ERROR_NULL;
   sd_bus_message *reply = nullptr;
+  sd_bus_message *request = nullptr;
+  auto result = sd_bus_message_new_method_call(bus.bus(), &request,
+                                               "org.freedesktop.systemd1",
+                                               "/org/freedesktop/systemd1",
+                                               "org.freedesktop.systemd1.Manager",
+                                               "EnableUnitFiles");
+
+  if (result < 0) {
+    return std::unexpected(
+      error::error::systemd_message_building_error(strerror(-result)));
+  }
 
   const char **unit_names_c = new const char*[unit_names.size()];
-  for (std::size_t i = 0; i < unit_names.size(); i++) {
+  for (std::size_t i = 0; i < unit_names.size(); ++i) {
     unit_names_c[i] = unit_names[i].c_str();
   }
 
-  auto result = sd_bus_call_method(bus.bus(), "org.freedesktop.systemd1",
-                                   "/org/freedesktop/systemd1",
-                                   "org.freedesktop.systemd1.Manager",
-                                   "EnableUnitFiles", &error, &reply, "asbb",
-                                   unit_names_c, 1, false, true);
-
+  result = sd_bus_message_append_array(request, 's', unit_names_c, 1);
   delete[] unit_names_c;
 
+  if (result < 0) {
+    sd_bus_message_unref(request);
+    return std::unexpected(
+      error::error::systemd_message_building_error(strerror(-result)));
+  }
+
+  result = sd_bus_message_append(request, "bb", false, true);
+  if (result < 0) {
+    sd_bus_message_unref(request);
+    return std::unexpected(
+      error::error::systemd_message_building_error(strerror(-result)));
+  }
+
+  result = sd_bus_call(bus.bus(), request, 0, &error, &reply);
   if (result < 0) {
     return std::unexpected(
       error::error::systemd_call_method(strerror(-result)));

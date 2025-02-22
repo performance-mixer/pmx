@@ -8,6 +8,7 @@ enum class error_type {
   INVALID_ARGUMENT,
   SYSTEMD_CALL_METHOD,
   SYSTEMD_METHOD_PARSING_ERROR,
+  SYSTEMD_MESSAGE_BUILDING_ERROR,
 };
 
 struct error {
@@ -28,6 +29,10 @@ struct error {
 
   static error systemd_method_parsing_error(const std::string &message) {
     return {message, error_type::SYSTEMD_METHOD_PARSING_ERROR};
+  }
+
+  static error systemd_message_building_error(const std::string &message) {
+    return {message, error_type::SYSTEMD_MESSAGE_BUILDING_ERROR};
   }
 };
 }
