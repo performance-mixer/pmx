@@ -36,7 +36,8 @@ inline std::expected<void, sdcpp::error> status_command(
         auto unit_file = std::find_if(unit_files.value().begin(),
                                       unit_files.value().end(),
                                       [unit_name](const auto &unit_file) {
-                                        return unit_file.name == unit_name;
+                                        return unit_file.name.ends_with(
+                                          unit_name);
                                       });
         if (unit_file != unit_files->end()) {
           std::cout << unit_name << " " << colors::yellow << " " << unit_file->
