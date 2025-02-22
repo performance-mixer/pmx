@@ -62,3 +62,46 @@ sdcpp::list_units(Bus &bus) {
   return units;
 }
 
+std::expected<std::vector<sdcpp::unit_file>, sdcpp::error>
+sdcpp::list_unit_files(sdcpp::Bus &bus) {
+  std::vector<unit_file> units;
+  sd_bus_message *reply;
+  sd_bus_error error = SD_BUS_ERROR_NULL;
+  auto result = sd_bus_call_method(bus.bus(), "org.freedesktop.systemd1",
+                                   "/org/freedesktop/systemd1",
+                                   "org.freedesktop.systemd1.Manager",
+                                   "ListUnitFiles", &error, &reply, nullptr);
+  if (result < 0) {
+    sd_bus_message_unref(reply);
+    return std::unexpected(
+      error::error::systemd_call_method(strerror(-result)));
+  }
+
+  while (sd_bus_message_enter_container(reply, SD_BUS_TYPE_ARRAY, "(ss)") > 0) {
+    while (!sd_bus_message_at_end(reply, false)) {
+      result = sd_bus_message_enter_container(reply, SD_BUS_TYPE_STRUCT, "ss");
+      if (result <= 0) {
+        return std::unexpected(
+          error::error::systemd_method_parsing_error(strerror(-result)));
+      }
+
+      const char *name = nullptr;
+      const char *state = nullptr;
+
+      result = sd_bus_message_read(reply, "ss", &name, &state);
+
+      if (result < 0) {
+        return std::unexpected(
+          error::error::systemd_method_parsing_error(strerror(-result)));
+      }
+
+      units.emplace_back(unit_file{name, state});
+
+      sd_bus_message_exit_container(reply);
+    }
+  }
+  sd_bus_message_exit_container(reply);
+  sd_bus_error_free(&error);
+  sd_bus_message_unref(reply);
+  return units;
+}

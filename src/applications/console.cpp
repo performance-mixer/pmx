@@ -175,7 +175,7 @@ int main(const int argc, char *argv[]) {
         } else if (token == "list") {
           repl.history_add(line);
           auto result = console::list_command(iss, *link_collection,
-                                              *proxy_collection);
+                                              *proxy_collection, bus);
           if (!result) {
             std::cout << "There was an error: " << result.error().message <<
               std::endl;

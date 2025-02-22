@@ -8,6 +8,7 @@
 #include <string>
 #include <vector>
 #include <cstdint>
+#include <ostream>
 
 namespace sdcpp {
 struct unit {
@@ -24,4 +25,17 @@ struct unit {
 };
 
 std::expected<std::vector<unit>, error> list_units(Bus &bus);
+
+struct unit_file {
+  std::string name;
+  std::string status;
+};
+
+
+inline std::ostream &operator<<(std::ostream &os, const unit_file &uf) {
+  os <<  uf.name << ": " << uf.status;
+  return os;
+}
+
+std::expected<std::vector<unit_file>, error> list_unit_files(Bus &bus);
 }

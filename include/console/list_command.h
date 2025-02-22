@@ -1,10 +1,12 @@
 #pragma once
+
+#include <sdcpp/units.h>
 #include <wpcpp/link_collection.h>
 
 namespace console {
 inline std::expected<void, error::error> list_command(
   std::istringstream &stream, wpcpp::LinkCollection &link_collection,
-  wpcpp::ProxyCollection &proxy_collection) {
+  wpcpp::ProxyCollection &proxy_collection, sdcpp::Bus &bus) {
   std::string sub_command;
   if (stream >> sub_command) {
     if (sub_command == "proxy") {
@@ -19,6 +21,17 @@ inline std::expected<void, error::error> list_command(
         std::cout << link << std::endl;
       }
       return {};
+    } else if (sub_command == "unit_file") {
+      auto unit_files = sdcpp::list_unit_files(bus);
+      if (unit_files.has_value()) {
+        for (const auto &unit_file : unit_files.value()) {
+          std::cout << unit_file << std::endl;
+        }
+        return {};
+      } else {
+        return std::unexpected(
+          error::error::systemd(unit_files.error().message));
+      }
     } else {
       return std::unexpected(
         error::error::invalid_argument("unknown sub command " + sub_command));

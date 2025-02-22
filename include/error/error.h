@@ -19,7 +19,7 @@ struct error {
     return {message, error_type::INVALID_ARGUMENT};
   }
 
-  static error systemd_call_method(const std::string &message) {
+  static error systemd(const std::string &message) {
     return {message, error_type::SYSTEMD_CALL_METHOD};
   }
 };

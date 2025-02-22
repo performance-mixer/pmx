@@ -15,7 +15,8 @@ inline std::expected<void, sdcpp::error> status_command(
   };
 
   auto units = sdcpp::list_units(bus);
-  if (units.has_value()) {
+  auto unit_files = sdcpp::list_unit_files(bus);
+  if (units.has_value() && unit_files.has_value()) {
     for (auto &unit_name : names) {
       auto unit = std::find_if(units.value().begin(), units.value().end(),
                                [unit_name](const auto &unit) {
@@ -32,15 +33,28 @@ inline std::expected<void, sdcpp::error> status_command(
 
         std::cout << color << unit->active_state << reset_color << std::endl;
       } else {
-        auto color = colors::red;
-        std::cout << unit_name << " " << color << "not found" << reset_color <<
-          std::endl;
+        auto unit_file = std::find_if(unit_files.value().begin(),
+                                      unit_files.value().end(),
+                                      [unit_name](const auto &unit_file) {
+                                        return unit_file.name == unit_name;
+                                      });
+        if (unit_file != unit_files->end()) {
+          std::cout << unit_name << " " << colors::yellow << " " << unit_file->
+            status << reset_color << std::endl;
+        } else {
+          std::cout << unit_name << " " << colors::red << "not found" <<
+            reset_color << std::endl;
+        }
       }
     }
 
     return {};
+  } else {
+    if (!units.has_value()) {
+      return std::unexpected(units.error());
+    } else {
+      return std::unexpected(unit_files.error());
+    }
   }
-
-  return std::unexpected(units.error());
 }
 }
