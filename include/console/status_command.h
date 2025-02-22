@@ -35,8 +35,14 @@ inline std::expected<void, sdcpp::error> status_command(
                                           unit_name);
                                       });
         if (unit_file != unit_files->end()) {
-          std::cout << unit_name << " " << colors::yellow << " " << unit_file->
-            status << reset_color << std::endl;
+          std::string color;
+          if (unit_file->status == "disabled") {
+            color = colors::red;
+          } else {
+            color = colors::yellow;
+          }
+          std::cout << unit_name << " " << color << " " << unit_file->status <<
+            reset_color << std::endl;
         } else {
           std::cout << unit_name << " " << colors::red << "not found" <<
             reset_color << std::endl;

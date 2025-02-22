@@ -148,7 +148,18 @@ std::expected<void, sdcpp::error> sdcpp::enable_units(
   if (result < 0) {
     return std::unexpected(
       error::error::systemd_call_method(strerror(-result)));
-  } else { return {}; }
+  } else {
+    const char *changes = nullptr;
+    while (sd_bus_message_enter_container(reply, SD_BUS_TYPE_ARRAY, "(ss)") >
+      0) {
+      while (sd_bus_message_read(reply, "(ss)", &changes, &changes) > 0) {
+        std::cout << "Systemd response: " << changes << std::endl;
+      }
+      sd_bus_message_exit_container(reply);
+    }
+
+    return {};
+  }
 }
 
 std::expected<void, sdcpp::error> sdcpp::start_units(
