@@ -13,18 +13,18 @@ inline std::expected<void, error::error> check_command(
       std::vector<wpcpp::proxy> producer_nodes;
       std::vector<wpcpp::proxy> consumer_nodes;
       for (const auto &proxy : proxies) {
-        if (std::find(pmx::constants::pmx_osc_producer.begin(),
-                      pmx::constants::pmx_osc_producer.end(),
-                      proxy.name) != pmx::constants::pmx_osc_producer.end()) {
+        if (std::find(pmx::constants::pmx_osc_producer_node_names.begin(),
+                      pmx::constants::pmx_osc_producer_node_names.end(),
+                      proxy.name) != pmx::constants::pmx_osc_producer_node_names.end()) {
           if (proxy.type == wpcpp::proxy_type::node) {
             producer_nodes.push_back(proxy);
             continue;
           }
         }
 
-        if (std::find(pmx::constants::pmx_osc_consumer.begin(),
-                      pmx::constants::pmx_osc_consumer.end(),
-                      proxy.name) != pmx::constants::pmx_osc_consumer.end()) {
+        if (std::find(pmx::constants::pmx_osc_consumer_node_names.begin(),
+                      pmx::constants::pmx_osc_consumer_node_names.end(),
+                      proxy.name) != pmx::constants::pmx_osc_consumer_node_names.end()) {
           if (proxy.type == wpcpp::proxy_type::node) {
             consumer_nodes.push_back(proxy);
             continue;
@@ -32,7 +32,7 @@ inline std::expected<void, error::error> check_command(
         }
       }
 
-      for (const auto &producer_name : pmx::constants::pmx_osc_producer) {
+      for (const auto &producer_name : pmx::constants::pmx_osc_producer_node_names) {
         auto producer_iter = std::find_if(producer_nodes.begin(),
                                           producer_nodes.end(),
                                           [producer_name ](const auto &proxy) {
@@ -43,7 +43,7 @@ inline std::expected<void, error::error> check_command(
         }
       }
 
-      for (const auto &consumer_name : pmx::constants::pmx_osc_consumer) {
+      for (const auto &consumer_name : pmx::constants::pmx_osc_consumer_node_names) {
         auto consumer_iter = std::find_if(consumer_nodes.begin(),
                                           consumer_nodes.end(),
                                           [consumer_name ](const auto &proxy) {

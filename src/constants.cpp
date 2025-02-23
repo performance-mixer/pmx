@@ -18,11 +18,10 @@ const std::array<std::string, 9> pmx::constants::all_services = {
   "pmx-osc-network-sender.service", "pmx-traktor-z1-router.service"
 };
 
-const std::array<std::string, 3> pmx::constants::pmx_osc_producer = {
-  "pmx-midi-router.service", "pmx-osc-network-receiver.service",
-  "pmx-traktor-z1-router.service"
+const std::array<std::string, 3> pmx::constants::pmx_osc_producer_node_names = {
+  "pmx-midi-router", "pmx-osc-network-receiver", "pmx-traktor-z1-router"
 };
 
-const std::array<std::string, 2> pmx::constants::pmx_osc_consumer = {
-  "pmx-filter-chain-ctrl.service", "pmx-osc-network-sender.service"
+const std::array<std::string, 2> pmx::constants::pmx_osc_consumer_node_names = {
+  "pmx-filter-chain-ctrl", "pmx-osc-network-sender"
 };
