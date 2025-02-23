@@ -123,20 +123,31 @@ std::expected<void, sdcpp::error> sdcpp::enable_units(
       error::error::systemd_message_building_error(strerror(-result)));
   }
 
-  const char **unit_names_c = new const char*[unit_names.size()];
-  for (std::size_t i = 0; i < unit_names.size(); ++i) {
-    unit_names_c[i] = unit_names[i].c_str();
-  }
-
-  result = sd_bus_message_append_array(request, 's', unit_names_c, 1);
-  delete[] unit_names_c;
-
+  result = sd_bus_message_open_container(request, SD_BUS_TYPE_ARRAY, "s");
   if (result < 0) {
     sd_bus_message_unref(request);
     return std::unexpected(
       error::error::systemd_message_building_error(strerror(-result)));
   }
 
+  for (const auto &unit_name : unit_names) {
+    std::cout << "Appending unit name" << std::endl;
+    result = sd_bus_message_append_basic(request, 's', unit_name.c_str());
+    if (result < 0) {
+      sd_bus_message_unref(request);
+      return std::unexpected(
+        error::error::systemd_message_building_error(strerror(-result)));
+    }
+  }
+
+  result = sd_bus_message_close_container(request);
+  if (result < 0) {
+    sd_bus_message_unref(request);
+    return std::unexpected(
+      error::error::systemd_message_building_error(strerror(-result)));
+  }
+
+  std::cout << "Appending bools" << std::endl;
   result = sd_bus_message_append(request, "bb", false, true);
   if (result < 0) {
     sd_bus_message_unref(request);
@@ -144,7 +155,9 @@ std::expected<void, sdcpp::error> sdcpp::enable_units(
       error::error::systemd_message_building_error(strerror(-result)));
   }
 
+  std::cout << "Calling" << std::endl;
   result = sd_bus_call(bus.bus(), request, 0, &error, &reply);
+  std::cout << "Systemd response: " << result << std::endl;
   if (result < 0) {
     return std::unexpected(
       error::error::systemd_call_method(strerror(-result)));
