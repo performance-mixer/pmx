@@ -15,7 +15,8 @@ inline std::expected<void, error::error> check_command(
       for (const auto &proxy : proxies) {
         if (std::find(pmx::constants::pmx_osc_producer_node_names.begin(),
                       pmx::constants::pmx_osc_producer_node_names.end(),
-                      proxy.name) != pmx::constants::pmx_osc_producer_node_names.end()) {
+                      proxy.name) != pmx::constants::pmx_osc_producer_node_names
+          .end()) {
           if (proxy.type == wpcpp::proxy_type::node) {
             producer_nodes.push_back(proxy);
             continue;
@@ -24,7 +25,8 @@ inline std::expected<void, error::error> check_command(
 
         if (std::find(pmx::constants::pmx_osc_consumer_node_names.begin(),
                       pmx::constants::pmx_osc_consumer_node_names.end(),
-                      proxy.name) != pmx::constants::pmx_osc_consumer_node_names.end()) {
+                      proxy.name) != pmx::constants::pmx_osc_consumer_node_names
+          .end()) {
           if (proxy.type == wpcpp::proxy_type::node) {
             consumer_nodes.push_back(proxy);
             continue;
@@ -32,7 +34,8 @@ inline std::expected<void, error::error> check_command(
         }
       }
 
-      for (const auto &producer_name : pmx::constants::pmx_osc_producer_node_names) {
+      for (const auto &producer_name :
+           pmx::constants::pmx_osc_producer_node_names) {
         auto producer_iter = std::find_if(producer_nodes.begin(),
                                           producer_nodes.end(),
                                           [producer_name ](const auto &proxy) {
@@ -43,7 +46,8 @@ inline std::expected<void, error::error> check_command(
         }
       }
 
-      for (const auto &consumer_name : pmx::constants::pmx_osc_consumer_node_names) {
+      for (const auto &consumer_name :
+           pmx::constants::pmx_osc_consumer_node_names) {
         auto consumer_iter = std::find_if(consumer_nodes.begin(),
                                           consumer_nodes.end(),
                                           [consumer_name ](const auto &proxy) {
@@ -67,12 +71,13 @@ inline std::expected<void, error::error> check_command(
         auto input_node_id = std::get<1>(expected_link).object_id;
 
         auto output_port_iter = std::find_if(proxies.begin(), proxies.end(),
-                                             [output_node_id ](
+                                             [output_node_id](
                                              const auto &proxy) {
-                                               return proxy.object_id ==
-                                                 output_node_id && proxy.type ==
+                                               return proxy.type ==
                                                  wpcpp::proxy_type::port &&
-                                                 proxy.name == "pmx-osc";
+                                                 proxy.name == "pmx-osc" &&
+                                                 proxy.node_id.value() ==
+                                                 output_node_id;
                                              });
 
         if (output_port_iter == proxies.end()) {
@@ -84,10 +89,12 @@ inline std::expected<void, error::error> check_command(
         auto input_port_iter = std::find_if(proxies.begin(), proxies.end(),
                                             [input_node_id ](
                                             const auto &proxy) {
-                                              return proxy.object_id ==
-                                                input_node_id && proxy.type ==
+                                              return proxy.type ==
                                                 wpcpp::proxy_type::port && proxy
-                                                .name == "pmx-osc";
+                                                .name == "pmx-osc" && proxy.
+                                                                      node_id.
+                                                                      value() ==
+                                                input_node_id;
                                             });
 
         if (input_port_iter == proxies.end()) {

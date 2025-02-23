@@ -26,7 +26,7 @@ int main(int argc, char **argv) {
 
   logger.log_info("Building filter app");
   pwcpp::filter::AppBuilder<std::nullptr_t> builder;
-  builder.set_filter_name("pmx-osc-network-router").set_media_type("Osc").
+  builder.set_filter_name("pmx-osc-network-sender").set_media_type("Osc").
           set_media_class("Osc/Sink").add_arguments(argc, argv).
           add_input_port("pmx-osc", "8 bit raw midi").
           add_parameter("target.ip_address", 1,
@@ -44,8 +44,8 @@ int main(int argc, char **argv) {
                 auto pod = buffer.value().get_pod(0);
                 if (pod.has_value()) {
                   if (spa_pod_is_sequence(pod.value())) {
-                    const auto sequence = reinterpret_cast<struct spa_pod_sequence*>(
-                      pod.value());
+                    const auto sequence = reinterpret_cast<struct
+                      spa_pod_sequence*>(pod.value());
 
                     spa_pod_control *pod_control;
                     SPA_POD_SEQUENCE_FOREACH(sequence, pod_control) {
