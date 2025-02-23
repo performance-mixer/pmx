@@ -44,5 +44,6 @@ std::expected<void, error> enable_units(Bus &bus,
                                         unit_names);
 
 std::expected<void, error> start_units(Bus &bus,
-                                       std::span<std::string> &unit_names);
+                                       const std::span<const std::string> &
+                                       unit_names);
 }

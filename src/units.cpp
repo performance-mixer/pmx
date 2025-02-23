@@ -176,6 +176,22 @@ std::expected<void, sdcpp::error> sdcpp::enable_units(
 }
 
 std::expected<void, sdcpp::error> sdcpp::start_units(
-  Bus &bus, std::span<std::string> &unit_names) {
+  Bus &bus, const std::span<const std::string> &unit_names) {
+  for (auto &unit_name : unit_names) {
+    sd_bus_error error = SD_BUS_ERROR_NULL;
+    sd_bus_message *reply = nullptr;
+    sd_bus_message *request = nullptr;
+    auto result = sd_bus_call_method(bus.bus(), "org.freedesktop.systemd1",
+                                     "/org/freedesktop/systemd1",
+                                     "org.freedesktop.systemd1.Manager",
+                                     "StartUnit", &error, &reply, "ss",
+                                     unit_name.c_str(), "replace");
+    if (result < 0) {
+      return std::unexpected(
+        error::error::systemd_call_method(strerror(-result)));
+    }
+    sd_bus_message_unref(reply);
+    sd_bus_message_unref(request);
+  }
   return {};
 }
