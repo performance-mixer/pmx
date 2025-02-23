@@ -24,6 +24,8 @@ inline std::expected<void, sdcpp::error> status_command(
         std::string color;
         if (unit->active_state == "active") {
           color = colors::green;
+        } else if (unit->active_state == "failed") {
+          color = colors::red;
         }
 
         std::cout << color << unit->active_state << reset_color << std::endl;

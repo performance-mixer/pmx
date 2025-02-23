@@ -41,7 +41,7 @@ int main(int argc, char *argv[]) {
 
   boost::lockfree::spsc_queue<traktor_z1_message> queue(128);
 
-  traktor_z1_message previous;
+  traktor_z1_message previous{};
   previous.gain_l = 0;
   previous.hi_l = 0;
   previous.mid_l = 0;
@@ -62,7 +62,7 @@ int main(int argc, char *argv[]) {
   pwcpp::filter::AppBuilder<std::nullptr_t> builder;
   builder.set_filter_name("pmx-traktor-z1-router").set_media_type("Osc").
           set_media_class("Osc/Source").add_arguments(argc, argv).
-          add_output_port("osc", "8 bit raw midi").add_signal_processor(
+          add_output_port("pmx-osc", "8 bit raw midi").add_signal_processor(
             [&queue, &previous, &is_init](auto position, auto &in_ports,
                                           auto &out_ports, auto &user_data,
                                           auto &parameters) {

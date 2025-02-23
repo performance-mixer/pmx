@@ -21,7 +21,7 @@ int main(int argc, char *argv[]) {
   logger.log_info("Building filter app");
   pwcpp::filter::AppBuilder<std::nullptr_t> builder;
   builder.set_filter_name("pmx-osc-network-receiver").set_media_type("Osc").
-          set_media_class("Osc/Source").add_output_port("osc", "8 bit raw midi")
+          set_media_class("Osc/Source").add_output_port("pmx-osc", "8 bit raw midi")
           .add_parameter("source.port", 1, pwcpp::filter::variant_type(33334)).
           add_parameter("source.protocol", 2,
                         pwcpp::filter::variant_type("udp")).

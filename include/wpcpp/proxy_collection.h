@@ -14,6 +14,7 @@ struct proxy {
   std::string name;
   std::string path;
   proxy_type type;
+  std::optional<int> node_id;
 };
 
 class ProxyCollection {

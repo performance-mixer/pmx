@@ -35,14 +35,17 @@ auto proxy_added_callback = +[ ](WpObjectManager *object_manager,
     type = wpcpp::proxy_type::node;
   }
 
+  std::optional<int> node_id;
   auto is_port = G_TYPE_CHECK_INSTANCE_TYPE(g_object, WP_TYPE_PORT);
   if (is_port) {
     name = safe_string(
       wp_pipewire_object_get_property(g_object, PW_KEY_PORT_NAME));
     type = wpcpp::proxy_type::port;
+    node_id = std::stoi(
+      wp_pipewire_object_get_property(g_object, PW_KEY_NODE_ID));
   }
 
-  proxy_collection->push_back({object_id, name, path, type});
+  proxy_collection->push_back({object_id, name, path, type, node_id});
 };
 
 void wpcpp::ProxyCollection::setup() {

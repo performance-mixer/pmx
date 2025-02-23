@@ -6,6 +6,8 @@
 #include "console/describe_command.h"
 #include "console/status_command.h"
 #include "console/start_command.h"
+#include "console/check_command.h"
+
 #include "wpcpp/proxy_collection_builder.h"
 #include "wpcpp/link_collection.h"
 
@@ -34,7 +36,7 @@ int main(const int argc, char *argv[]) {
   pwcpp::filter::AppBuilder<std::nullptr_t> builder;
   builder.set_filter_name("pmx-console").set_media_type("OSC").
           set_media_class("OSC/Source").add_arguments(argc, argv).
-          add_output_port("osc", "8 bit raw midi").add_signal_processor(
+          add_output_port("pmx-osc", "8 bit raw midi").add_signal_processor(
             [&has_request, &response, &has_response, &request](
             auto position, auto &in_ports, auto &out_ports, auto &user_data,
             auto &parameters) {
@@ -210,6 +212,14 @@ int main(const int argc, char *argv[]) {
         } else if (token == "start") {
           repl.history_add(line);
           auto result = console::start_command(iss, bus);
+          if (!result) {
+            std::cout << "There was an error: " << result.error().message <<
+              std::endl;
+          }
+        } else if (token == "check") {
+          repl.history_add(line);
+          auto result = console::check_command(iss, *proxy_collection,
+                                               *link_collection);
           if (!result) {
             std::cout << "There was an error: " << result.error().message <<
               std::endl;

@@ -33,7 +33,7 @@ int main(const int argc, char *argv[]) {
           set_media_class("Midi/Sink").add_arguments(argc, argv).
           add_input_port("input channels", "8 bit raw midi").
           add_input_port("output channels", "8 bit raw midi").
-          add_output_port("osc", "8 bit raw midi").add_signal_processor(
+          add_output_port("pmx-osc", "8 bit raw midi").add_signal_processor(
             [](auto position, auto &in_ports, auto &out_ports, auto &user_data,
                auto &parameters) {
               logging::Logger logger{"signal_processor"};

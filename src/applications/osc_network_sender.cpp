@@ -28,7 +28,7 @@ int main(int argc, char **argv) {
   pwcpp::filter::AppBuilder<std::nullptr_t> builder;
   builder.set_filter_name("pmx-osc-network-router").set_media_type("Osc").
           set_media_class("Osc/Sink").add_arguments(argc, argv).
-          add_input_port("osc", "8 bit raw midi").
+          add_input_port("pmx-osc", "8 bit raw midi").
           add_parameter("target.ip_address", 1,
                         pwcpp::filter::variant_type("127.0.0.1")).
           add_parameter("target.port", 2, pwcpp::filter::variant_type(3300)).
