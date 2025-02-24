@@ -11,7 +11,6 @@ void proxy::ProxyWatcher::register_callback(pw_registry *registry) {
 }
 
 std::optional<pw_client*> proxy::ProxyWatcher::get_proxy_client(uint32_t id) {
-  std::lock_guard lock(proxies_mutex);
   auto client = static_cast<pw_client*>(pw_registry_bind(
     registry, id, "PipeWire:Interface:Node", PW_VERSION_CLIENT, 0));
   if (client == nullptr) { return std::nullopt; }
