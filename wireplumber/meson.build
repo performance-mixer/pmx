@@ -1,4 +1,5 @@
 install_data(
+    'pmx_connect_osc_ports.lua',
     'pmx_connect_group_to_layer.lua',
     'pmx_control_watcher.lua',
     'pmx_filter_manager.lua',
