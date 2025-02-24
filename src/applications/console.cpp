@@ -7,6 +7,7 @@
 #include "console/status_command.h"
 #include "console/start_command.h"
 #include "console/check_command.h"
+#include "console/params_command.h"
 
 #include "wpcpp/proxy_collection_builder.h"
 #include "wpcpp/link_collection.h"
@@ -17,6 +18,7 @@
 #include <pwcpp/filter/app_builder.h>
 #include <condition_variable>
 #include <logging/logger.h>
+#include <proxy/proxy_watcher.h>
 #include <wpcpp/metadata.h>
 #include <systemd/sd-bus.h>
 
@@ -89,9 +91,20 @@ int main(const int argc, char *argv[]) {
               }
             });
 
-  std::thread pw_thread([&builder]() {
-    auto filter_app = builder.build();
+  proxy::ProxyWatcher proxy_watcher;
+  for (auto &fc_name : pmx::constants::filter_chain_in_node_names) {
+    proxy_watcher.watch_props_param(fc_name);
+  }
+
+  auto filter_app = builder.build();
+
+  std::thread pw_thread([&filter_app, &proxy_watcher]() {
     if (filter_app.has_value()) {
+      auto context = pw_context_new(
+        pw_main_loop_get_loop(filter_app.value()->loop), nullptr, 0);
+      auto core = pw_context_connect(context, nullptr, 0);
+      auto registry = pw_core_get_registry(core, PW_VERSION_REGISTRY, 0);
+      proxy_watcher.register_callback(registry);
       filter_app.value()->run();
     }
   });
@@ -103,7 +116,7 @@ int main(const int argc, char *argv[]) {
     WpObjectManager *object_manager = nullptr;
   };
 
-  std::atomic<bool> initialized = false;
+  std::atomic initialized = false;
   std::shared_ptr<wpcpp::ProxyCollection> proxy_collection;
   std::shared_ptr<wpcpp::LinkCollection> link_collection;
   wpcpp::Metadata metadata;
@@ -179,6 +192,14 @@ int main(const int argc, char *argv[]) {
           repl.history_add(line);
           auto result = console::list_command(iss, *link_collection,
                                               *proxy_collection, bus);
+          if (!result) {
+            std::cout << "There was an error: " << result.error().message <<
+              std::endl;
+          }
+        } else if (token == "params") {
+          repl.history_add(line);
+          auto result = console::params_command(iss, proxy_watcher,
+                                                filter_app.value()->loop);
           if (!result) {
             std::cout << "There was an error: " << result.error().message <<
               std::endl;

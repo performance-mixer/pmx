@@ -25,3 +25,20 @@ const std::array<std::string, 3> pmx::constants::pmx_osc_producer_node_names = {
 const std::array<std::string, 2> pmx::constants::pmx_osc_consumer_node_names = {
   "pmx-filter-chain-ctrl", "pmx-osc-network-sender"
 };
+
+const std::array<std::string, 8> pmx::constants::filter_chain_node_names = {
+  "pmx-layer-channels-ins", "pmx-layer-channels-outs",
+  "pmx-group-channels-a-ins", "pmx-group-channels-b-ins",
+  "pmx-group-channels-a-outs", "pmx-group-channels-b-outs",
+  "pmx-input-channels-ins", "pmx-input-channels-outs",
+};
+
+const std::array<std::string, 8> pmx::constants::filter_chain_in_node_names = {
+  "pmx-layer-channels-ins", "pmx-group-channels-a-ins",
+  "pmx-group-channels-b-ins", "pmx-input-channels-ins",
+};
+
+const std::array<std::string, 8> pmx::constants::filter_chain_out_node_names = {
+  "pmx-layer-channels-outs", "pmx-group-channels-a-outs",
+  "pmx-group-channels-b-outs", "pmx-input-channels-outs",
+};

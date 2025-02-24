@@ -17,6 +17,7 @@ executable(
         'parameters.cpp',
         'processing.cpp',
         'parse_osc_path.cpp',
+        'proxy_watcher.cpp'
     ],
     dependencies : [pipewire_dep, libsystemd_dep],
     include_directories : [include_directory],
@@ -79,7 +80,8 @@ executable(
         'proxy_collection.cpp',
         'units.cpp',
         'colors.cpp',
-        'constants.cpp'
+        'constants.cpp',
+        'proxy_watcher.cpp'
     ],
     dependencies : [pipewire_dep, wireplumber_dep, replxx_dep, libsystemd_dep],
     include_directories : [include_directory],

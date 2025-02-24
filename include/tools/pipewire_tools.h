@@ -31,7 +31,6 @@ static spa_pod *build_set_params_message(u_int8_t *buffer,
 }
 
 struct pw_invoke_set_param_data {
-  std::uint32_t id;
   pw_client *client;
   uint8_t buffer[1024];
   spa_pod *pod;
@@ -39,7 +38,7 @@ struct pw_invoke_set_param_data {
 
 inline void set_props_param(pw_client *client, pw_main_loop *loop,
                             const std::string &parameter_name, double value) {
-  pw_invoke_set_param_data data{};
+  pw_invoke_set_param_data data{.client = client,};
   data.pod = build_set_params_message(data.buffer, 1024, parameter_name, value);
 
   auto func = [](struct spa_loop *loop, bool async, u_int32_t seq,

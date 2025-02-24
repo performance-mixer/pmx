@@ -65,6 +65,8 @@ int main(const int argc, char *argv[]) {
                                 message)) {
                               wakeup_consumer = true;
                             }
+                            logger.log_info(
+                              "Added osc message for input channels");
                             break;
                           }
                         case osc::osc_path_channel_type::group:
@@ -82,6 +84,8 @@ int main(const int argc, char *argv[]) {
                                 *osc_path, message)) {
                               wakeup_consumer = true;
                             }
+                            logger.log_info(
+                              "Added osc message for group channels");
                             break;
                           }
                         case osc::osc_path_channel_type::layer:
@@ -92,6 +96,8 @@ int main(const int argc, char *argv[]) {
                                 message)) {
                               wakeup_consumer = true;
                             }
+                            logger.log_info(
+                              "Added osc message for layer channels");
                             break;
                           }
                         case osc::osc_path_channel_type::none:
@@ -152,14 +158,21 @@ int main(const int argc, char *argv[]) {
                 "{}-{}:{}", message.path.parameter->device_name, device_number,
                 message.path.parameter->name);
 
-              auto client = proxy_watcher.get_proxy_client(
-                message.filter_chain_id);
-              if (client.has_value()) {
-                tools::set_props_param(client.value(), filter_app.value()->loop,
-                                       parameter_name, message.value);
+              auto proxy = proxy_watcher.get_proxy(message.filter_chain_id);
+              if (proxy.has_value()) {
+                auto client = proxy.value().client();
+                if (client.has_value()) {
+                  tools::set_props_param(proxy.value().client().value(),
+                                         filter_app.value()->loop,
+                                         parameter_name, message.value);
+                } else {
+                  logger.log_warning(
+                    "Couldn't get client for node id " + std::to_string(
+                      message.filter_chain_id));
+                }
               } else {
                 logger.log_warning(
-                  "Couldn't get client for node id " + std::to_string(
+                  "Couldn't get node for node id " + std::to_string(
                     message.filter_chain_id));
               }
               break;
@@ -171,14 +184,21 @@ int main(const int argc, char *argv[]) {
                 "{}-G{}:{}", message.path.parameter->device_name,
                 message.path.channel_id, message.path.parameter->name);
 
-              auto client = proxy_watcher.get_proxy_client(
-                message.filter_chain_id);
-              if (client.has_value()) {
-                tools::set_props_param(client.value(), filter_app.value()->loop,
-                                       parameter_name, message.value);
+              auto proxy = proxy_watcher.get_proxy(message.filter_chain_id);
+              if (proxy.has_value()) {
+                auto client = proxy.value().client();
+                if (client.has_value()) {
+                  tools::set_props_param(client.value(),
+                                         filter_app.value()->loop,
+                                         parameter_name, message.value);
+                } else {
+                  logger.log_warning(
+                    "Couldn't get client for node id " + std::to_string(
+                      message.filter_chain_id));
+                }
               } else {
                 logger.log_warning(
-                  "Couldn't get client for node id " + std::to_string(
+                  "Couldn't get proxy for node id " + std::to_string(
                     message.filter_chain_id));
               }
               break;
@@ -198,14 +218,21 @@ int main(const int argc, char *argv[]) {
                                              message.path.parameter->name);
               }
 
-              auto client = proxy_watcher.get_proxy_client(
-                message.filter_chain_id);
-              if (client.has_value()) {
-                tools::set_props_param(client.value(), filter_app.value()->loop,
-                                       parameter_name, message.value);
+              auto proxy = proxy_watcher.get_proxy(message.filter_chain_id);
+              if (proxy.has_value()) {
+                auto client = proxy.value().client();
+                if (client.has_value()) {
+                  tools::set_props_param(client.value(),
+                                         filter_app.value()->loop,
+                                         parameter_name, message.value);
+                } else {
+                  logger.log_warning(
+                    "Couldn't get client for node id " + std::to_string(
+                      message.filter_chain_id));
+                }
               } else {
                 logger.log_warning(
-                  "Couldn't get client for node id " + std::to_string(
+                  "Couldn't get proxy for node id " + std::to_string(
                     message.filter_chain_id));
               }
               break;
