@@ -11,6 +11,9 @@ inline std::expected<void, error::error> params_command(
   std::string object;
   if (stream >> object) {
     if (std::all_of(object.begin(), object.end(), ::isdigit)) {
+      auto id = std::stoi(object);
+      auto proxy = proxy_watcher.get_proxy(id);
+      std::cout << proxy->name << std::endl;
       return {};
     } else {
       return std::unexpected(

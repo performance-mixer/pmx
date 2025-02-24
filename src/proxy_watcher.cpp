@@ -58,16 +58,22 @@ void proxy::ProxyWatcher::process_registry_event(void *data, uint32_t id,
     self->proxies.push_back(Proxy(factory, proxy_type::node, id,
                                   std::string(name)));
     std::lock_guard watched_lock(self->watched_params_mutex);
+    std::cout << "Checking if param is watched" << std::endl;
     if (std::find(self->watched_props_params_nodes.begin(),
                   self->watched_props_params_nodes.end(),
                   name) != self->watched_props_params_nodes.end()) {
+      std::cout << "Param is watched" << std::endl;
       auto client = self->proxies.back().client();
       if (client.has_value()) {
+        std::cout << "Adding listener" << std::endl;
         pw_node_add_listener(client.value(), &self->proxies.back().hook,
                              &self->node_events, self);
         std::uint32_t params[] = {SPA_PARAM_Props};
         pw_node_subscribe_params(client.value(), params, 1);
+        std::cout << "Subscribed" << std::endl;
       }
+    } else {
+      std::cout << "Param not watched" << std::endl;
     }
   }
 };
