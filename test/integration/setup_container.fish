@@ -3,7 +3,7 @@ mkdir -p ~/Development/testing/containers/$argv[1]
 sudo pacstrap -c ~/Development/testing/containers/$argv[1] base base-devel systemd \
     pipewire wireplumber boost grpc protobuf yaml-cpp libsystemd dbus fish git \
     meson neovim pipewire-audio pipewire-jack calf jalv dpf-plugins-lv2 tmux \
-    cmake
+    cmake gdb
 
 sudo systemd-nspawn -D ~/Development/testing/containers/$argv[1] \
     /usr/bin/fish -c "useradd -m -G wheel -s /usr/bin/fish pmx"

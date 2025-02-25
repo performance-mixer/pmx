@@ -78,6 +78,13 @@ void proxy::ProxyWatcher::process_node_params_event(void *data, int seq,
                                                     uint32_t next,
                                                     const spa_pod *param) {
   auto *self = static_cast<ProxyWatcher*>(data);
+  auto proxy_it = std::find_if(self->proxies.begin(), self->proxies.end(),
+                               [id](const auto &proxy) {
+                                 return proxy.id == id;
+                               });
+
+  if (proxy_it == self->proxies.end()) { return; }
+
   const spa_pod_prop *property = spa_pod_find_prop(
     param, nullptr, SPA_PROP_params);
   void *struct_field_void;
@@ -133,16 +140,7 @@ void proxy::ProxyWatcher::process_node_params_event(void *data, int seq,
     result.emplace_back(make_tuple(keys[i], values[i]));
   }
 
-
-  std::lock_guard<std::mutex> lock(self->proxies_mutex);
-  auto proxy_it = std::find_if(self->proxies.begin(), self->proxies.end(),
-                               [id](const auto &proxy) {
-                                 return proxy.id == id;
-                               });
-
-  if (proxy_it != self->proxies.end()) {
-    proxy_it->update_parameters(result);
-  }
+  proxy_it->update_parameters(result);
 }
 
 std::optional<proxy::Proxy> proxy::ProxyWatcher::get_proxy(uint32_t id) {
