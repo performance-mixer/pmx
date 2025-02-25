@@ -55,6 +55,8 @@ void proxy::ProxyWatcher::process_registry_event(void *data, uint32_t id,
   std::string_view type(c_type);
   if (type == "PipeWire:Interface:Node") {
     auto name = spa_dict_lookup(props, PW_KEY_NODE_NAME);
+    if (name == nullptr) { return; }
+
     std::lock_guard lock(self->proxies_mutex);
     auto factory = [self, id]() { return self->get_proxy_client(id); };
     self->proxies.push_back(Proxy(factory, proxy_type::node, id,
