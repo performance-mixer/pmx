@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <memory>
+#include <shared_mutex>
 #include <spa/debug/pod.h>
 #include <spa/pod/parser.h>
 
@@ -25,6 +26,7 @@ std::expected<void, pwcpp::error> proxy::ProxyWatcher::watch_props_param(
                 watched_props_params_nodes.end(),
                 node_name) == watched_props_params_nodes.end()) {
     watched_props_params_nodes.push_back(node_name);
+    std::lock_guard lock_proxies(proxies_mutex);
     auto existing_node = std::find_if(proxies.begin(), proxies.end(),
                                       [node_name](const auto &proxy) {
                                         return proxy.name == node_name && proxy.
@@ -78,12 +80,16 @@ void proxy::ProxyWatcher::process_node_params_event(void *data, int seq,
                                                     uint32_t next,
                                                     const spa_pod *param) {
   auto *self = static_cast<ProxyWatcher*>(data);
-  auto proxy_it = std::find_if(self->proxies.begin(), self->proxies.end(),
-                               [id](const auto &proxy) {
-                                 return proxy.id == id;
-                               });
 
-  if (proxy_it == self->proxies.end()) { return; }
+  {
+    std::lock_guard lock(self->proxies_mutex);
+    auto proxy_it = std::find_if(self->proxies.begin(), self->proxies.end(),
+                                 [id](const auto &proxy) {
+                                   return proxy.id == id;
+                                 });
+
+    if (proxy_it == self->proxies.end()) { return; }
+  }
 
   const spa_pod_prop *property = spa_pod_find_prop(
     param, nullptr, SPA_PROP_params);
@@ -119,11 +125,10 @@ void proxy::ProxyWatcher::process_node_params_event(void *data, int seq,
         {
           const char *string_value;
           spa_pod_get_string(struct_field, &string_value);
-          std::string value(string_value);
-          if (value == "null") {
+          if (string_value == nullptr) {
             values.emplace_back(std::nullopt);
           } else {
-            values.emplace_back(value);
+            values.emplace_back(string_value);
           }
           break;
         }
@@ -135,12 +140,21 @@ void proxy::ProxyWatcher::process_node_params_event(void *data, int seq,
     count++;
   }
 
-  std::vector<std::tuple<std::string, Proxy::parameter_value_variant>> result;
-  for (auto i = 0; i < keys.size(); i++) {
-    result.emplace_back(make_tuple(keys[i], values[i]));
-  }
+  {
+    std::lock_guard lock(self->proxies_mutex);
+    auto proxy_it = std::find_if(self->proxies.begin(), self->proxies.end(),
+                                 [id](const auto &proxy) {
+                                   return proxy.id == id;
+                                 });
 
-  proxy_it->update_parameters(result);
+    if (proxy_it == self->proxies.end()) { return; }
+    std::vector<std::tuple<std::string, Proxy::parameter_value_variant>> result;
+    for (auto i = 0; i < keys.size(); i++) {
+      result.emplace_back(make_tuple(keys[i], values[i]));
+    }
+
+    proxy_it->update_parameters(result);
+  }
 }
 
 std::optional<proxy::Proxy> proxy::ProxyWatcher::get_proxy(uint32_t id) {
