@@ -2,30 +2,25 @@
 
 #include <expected>
 #include <boost/asio/detail/mutex.hpp>
+#include <utility>
 #include <pipewire/pipewire.h>
 #include <pwcpp/error.h>
 
 namespace proxy {
-struct param {
-  std::string name;
-  std::string value;
-  std::string type;
-};
-
-struct node_props_params {
-  int node_id;
-  std::vector<param> params;
-};
-
 enum class proxy_type { node };
 
 class Proxy {
 public:
+  using parameter_value_variant = std::variant<
+    int, float, double, std::string, std::nullopt_t>;
+
   Proxy(std::function<std::optional<pw_client*>()> client_factory,
         proxy_type type, uint32_t id, std::string name) : type(type), id(id),
-                                                          name(name),
+                                                          name(std::move(name)),
                                                           _client_factory(
-                                                            client_factory) {}
+                                                            std::move(
+                                                              client_factory)) {
+  }
 
   std::optional<pw_client*> client() {
     if (!_client.has_value()) {
@@ -34,15 +29,24 @@ public:
     return _client;
   };
 
+  void update_parameters(
+    std::span<std::tuple<std::string, parameter_value_variant>> parameters);
+
   proxy_type type;
   uint32_t id;
   std::string name;
   bool connected = false;
   spa_hook hook{};
 
+  std::vector<std::tuple<std::string, parameter_value_variant>> parameters() {
+    return _parameters;
+  }
+
 private:
   std::function<std::optional<pw_client*>()> _client_factory;
   std::optional<pw_client*> _client = std::nullopt;
+
+  std::vector<std::tuple<std::string, parameter_value_variant>> _parameters;
 };
 
 class ProxyWatcher {
@@ -62,9 +66,6 @@ private:
 
   std::mutex watched_params_mutex;
   std::vector<std::string> watched_props_params_nodes;
-
-  std::mutex node_params_mutex;
-  std::vector<node_props_params> node_params;
 
   std::mutex proxies_mutex;
   std::vector<Proxy> proxies;
