@@ -23,6 +23,7 @@ SimpleEventHook({
         })
     },
     execute = function(event)
+        print("found layer channels")
         layer_channels = event:get_subject()
     end
 })
@@ -37,6 +38,7 @@ SimpleEventHook({
         })
     },
     execute = function(event)
+        print("found input channels")
         input_channels = event:get_subject()
     end
 })
@@ -51,6 +53,7 @@ SimpleEventHook({
         })
     },
     execute = function(event)
+        print("found group a channels")
         group_a_channels = event:get_subject()
     end
 })
@@ -65,6 +68,7 @@ SimpleEventHook({
         })
     },
     execute = function(event)
+        print("found group b channels")
         group_b_channels = event:get_subject()
         local source = event:get_source()
         source:call("push-event", "update-fc-ids", nil, nil)
@@ -99,6 +103,11 @@ SimpleEventHook({
             if layer_channels ~= nil then
                 layer_channels_id = layer_channels.properties["object.id"]
             end
+
+            print("input_channels.filter_chain_id", input_channels_id)
+            print("group_channels_a.filter_chain_id", group_a_channels_id)
+            print("group_channels_a.filter_chain_id", group_b_channels_id)
+            print("layer_channels.filter_chain_id", layer_channels_id)
 
             local props = {
                 "Spa:Pod:Object:Param:Props",
