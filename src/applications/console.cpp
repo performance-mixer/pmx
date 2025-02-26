@@ -92,10 +92,6 @@ int main(const int argc, char *argv[]) {
             });
 
   proxy::ProxyWatcher proxy_watcher;
-  for (auto &fc_name : pmx::constants::filter_chain_in_node_names) {
-    proxy_watcher.watch_props_param(fc_name);
-  }
-
   auto filter_app = builder.build();
 
   std::thread pw_thread([&filter_app, &proxy_watcher]() {

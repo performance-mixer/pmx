@@ -1,6 +1,7 @@
 #pragma once
 
 #include <expected>
+#include <memory>
 #include <boost/asio/detail/mutex.hpp>
 #include <utility>
 #include <pipewire/pipewire.h>
@@ -52,7 +53,6 @@ private:
 class ProxyWatcher {
 public:
   void register_callback(pw_registry *registry);
-  std::expected<void, pwcpp::error> watch_props_param(std::string node_name);
   std::optional<Proxy> get_proxy(uint32_t id);
 
 private:
@@ -64,11 +64,8 @@ private:
     .version = PW_VERSION_NODE_EVENTS, .param = process_node_params_event
   };
 
-  std::mutex watched_params_mutex;
-  std::vector<std::string> watched_props_params_nodes;
-
   std::mutex proxies_mutex;
-  std::vector<Proxy> proxies;
+  std::vector<std::shared_ptr<Proxy>> proxies;
 
   pw_registry *registry{nullptr};
   spa_hook registry_hook{};
