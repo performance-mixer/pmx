@@ -10,6 +10,8 @@ SimpleEventHook({
     execute = function(event)
         print("found filter chain")
         filter_chain = event:get_subject()
+        local source = event:get_source()
+        source:call("push-event", "update-fc-ids", nil, nil)
     end
 }):register()
 
@@ -25,8 +27,10 @@ SimpleEventHook({
     execute = function(event)
         print("found layer channels")
         layer_channels = event:get_subject()
+        local source = event:get_source()
+        source:call("push-event", "update-fc-ids", nil, nil)
     end
-})
+}):register()
 
 local input_channels = {}
 SimpleEventHook({
@@ -40,8 +44,10 @@ SimpleEventHook({
     execute = function(event)
         print("found input channels")
         input_channels = event:get_subject()
+        local source = event:get_source()
+        source:call("push-event", "update-fc-ids", nil, nil)
     end
-})
+}):register()
 
 local group_a_channels = {}
 SimpleEventHook({
@@ -55,8 +61,10 @@ SimpleEventHook({
     execute = function(event)
         print("found group a channels")
         group_a_channels = event:get_subject()
+        local source = event:get_source()
+        source:call("push-event", "update-fc-ids", nil, nil)
     end
-})
+}):register()
 
 local group_b_channels = {}
 SimpleEventHook({
@@ -73,7 +81,7 @@ SimpleEventHook({
         local source = event:get_source()
         source:call("push-event", "update-fc-ids", nil, nil)
     end
-})
+}):register()
 
 SimpleEventHook({
     name = "set_up_filter_chain/set_filter_chain_parameters",
@@ -122,4 +130,4 @@ SimpleEventHook({
             filter_chain:set_param("Props", param)
         end
     end
-})
+}):register()
