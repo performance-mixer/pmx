@@ -120,10 +120,10 @@ SimpleEventHook({
             local props = {
                 "Spa:Pod:Object:Param:Props",
                 "Props",
-                ["inputChannels"] = input_channels_id,
-                ["groupChannelsA"] = group_a_channels_id,
-                ["groupChannelsB"] = group_b_channels_id,
-                ["layerChannels"] = layer_channels_id,
+                inputChannels = tostring(input_channels_id),
+                groupChannelsA = tostring(group_a_channels_id),
+                groupChannelsB = tostring(group_b_channels_id),
+                layerChannels = tostring(layer_channels_id),
             }
 
             local param = Pod.Object(props)
