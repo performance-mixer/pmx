@@ -1,4 +1,4 @@
-local filter_chain = nil
+local filter_chain
 SimpleEventHook({
     name = "set_up_filter_chain/find_filter_chain",
     interests = {
@@ -15,7 +15,7 @@ SimpleEventHook({
     end
 }):register()
 
-local layer_channels = {}
+local layer_channels
 SimpleEventHook({
     name = "set_up_filter_chain/find_layer_channels",
     interests = {
@@ -32,7 +32,7 @@ SimpleEventHook({
     end
 }):register()
 
-local input_channels = {}
+local input_channels
 SimpleEventHook({
     name = "set_up_filter_chain/find_input_channels",
     interests = {
@@ -49,7 +49,7 @@ SimpleEventHook({
     end
 }):register()
 
-local group_a_channels = {}
+local group_a_channels
 SimpleEventHook({
     name = "set_up_filter_chain/find_group_a_channels",
     interests = {
@@ -66,7 +66,7 @@ SimpleEventHook({
     end
 }):register()
 
-local group_b_channels = {}
+local group_b_channels
 SimpleEventHook({
     name = "set_up_filter_chain/find_group_b_channels",
     interests = {
