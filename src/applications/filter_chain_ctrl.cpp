@@ -35,11 +35,10 @@ int main(const int argc, char *argv[]) {
   builder.set_filter_name("pmx-filter-chain-ctrl").set_media_type("Osc").
           set_media_class("Osc/Sink").add_arguments(argc, argv).
           add_input_port("pmx-osc", "8 bit raw midi").
-          add_parameter("input_channels.filter_chain_id", 1, std::nullopt).
-          add_parameter("group_channels_a.filter_chain_id", 2, std::nullopt).
-          add_parameter("group_channels_a.filter_chain_id", 3, std::nullopt).
-          add_parameter("layer_channels.filter_chain_id", 4, std::nullopt).
-          add_signal_processor(
+          add_parameter("inputChannels", 1, std::nullopt).
+          add_parameter("groupChannelsA", 2, std::nullopt).
+          add_parameter("groupChannelsB", 3, std::nullopt).
+          add_parameter("layerChannels", 4, std::nullopt).add_signal_processor(
             [&queue, &wait_condition](auto position, auto &in_ports,
                                       auto &out_ports, auto &user_data,
                                       auto &parameters) {

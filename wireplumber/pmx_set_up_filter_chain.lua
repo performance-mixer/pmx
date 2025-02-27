@@ -66,7 +66,7 @@ SimpleEventHook({
     end
 }):register()
 
-local group_b_channels
+local group_b_channeiils
 SimpleEventHook({
     name = "set_up_filter_chain/find_group_b_channels",
     interests = {
@@ -112,18 +112,18 @@ SimpleEventHook({
                 layer_channels_id = layer_channels.properties["object.id"]
             end
 
-            print("input_channels.filter_chain_id", input_channels_id)
-            print("group_channels_a.filter_chain_id", group_a_channels_id)
-            print("group_channels_a.filter_chain_id", group_b_channels_id)
-            print("layer_channels.filter_chain_id", layer_channels_id)
+            print("inputChannels", input_channels_id)
+            print("groupChannelsA", group_a_channels_id)
+            print("groupChannelsB", group_b_channels_id)
+            print("layerChannels", layer_channels_id)
 
             local props = {
                 "Spa:Pod:Object:Param:Props",
                 "Props",
-                ["input_channels.filter_chain_id"] = input_channels_id,
-                ["group_channels_a.filter_chain_id"] = group_a_channels_id,
-                ["group_channels_a.filter_chain_id"] = group_b_channels_id,
-                ["layer_channels.filter_chain_id"] = layer_channels_id,
+                ["inputChannels"] = input_channels_id,
+                ["groupChannelsA"] = group_a_channels_id,
+                ["groupChannelsB"] = group_b_channels_id,
+                ["layerChannels"] = layer_channels_id,
             }
 
             local param = Pod.Object(props)
