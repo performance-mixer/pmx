@@ -1,13 +1,4 @@
-#include "console/messages.h"
-#include "console/send_command.h"
-#include "console/meta_command.h"
-#include "console/pmx_command.h"
-#include "console/list_command.h"
-#include "console/describe_command.h"
-#include "console/status_command.h"
-#include "console/start_command.h"
-#include "console/check_command.h"
-#include "console/params_command.h"
+#include "console/commands.h"
 
 #include "wpcpp/proxy_collection_builder.h"
 #include "wpcpp/link_collection.h"
@@ -192,18 +183,10 @@ int main(const int argc, char *argv[]) {
             std::cout << "There was an error: " << result.error().message <<
               std::endl;
           }
-        } else if (token == "params") {
-          repl.history_add(line);
-          auto result = console::params_command(iss, proxy_watcher,
-                                                filter_app.value()->loop);
-          if (!result) {
-            std::cout << "There was an error: " << result.error().message <<
-              std::endl;
-          }
         } else if (token == "describe") {
           repl.history_add(line);
-          auto result = console::describe_command(iss, *proxy_collection,
-                                                  *link_collection);
+          auto result = console::describe_command(
+            iss, *proxy_collection, proxy_watcher, *link_collection);
         } else if (token == "meta") {
           repl.history_add(line);
           auto result = console::meta_command(iss, metadata);
@@ -213,7 +196,8 @@ int main(const int argc, char *argv[]) {
           }
         } else if (token == "status") {
           repl.history_add(line);
-          auto result = console::status_command(iss, bus);
+          auto result = console::status_command(iss, *proxy_collection,
+                                                *link_collection, bus);
           if (!result) {
             std::cout << "There was an error: " << result.error().message <<
               std::endl;
@@ -233,10 +217,11 @@ int main(const int argc, char *argv[]) {
             std::cout << "There was an error: " << result.error().message <<
               std::endl;
           }
-        } else if (token == "check") {
+        } else if (token == "setup") {
           repl.history_add(line);
-          auto result = console::check_command(iss, *proxy_collection,
-                                               *link_collection);
+          auto result = console::setup_command(iss, *proxy_collection,
+                                               proxy_watcher,
+                                               filter_app.value()->loop);
           if (!result) {
             std::cout << "There was an error: " << result.error().message <<
               std::endl;

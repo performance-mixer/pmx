@@ -1,10 +1,10 @@
-#pragma once
+#include "console/commands.h"
+
 #include <iostream>
 #include <metadata/metadata_watcher.h>
 #include <wpcpp/metadata.h>
 
-namespace console {
-inline std::expected<void, error::error> meta_command(
+std::expected<void, error::error> console::meta_command(
   std::istringstream &stream, wpcpp::Metadata &metadata) {
   std::string sub_command;
   if (stream >> sub_command) {
@@ -23,5 +23,4 @@ inline std::expected<void, error::error> meta_command(
     return std::unexpected(
       error::error::invalid_argument("missing sub command"));
   }
-}
 }

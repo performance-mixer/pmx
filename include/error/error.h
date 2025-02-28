@@ -4,7 +4,10 @@
 
 namespace error {
 enum class error_type {
-  NOT_IMPLEMENTED, INVALID_ARGUMENT, SYSTEMD_CALL_METHOD
+  NOT_IMPLEMENTED,
+  INVALID_ARGUMENT,
+  SYSTEMD_CALL_METHOD,
+  PIPEWIRE_ERROR,
 };
 
 struct error {
@@ -21,6 +24,10 @@ struct error {
 
   static error systemd(const std::string &message) {
     return {message, error_type::SYSTEMD_CALL_METHOD};
+  }
+
+  static error pipewire(const std::string &message) {
+    return {message, error_type::PIPEWIRE_ERROR};
   }
 };
 }

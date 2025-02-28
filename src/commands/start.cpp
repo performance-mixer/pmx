@@ -1,8 +1,10 @@
-#pragma once
-#include <pmx/constants.h>
 
-namespace console {
-inline std::expected<void, sdcpp::error> start_command(
+#include <pmx/constants.h>
+#include <sdcpp/units.h>
+
+#include "console/commands.h"
+
+std::expected<void, sdcpp::error> console::start_command(
   std::istringstream &stream, sdcpp::Bus &bus) {
   auto result = enable_units(bus, pmx::constants::service_names);
   if (!result.has_value()) {
@@ -15,5 +17,4 @@ inline std::expected<void, sdcpp::error> start_command(
   }
 
   return {};
-}
 }

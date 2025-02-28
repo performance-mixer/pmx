@@ -1,13 +1,42 @@
-#pragma once
+#include <algorithm>
+#include <expected>
+#include <iostream>
+#include <sstream>
+#include <error/error.h>
+#include <wpcpp/link_collection.h>
+#include <wpcpp/proxy_collection.h>
 
-namespace console {
-inline std::expected<void, error::error> describe_command(
+#include "console/commands.h"
+
+std::expected<void, error::error> console::describe_command(
   std::istringstream &stream, wpcpp::ProxyCollection &proxy_collection,
-  wpcpp::LinkCollection &link_collection) {
+  proxy::ProxyWatcher &proxy_watcher, wpcpp::LinkCollection &link_collection) {
   std::string object;
   if (stream >> object) {
     if (std::all_of(object.begin(), object.end(), ::isdigit)) {
       auto id = std::stoi(object);
+
+      auto pw_proxy = proxy_watcher.get_proxy(id);
+      if (pw_proxy.has_value()) {
+        std::cout << pw_proxy->name << std::endl << std::endl << "Parameters:"
+          << std::endl;
+        auto parameters = pw_proxy.value().parameters();
+        for (const auto &parameter : parameters) {
+          std::cout << std::get<0>(parameter) << ": ";
+          auto value = std::get<1>(parameter);
+          if (std::holds_alternative<std::string>(value)) {
+            std::cout << std::get<std::string>(value) << std::endl;
+          } else if (std::holds_alternative<int>(value)) {
+            std::cout << std::get<int>(value) << std::endl;
+          } else if (std::holds_alternative<float>(value)) {
+            std::cout << std::get<float>(value) << std::endl;
+          } else if (std::holds_alternative<double>(value)) {
+            std::cout << std::get<double>(value) << std::endl;
+          } else {
+            std::cout << "unknown type" << std::endl;
+          }
+        }
+      }
 
       auto proxies = proxy_collection.get_proxies();
       auto proxy = std::find_if(proxies.begin(), proxies.end(),
@@ -15,6 +44,7 @@ inline std::expected<void, error::error> describe_command(
                                   return proxy.object_id == id;
                                 });
 
+      std::cout << std::endl << "Links:" << std::endl;
       auto links = link_collection.get_links();
       if (proxy != proxies.end()) {
         std::cout << proxy->name << std::endl;
@@ -55,5 +85,4 @@ inline std::expected<void, error::error> describe_command(
   } else {
     return std::unexpected(error::error::invalid_argument("missing object id"));
   }
-}
 }

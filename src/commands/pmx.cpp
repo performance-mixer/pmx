@@ -1,11 +1,8 @@
-#pragma once
+#include <iostream>
 
-#include <wpcpp/link_collection.h>
-#include <wpcpp/proxy_collection.h>
-#include <systemd/sd-bus.h>
+#include "console/commands.h"
 
-namespace console {
-inline std::expected<void, error::error> pmx_command(
+std::expected<void, error::error> console::pmx_command(
   std::istringstream &stream, wpcpp::Metadata &metadata,
   wpcpp::ProxyCollection &proxy_collection,
   wpcpp::LinkCollection &link_collection, sd_bus *sd_bus) {
@@ -43,5 +40,4 @@ inline std::expected<void, error::error> pmx_command(
   }
 
   return std::unexpected(error::error::invalid_argument("missing sub command"));
-}
 }

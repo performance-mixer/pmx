@@ -1,16 +1,13 @@
-#pragma once
-
 #include <expected>
 
-#include "console/messages.h"
+#include "console/commands.h"
 #include "error/error.h"
 
 #include <fstream>
 #include <sstream>
 #include <oscpp/client.hpp>
 
-namespace console {
-inline std::expected<void, error::error> send_command(
+std::expected<void, error::error> console::send_command(
   std::istringstream &stream, request_message &message) {
   std::string sub_command_string;
   if (stream >> sub_command_string) {
@@ -60,4 +57,3 @@ inline std::expected<void, error::error> send_command(
 
   return std::unexpected(error::error::invalid_argument("missing path"));
 };
-}

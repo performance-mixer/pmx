@@ -1,10 +1,13 @@
-#pragma once
-
+#include <expected>
+#include <iostream>
+#include <sstream>
+#include <error/error.h>
+#include <sdcpp/bus.h>
 #include <sdcpp/units.h>
-#include <wpcpp/link_collection.h>
 
-namespace console {
-inline std::expected<void, error::error> list_command(
+#include "console/commands.h"
+
+std::expected<void, error::error> console::list_command(
   std::istringstream &stream, wpcpp::LinkCollection &link_collection,
   wpcpp::ProxyCollection &proxy_collection, sdcpp::Bus &bus) {
   std::string sub_command;
@@ -38,5 +41,4 @@ inline std::expected<void, error::error> list_command(
     }
   }
   return std::unexpected(error::error::invalid_argument("missing sub-command"));
-}
 }

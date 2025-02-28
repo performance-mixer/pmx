@@ -1,10 +1,10 @@
-local props = {
-    "Spa:Pod:Object:Param:Props",
-    "Props",
-    ["Compressor-B:attack"] = 1.5,
-}
-
 local success, result = pcall(function()
+    local props = {
+        "Spa:Pod:Object:Param:Props",
+        "Props",
+        params = Pod.Array { "Compressor:ratio", 4.5 },
+    }
+
     return Pod.Object(props)
 end)
 
