@@ -1,17 +1,21 @@
 #pragma once
 
 #include <optional>
-#include <pwcpp/filter/parameter.h>
+
+#include <pwcpp/property/property.h>
+#include <pwcpp/property/parameters_property.h>
 
 namespace tools {
 template <typename T>
-std::optional<T> get_from_collection(size_t index,
-                                     const std::span<pwcpp::filter::Parameter> &
+std::optional<T> get_from_collection(const std::string &name,
+                                     const std::span<const std::tuple<
+                                       std::string,
+                                       pwcpp::property::property_value_type>> &
                                      parameters) {
-  auto variant = std::find_if(parameters.begin(), parameters.end(),
-                              [&index](const auto &parameter) {
-                                return parameter.id == index;
-                              })->value;
+  auto variant = std::get<1>(*std::find_if(parameters.begin(), parameters.end(),
+                                           [&name](const auto &parameter) {
+                                             return get<0>(parameter) == name;
+                                           }));
   if (std::holds_alternative<T>(variant)) {
     return std::get<T>(variant);
   }

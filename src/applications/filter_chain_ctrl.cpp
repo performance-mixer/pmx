@@ -34,14 +34,13 @@ int main(const int argc, char *argv[]) {
   pwcpp::filter::AppBuilder<std::nullptr_t> builder;
   builder.set_filter_name("pmx-filter-chain-ctrl").set_media_type("Osc").
           set_media_class("Osc/Sink").add_arguments(argc, argv).
-          add_input_port("pmx-osc", "8 bit raw midi").
-          add_parameter("inputChannels", 1, std::nullopt).
-          add_parameter("groupChannelsA", 2, std::nullopt).
-          add_parameter("groupChannelsB", 3, std::nullopt).
-          add_parameter("layerChannels", 4, std::nullopt).add_signal_processor(
+          add_input_port("pmx-osc", "8 bit raw midi").set_up_parameters().
+          add("inputChannels", std::nullopt).add("groupChannelsA", std::nullopt)
+          .add("groupChannelsB", std::nullopt).
+          add("layerChannels", std::nullopt).finish().add_signal_processor(
             [&queue, &wait_condition](auto position, auto &in_ports,
-                                      auto &out_ports, auto &user_data,
-                                      auto &parameters) {
+                                      auto &out_ports, auto &parameters,
+                                      auto &user_data) {
               logging::Logger logger{"signal-processor"};
 
               auto buffer = in_ports[0]->get_buffer();
@@ -60,8 +59,8 @@ int main(const int argc, char *argv[]) {
                           {
                             if (
                               filter_chain_control::get_filter_chain_id_and_add_to_queue(
-                                logger, queue, 1, parameters, *osc_path,
-                                message)) {
+                                logger, queue, "inputChannels",
+                                parameters.parameters(), *osc_path, message)) {
                               wakeup_consumer = true;
                             }
                             logger.log_info(
@@ -70,17 +69,17 @@ int main(const int argc, char *argv[]) {
                           }
                         case osc::osc_path_channel_type::group:
                           {
-                            std::uint32_t node_parameter_id(0);
+                            std::string node_parameter_name;
                             if (osc_path->layer == osc::osc_path_layer::A) {
-                              node_parameter_id = 2;
+                              node_parameter_name = "groupChannelsA";
                             } else {
-                              node_parameter_id = 3;
+                              node_parameter_name = "groupChannelsB";
                             }
 
                             if (
                               filter_chain_control::get_filter_chain_id_and_add_to_queue(
-                                logger, queue, node_parameter_id, parameters,
-                                *osc_path, message)) {
+                                logger, queue, node_parameter_name,
+                                parameters.parameters(), *osc_path, message)) {
                               wakeup_consumer = true;
                             }
                             logger.log_info(
@@ -91,8 +90,8 @@ int main(const int argc, char *argv[]) {
                           {
                             if (
                               filter_chain_control::get_filter_chain_id_and_add_to_queue(
-                                logger, queue, 4, parameters, *osc_path,
-                                message)) {
+                                logger, queue, "layerChannels",
+                                parameters.parameters(), *osc_path, message)) {
                               wakeup_consumer = true;
                             }
                             logger.log_info(
