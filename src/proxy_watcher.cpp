@@ -65,10 +65,6 @@ void proxy::ProxyWatcher::process_node_params_event(void *data, int seq,
       const char *key;
       spa_pod_get_string(struct_field, &key);
       keys.emplace_back(key);
-      std::string t(key);
-      if (t == "source.port") {
-        std::cout << "source.port" << std::endl;
-      }
     } else {
       auto type = SPA_POD_TYPE(struct_field);
       switch (type) {
