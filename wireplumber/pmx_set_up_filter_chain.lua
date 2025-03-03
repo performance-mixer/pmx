@@ -121,10 +121,10 @@ SimpleEventHook({
                 "Spa:Pod:Object:Param:Props",
                 "Props",
                 params = Pod.Struct {
-                    inputChannels, input_channels_id,
-                    groupChannelsA, group_a_channels_id,
-                    groupChannelsB, group_b_channels_id,
-                    layerChannels, layer_channels_id
+                    "inputChannels", input_channels_id,
+                    "groupChannelsA", group_a_channels_id,
+                    "groupChannelsB", group_b_channels_id,
+                    "layerChannels", layer_channels_id
                 }
             }
 
