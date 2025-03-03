@@ -21,13 +21,12 @@ int main(int argc, char *argv[]) {
   logger.log_info("Building filter app");
   pwcpp::filter::AppBuilder<std::nullptr_t> builder;
   builder.set_filter_name("pmx-osc-network-receiver").set_media_type("Osc").
-          set_media_class("Osc/Source").add_output_port("pmx-osc", "8 bit raw midi")
-          .add_parameter("source.port", 1, pwcpp::filter::variant_type(33334)).
-          add_parameter("source.protocol", 2,
-                        pwcpp::filter::variant_type("udp")).
-          add_signal_processor([&queue](
-            auto position, auto &in_ports, auto &out_ports, auto &user_data,
-            auto &parameters) {
+          set_media_class("Osc/Source").
+          add_output_port("pmx-osc", "8 bit raw midi").set_up_parameters().
+          add("source.port", std::nullopt).add("source.port", 33334).
+          add("source.protocol", "udp").finish().add_signal_processor(
+            [&queue](auto position, auto &in_ports, auto &out_ports,
+                     auto &user_data, auto &parameters) {
               auto out_buffer = out_ports[0]->get_buffer();
               if (out_buffer.has_value()) {
                 if (queue.read_available() > 0) {
@@ -44,8 +43,8 @@ int main(int argc, char *argv[]) {
                   }
 
                   // ReSharper disable once CppDFAUnusedValue
-                  [[maybe_unused]] auto pod = static_cast<spa_pod*>(spa_pod_builder_pop(
-                    &builder, &frame));
+                  [[maybe_unused]] auto pod = static_cast<spa_pod*>(
+                    spa_pod_builder_pop(&builder, &frame));
 
                   spa_data->chunk->size = builder.state.offset;
                 }

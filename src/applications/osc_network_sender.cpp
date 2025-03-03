@@ -28,13 +28,9 @@ int main(int argc, char **argv) {
   pwcpp::filter::AppBuilder<std::nullptr_t> builder;
   builder.set_filter_name("pmx-osc-network-sender").set_media_type("Osc").
           set_media_class("Osc/Sink").add_arguments(argc, argv).
-          add_input_port("pmx-osc", "8 bit raw midi").
-          add_parameter("target.ip_address", 1,
-                        pwcpp::filter::variant_type("127.0.0.1")).
-          add_parameter("target.port", 2, pwcpp::filter::variant_type(3300)).
-          add_parameter("target.protocol", 3,
-                        pwcpp::filter::variant_type("udp")).
-          add_signal_processor(
+          add_input_port("pmx-osc", "8 bit raw midi").set_up_parameters().
+          add("target.ip_address", "127.0.0.1").add("target.port", 3300).
+          add("target.protocol", "udp").finish().add_signal_processor(
             [&queue, &condition_variable](auto position, auto &in_ports,
                                           auto &out_ports, auto &user_data,
                                           auto &parameters) {
@@ -79,17 +75,49 @@ int main(int argc, char **argv) {
   std::thread network_sender(
     [&running, &queue, &lock, &condition_variable, &app]() {
       logging::Logger logger{"network_sender_thread"};
-      auto ip_address = get<std::string>(
-        app.value()->parameter_collection.parameters[0].value);
-      auto port = get<int>(
-        app.value()->parameter_collection.parameters[1].value);
-      auto protocol = get<std::string>(
-        app.value()->parameter_collection.parameters[2].value);
+
+      auto ip_address_it = std::find_if(
+        app.value()->parameters_property->parameters().begin(),
+        app.value()->parameters_property->parameters().end(),
+        [](const auto &parameter) {
+          return get<0>(parameter) == "target.ip_address";
+        });
+
+      if (ip_address_it == app.value()->parameters_property->parameters().
+                               end()) {
+        logger.log_error("Couldn't find ip address parameter");
+        return;
+      }
+
+      auto port_it = std::find_if(
+        app.value()->parameters_property->parameters().begin(),
+        app.value()->parameters_property->parameters().end(),
+        [](const auto &parameter) {
+          return get<0>(parameter) == "target.port";
+        });
+
+      if (port_it == app.value()->parameters_property->parameters().end()) {
+        logger.log_error("Couldn't find port parameter");
+        return;
+      }
+
+      auto protocol_it = std::find_if(
+        app.value()->parameters_property->parameters().begin(),
+        app.value()->parameters_property->parameters().end(),
+        [](const auto &parameter) {
+          return get<0>(parameter) == "target.protocol";
+        });
+
+      if (protocol_it == app.value()->parameters_property->parameters().end()) {
+        logger.log_error("Couldn't find protocol parameter");
+        return;
+      }
 
       boost::asio::io_context io_context;
       boost::asio::ip::udp::resolver resolver(io_context);
       boost::asio::ip::udp::resolver::results_type endpoints = resolver.resolve(
-        boost::asio::ip::udp::v4(), ip_address, std::to_string(port));
+        boost::asio::ip::udp::v4(), std::get<std::string>(std::get<1>(*ip_address_it)),
+        std::to_string(std::get<int>(std::get<1>(*port_it))));
       boost::asio::ip::udp::socket socket(io_context);
       socket.open(boost::asio::ip::udp::v4());
 
@@ -97,7 +125,7 @@ int main(int argc, char **argv) {
         logger.log_info("Starting queue processing");
         queue_message message;
         if (queue.pop(message)) {
-          if (protocol == "udp") {
+          if (std::get<std::string>(std::get<1>(*port_it)) == "udp") {
             socket.send_to(boost::asio::buffer(message.data, message.size),
                            *endpoints.begin());
           } else {
