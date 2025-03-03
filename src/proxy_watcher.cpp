@@ -52,6 +52,9 @@ void proxy::ProxyWatcher::process_node_params_event(void *data, int seq,
                                                     const spa_pod *param) {
   const spa_pod_prop *property = spa_pod_find_prop(
     param, nullptr, SPA_PROP_params);
+
+  if (property == nullptr) { return; }
+
   void *struct_field_void;
   std::vector<Proxy::parameter_value_variant> values;
   std::vector<std::string> keys;
@@ -103,7 +106,7 @@ void proxy::ProxyWatcher::process_node_params_event(void *data, int seq,
 
   std::vector<std::tuple<std::string, Proxy::parameter_value_variant>> result;
   for (auto i = 0; i < keys.size(); i++) {
-    result.emplace_back(make_tuple(keys[i], values[i]));
+    result.emplace_back(keys[i], values[i]);
   }
 
   proxy->update_parameters(result);
