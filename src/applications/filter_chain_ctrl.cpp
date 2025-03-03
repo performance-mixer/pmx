@@ -123,7 +123,6 @@ int main(const int argc, char *argv[]) {
                 spa_data.chunk->size = 0;
                 spa_data.chunk->stride = 1;
                 spa_data.chunk->flags = 0;
-                logger.log_info("Finishing buffer");
                 buffer.value().finish();
               }
             });

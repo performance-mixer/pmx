@@ -41,6 +41,9 @@ sudo systemd-nspawn -D ~/Development/testing/containers/$argv[1] -u pmx --chdir=
 sudo cp ./pipewire/null_sinks.conf \
     ~/Development/testing/containers/$argv[1]/etc/pipewire/pipewire.conf.d
 
+sudo cp ./debug_tools/* \
+    ~/Development/testing/containers/$argv[1]/usr/bin
+
 sudo cp ./assertions/* ~/Development/testing/containers/$argv[1]/home/pmx
 sudo systemd-nspawn -D ~/Development/testing/containers/$argv[1] --chdir=/home/pmx \
     /usr/bin/fish -c "chown pmx *.lua"
