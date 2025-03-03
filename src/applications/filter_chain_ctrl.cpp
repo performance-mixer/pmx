@@ -131,7 +131,7 @@ int main(const int argc, char *argv[]) {
 
   auto filter_app = builder.build();
 
-  bool running(false);
+  bool running(true);
   std::thread filter_controller_thread(
     [&queue, &wait_mutex, &wait_condition, &running, &proxy_watcher, &filter_app
     ]() {
@@ -148,7 +148,7 @@ int main(const int argc, char *argv[]) {
               if (message.path.layer == osc::osc_path_layer::A) {
                 device_number = message.path.channel_id;
               } else {
-                device_number = message.path.channel_id * 2;
+                device_number = 16 + message.path.channel_id;
               }
 
               auto parameter_name = std::format(
