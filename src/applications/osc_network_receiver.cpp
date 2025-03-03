@@ -23,8 +23,8 @@ int main(int argc, char *argv[]) {
   builder.set_filter_name("pmx-osc-network-receiver").set_media_type("Osc").
           set_media_class("Osc/Source").
           add_output_port("pmx-osc", "8 bit raw midi").set_up_parameters().
-          add("source.port", std::nullopt).add("source.port", 33334).
-          add("source.protocol", "udp").finish().add_signal_processor(
+          add("source.port", 33334).add("source.protocol", "udp").finish().
+          add_signal_processor(
             [&queue](auto position, auto &in_ports, auto &out_ports,
                      auto &user_data, auto &parameters) {
               auto out_buffer = out_ports[0]->get_buffer();
