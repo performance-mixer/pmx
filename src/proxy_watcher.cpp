@@ -12,7 +12,8 @@ void proxy::ProxyWatcher::register_callback(pw_registry *registry) {
   this->registry = registry;
 }
 
-std::optional<pw_client*> proxy::ProxyWatcher::get_proxy_client(uint32_t id) {
+std::optional<pw_client*> proxy::ProxyWatcher::get_proxy_client(
+  const uint32_t id) const {
   auto client = static_cast<pw_client*>(pw_registry_bind(
     registry, id, "PipeWire:Interface:Node", PW_VERSION_CLIENT, 0));
   if (client == nullptr) { return std::nullopt; }
@@ -27,7 +28,7 @@ void proxy::ProxyWatcher::process_registry_event(void *data, uint32_t id,
   auto *self = static_cast<ProxyWatcher*>(data);
   std::string_view type(c_type);
   if (type == "PipeWire:Interface:Node") {
-    auto name = spa_dict_lookup(props, PW_KEY_NODE_NAME);
+    const auto name = spa_dict_lookup(props, PW_KEY_NODE_NAME);
     if (name == nullptr) { return; }
 
     std::lock_guard lock(self->proxies_mutex);
@@ -138,5 +139,9 @@ void proxy::Proxy::update_parameters(
     } else {
       _parameters.push_back(parameter);
     }
+  }
+
+  for (auto &&watcher : _watch_callbacks) {
+    watcher(parameters);
   }
 }

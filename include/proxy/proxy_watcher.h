@@ -4,8 +4,8 @@
 #include <memory>
 #include <boost/asio/detail/mutex.hpp>
 #include <utility>
+#include <error/error.h>
 #include <pipewire/pipewire.h>
-#include <pwcpp/error.h>
 
 namespace proxy {
 enum class proxy_type { node };
@@ -15,13 +15,16 @@ public:
   using parameter_value_variant = std::variant<
     int, float, double, std::string, std::nullopt_t>;
 
+  proxy_type type;
+  uint32_t id;
+  std::string name;
+  bool connected = false;
+  spa_hook hook{};
+
   Proxy(std::function<std::optional<pw_client*>()> client_factory,
-        proxy_type type, uint32_t id, std::string name) : type(type), id(id),
-                                                          name(std::move(name)),
-                                                          _client_factory(
-                                                            std::move(
-                                                              client_factory)) {
-  }
+        const proxy_type type, const uint32_t id,
+        std::string name) : type(type), id(id), name(std::move(name)),
+                            _client_factory(std::move(client_factory)) {}
 
   std::optional<pw_client*> client() {
     if (!_client.has_value()) {
@@ -33,14 +36,15 @@ public:
   void update_parameters(
     std::span<std::tuple<std::string, parameter_value_variant>> parameters);
 
-  proxy_type type;
-  uint32_t id;
-  std::string name;
-  bool connected = false;
-  spa_hook hook{};
-
   std::vector<std::tuple<std::string, parameter_value_variant>> parameters() {
     return _parameters;
+  }
+
+  std::expected<void, error::error> watch_proxy_prop_params(
+    const std::function<void(
+      std::span<std::tuple<std::string, parameter_value_variant>>)> &callback) {
+    _watch_callbacks.push_back(callback);
+    return {};
   }
 
 private:
@@ -48,12 +52,16 @@ private:
   std::optional<pw_client*> _client = std::nullopt;
 
   std::vector<std::tuple<std::string, parameter_value_variant>> _parameters;
+
+  std::vector<std::function<void(
+    std::span<std::tuple<std::string, parameter_value_variant>>)>>
+  _watch_callbacks;
 };
 
 class ProxyWatcher {
 public:
   void register_callback(pw_registry *registry);
-  std::optional<Proxy> get_proxy(uint32_t id);
+  std::optional<Proxy> get_proxy(std::uint32_t id);
 
 private:
   pw_registry_events registry_events{
@@ -78,6 +86,6 @@ private:
                                         uint32_t index, uint32_t next,
                                         const spa_pod *param);
 
-  std::optional<pw_client*> get_proxy_client(uint32_t id);
+  [[nodiscard]] std::optional<pw_client*> get_proxy_client(uint32_t id) const;
 };
 }
