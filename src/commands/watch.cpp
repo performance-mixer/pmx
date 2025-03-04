@@ -44,6 +44,7 @@ std::expected<void, error::error> console::watch_command(
                 std::endl;
             }
           });
+        std::cout << "watching " << pw_proxy->name << std::endl;
       } else {
         return std::unexpected(
           error::error::invalid_argument(
