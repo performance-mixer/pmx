@@ -57,7 +57,7 @@ void proxy::ProxyWatcher::process_node_params_event(void *data, int seq,
   if (property == nullptr) { return; }
 
   void *struct_field_void;
-  std::vector<Proxy::parameter_value_variant> values;
+  std::vector<pwcpp::property::property_value_type> values;
   std::vector<std::string> keys;
   std::size_t count(0);
   SPA_POD_STRUCT_FOREACH(&property->value, struct_field_void) {
@@ -105,7 +105,8 @@ void proxy::ProxyWatcher::process_node_params_event(void *data, int seq,
 
   auto *proxy = static_cast<Proxy*>(data);
 
-  std::vector<std::tuple<std::string, Proxy::parameter_value_variant>> result;
+  std::vector<std::tuple<std::string, pwcpp::property::property_value_type>>
+    result;
   for (auto i = 0; i < keys.size(); i++) {
     result.emplace_back(keys[i], values[i]);
   }
@@ -125,7 +126,8 @@ std::optional<proxy::Proxy> proxy::ProxyWatcher::get_proxy(uint32_t id) {
 }
 
 void proxy::Proxy::update_parameters(
-  std::span<std::tuple<std::string, parameter_value_variant>> parameters) {
+  std::span<std::tuple<std::string, pwcpp::property::property_value_type>>
+  parameters) {
   for (auto &parameter : parameters) {
     auto existing_parameter = std::find_if(_parameters.begin(),
                                            _parameters.end(),

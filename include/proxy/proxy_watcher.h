@@ -6,15 +6,13 @@
 #include <utility>
 #include <error/error.h>
 #include <pipewire/pipewire.h>
+#include <pwcpp/property/property.h>
 
 namespace proxy {
 enum class proxy_type { node };
 
 class Proxy {
 public:
-  using parameter_value_variant = std::variant<
-    int, float, double, std::string, std::nullopt_t>;
-
   proxy_type type;
   uint32_t id;
   std::string name;
@@ -34,15 +32,18 @@ public:
   };
 
   void update_parameters(
-    std::span<std::tuple<std::string, parameter_value_variant>> parameters);
+    std::span<std::tuple<std::string, pwcpp::property::property_value_type>>
+    parameters);
 
-  std::vector<std::tuple<std::string, parameter_value_variant>> parameters() {
+  std::vector<std::tuple<std::string, pwcpp::property::property_value_type>>
+  parameters() {
     return _parameters;
   }
 
   std::expected<void, error::error> watch_proxy_prop_params(
     const std::function<void(
-      std::span<std::tuple<std::string, parameter_value_variant>>)> &callback) {
+      std::span<std::tuple<std::string, pwcpp::property::property_value_type>>)>
+    &callback) {
     _watch_callbacks.push_back(callback);
     return {};
   }
@@ -51,10 +52,11 @@ private:
   std::function<std::optional<pw_client*>()> _client_factory;
   std::optional<pw_client*> _client = std::nullopt;
 
-  std::vector<std::tuple<std::string, parameter_value_variant>> _parameters;
+  std::vector<std::tuple<std::string, pwcpp::property::property_value_type>>
+  _parameters;
 
   std::vector<std::function<void(
-    std::span<std::tuple<std::string, parameter_value_variant>>)>>
+    std::span<std::tuple<std::string, pwcpp::property::property_value_type>>)>>
   _watch_callbacks;
 };
 

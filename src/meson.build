@@ -93,6 +93,7 @@ executable(
         'commands/start.cpp',
         'commands/status.cpp',
         'commands/setup.cpp',
+        'commands/watch.cpp'
     ],
     dependencies : [pipewire_dep, wireplumber_dep, replxx_dep, libsystemd_dep],
     include_directories : [include_directory],
