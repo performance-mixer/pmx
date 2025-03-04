@@ -126,9 +126,44 @@ proxy::ProxyWatcher::get_proxy(uint32_t id) {
   return std::nullopt;
 }
 
+bool equal(std::tuple<std::string, pwcpp::property::property_value_type> left,
+           std::tuple<std::string, pwcpp::property::property_value_type>
+           right) {
+  if (std::get<0>(left) != std::get<0>(right)) { return false; }
+
+  if (std::holds_alternative<int>(std::get<1>(left)) && std::holds_alternative<
+    int>(std::get<1>(right))) {
+    return std::get<int>(std::get<1>(left)) == std::get<
+      int>(std::get<1>(right));
+  } else if (std::holds_alternative<float>(std::get<1>(left)) &&
+    std::holds_alternative<float>(std::get<1>(right))) {
+    return std::get<float>(std::get<1>(left)) == std::get<float>(
+      std::get<1>(right));
+  } else if (std::holds_alternative<double>(std::get<1>(left)) &&
+    std::holds_alternative<double>(std::get<1>(right))) {
+    return std::get<double>(std::get<1>(left)) == std::get<double>(
+      std::get<1>(right));
+  } else if (std::holds_alternative<std::string>(std::get<1>(left)) &&
+    std::holds_alternative<std::string>(std::get<1>(right))) {
+    return std::get<std::string>(std::get<1>(left)) == std::get<std::string>(
+      std::get<1>(right));
+  } else if (std::holds_alternative<bool>(std::get<1>(left)) &&
+    std::holds_alternative<bool>(std::get<1>(right))) {
+    return std::get<bool>(std::get<1>(left)) == std::get<bool>(
+      std::get<1>(right));
+  } else if (std::holds_alternative<std::nullopt_t>(std::get<1>(left)) &&
+    std::holds_alternative<std::nullopt_t>(std::get<1>(right))) {
+    return true;
+  }
+
+  return false;
+}
+
 void proxy::Proxy::update_parameters(
   std::span<std::tuple<std::string, pwcpp::property::property_value_type>>
   parameters) {
+  std::vector<std::tuple<std::string, pwcpp::property::property_value_type>>
+    changes;
   for (auto &parameter : parameters) {
     auto existing_parameter = std::find_if(_parameters.begin(),
                                            _parameters.end(),
@@ -138,13 +173,17 @@ void proxy::Proxy::update_parameters(
                                            });
 
     if (existing_parameter != _parameters.end()) {
-      *existing_parameter = parameter;
+      if (!equal(*existing_parameter, parameter)) {
+        changes.push_back(parameter);
+        *existing_parameter = parameter;
+      }
     } else {
+      changes.push_back(parameter);
       _parameters.push_back(parameter);
     }
   }
 
   for (auto &&watcher : _watch_callbacks) {
-    watcher(parameters);
+    watcher(changes);
   }
 }
