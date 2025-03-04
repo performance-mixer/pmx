@@ -17,7 +17,10 @@ bool get_filter_chain_id_and_add_to_queue(logging::Logger &logger,
                                           OSCPP::Server::Message &message) {
   auto filter_chain_id = tools::get_from_collection<int>(name, parameters);
   if (!filter_chain_id.has_value()) {
-    filter_chain_id = tools::get_from_collection<long>(name, parameters);
+    auto fc_long = tools::get_from_collection<long>(name, parameters);
+    if (fc_long.has_value()) {
+      filter_chain_id = static_cast<int>(fc_long.value());
+    }
   }
 
   if (filter_chain_id.has_value()) {
