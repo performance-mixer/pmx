@@ -157,9 +157,9 @@ int main(const int argc, char *argv[]) {
 
               auto proxy = proxy_watcher.get_proxy(message.filter_chain_id);
               if (proxy.has_value()) {
-                auto client = proxy.value().client();
+                auto client = proxy.value()->client();
                 if (client.has_value()) {
-                  tools::set_props_param(proxy.value().client().value(),
+                  tools::set_props_param(proxy.value()->client().value(),
                                          filter_app.value()->loop,
                                          parameter_name, message.value);
                 } else {
@@ -183,7 +183,7 @@ int main(const int argc, char *argv[]) {
 
               auto proxy = proxy_watcher.get_proxy(message.filter_chain_id);
               if (proxy.has_value()) {
-                auto client = proxy.value().client();
+                auto client = proxy.value()->client();
                 if (client.has_value()) {
                   tools::set_props_param(client.value(),
                                          filter_app.value()->loop,
@@ -217,7 +217,7 @@ int main(const int argc, char *argv[]) {
 
               auto proxy = proxy_watcher.get_proxy(message.filter_chain_id);
               if (proxy.has_value()) {
-                auto client = proxy.value().client();
+                auto client = proxy.value()->client();
                 if (client.has_value()) {
                   tools::set_props_param(client.value(),
                                          filter_app.value()->loop,
