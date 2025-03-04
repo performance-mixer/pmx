@@ -18,9 +18,9 @@ std::expected<void, error::error> console::describe_command(
 
       auto pw_proxy = proxy_watcher.get_proxy(id);
       if (pw_proxy.has_value()) {
-        std::cout << pw_proxy->name << std::endl << std::endl << "Parameters:"
-          << std::endl;
-        auto parameters = pw_proxy.value().parameters();
+        std::cout << pw_proxy.value()->name << std::endl << std::endl <<
+          "Parameters:" << std::endl;
+        auto parameters = pw_proxy.value()->parameters();
         for (const auto &parameter : parameters) {
           std::cout << std::get<0>(parameter) << ": ";
           auto value = std::get<1>(parameter);

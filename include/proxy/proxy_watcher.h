@@ -63,7 +63,7 @@ private:
 class ProxyWatcher {
 public:
   void register_callback(pw_registry *registry);
-  std::optional<Proxy> get_proxy(std::uint32_t id);
+  std::optional<std::shared_ptr<Proxy>> get_proxy(std::uint32_t id);
 
 private:
   pw_registry_events registry_events{

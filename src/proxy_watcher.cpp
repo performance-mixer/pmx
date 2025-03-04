@@ -114,13 +114,14 @@ void proxy::ProxyWatcher::process_node_params_event(void *data, int seq,
   proxy->update_parameters(result);
 }
 
-std::optional<proxy::Proxy> proxy::ProxyWatcher::get_proxy(uint32_t id) {
+std::optional<std::shared_ptr<proxy::Proxy>>
+proxy::ProxyWatcher::get_proxy(uint32_t id) {
   auto proxy = std::find_if(proxies.begin(), proxies.end(),
                             [id](const auto &proxy) {
                               return proxy->id == id;
                             });
   if (proxy != proxies.end()) {
-    return *(*proxy);
+    return *proxy;
   }
   return std::nullopt;
 }

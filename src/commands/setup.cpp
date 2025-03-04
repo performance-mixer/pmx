@@ -98,7 +98,7 @@ std::expected<void, error::error> console::setup_command(
                             tools::param_value_variant{inputs_id});
   }
 
-  auto client = pw_filter_chain_proxy.value().client();
+  auto client = pw_filter_chain_proxy.value()->client();
   if (client.has_value()) {
     tools::set_props_param(client.value(), loop, parameters);
     return {};

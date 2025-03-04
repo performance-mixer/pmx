@@ -36,7 +36,7 @@ std::expected<void, error::error> console::watch_command(
 
       auto pw_proxy = proxy_watcher.get_proxy(id);
       if (pw_proxy.has_value()) {
-        auto result = pw_proxy->watch_proxy_prop_params(
+        auto result = pw_proxy.value()->watch_proxy_prop_params(
           [](std::span<std::tuple<
           std::string, pwcpp::property::property_value_type>> updates) {
             for (auto &update : updates) {
@@ -44,7 +44,7 @@ std::expected<void, error::error> console::watch_command(
                 std::endl;
             }
           });
-        std::cout << "watching " << pw_proxy->name << std::endl;
+        std::cout << "watching " << pw_proxy.value()->name << std::endl;
       } else {
         return std::unexpected(
           error::error::invalid_argument(
@@ -55,4 +55,3 @@ std::expected<void, error::error> console::watch_command(
 
   return {};
 }
-
