@@ -1,15 +1,21 @@
-local success, result = pcall(function()
-    local props = {
-        "Spa:Pod:Object:Param:Props",
-        "Props",
-        params = Pod.Struct { "Compressor:ratio", 4.5 },
-    }
+SimpleEventHook({
+    name = "huh",
+    interests = {
+        EventInterest({
+            Constraint({ "event.type", "=", "node-added" }),
+        })
+    },
+    execute = function(event)
+        print(":")
+        local props = {
+            "Spa:Pod:Object:Param:Props",
+            "Props",
+            params = Pod.Struct { "inputChannels", 5 },
+        }
 
-    return Pod.Object(props)
-end)
+        local params = Pod.Object(props)
 
-if not success then
-    print("Error occurred:", result)
-else
-    param = result
-end
+        local node = event:get_subject()
+        node:set_param("Props", params)
+    end
+}):register()

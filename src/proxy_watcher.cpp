@@ -74,6 +74,11 @@ void proxy::ProxyWatcher::process_node_params_event(void *data, int seq,
         spa_pod_get_int(struct_field, &int_value);
         values.emplace_back(int_value);
         break;
+      case SPA_TYPE_Long:
+        long long_value;
+        spa_pod_get_long(struct_field, &long_value);
+        values.emplace_back(long_value);
+        break;
       case SPA_TYPE_Float:
         float float_value;
         spa_pod_get_float(struct_field, &float_value);
@@ -135,6 +140,10 @@ bool equal(std::tuple<std::string, pwcpp::property::property_value_type> left,
     int>(std::get<1>(right))) {
     return std::get<int>(std::get<1>(left)) == std::get<
       int>(std::get<1>(right));
+  } else if (std::holds_alternative<long>(std::get<1>(left)) &&
+    std::holds_alternative<long>(std::get<1>(right))) {
+    return std::get<long>(std::get<1>(left)) == std::get<long>(
+      std::get<1>(right));
   } else if (std::holds_alternative<float>(std::get<1>(left)) &&
     std::holds_alternative<float>(std::get<1>(right))) {
     return std::get<float>(std::get<1>(left)) == std::get<float>(

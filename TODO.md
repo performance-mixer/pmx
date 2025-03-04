@@ -23,3 +23,6 @@ WantedBy=multi-user.target
 - setting parameters for filter-chain-ctrl with lua script doesn't work
   correctly, I expect that this has something to do with the types lua assumes
   by default
+- SimpleEventHook doesn't work if nodes already exist, need to handle that case
+  explicitly 
+- 

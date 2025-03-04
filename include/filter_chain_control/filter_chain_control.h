@@ -16,6 +16,10 @@ bool get_filter_chain_id_and_add_to_queue(logging::Logger &logger,
                                           const osc::osc_path &osc_path,
                                           OSCPP::Server::Message &message) {
   auto filter_chain_id = tools::get_from_collection<int>(name, parameters);
+  if (!filter_chain_id.has_value()) {
+    filter_chain_id = tools::get_from_collection<long>(name, parameters);
+  }
+
   if (filter_chain_id.has_value()) {
     logger.log_info(std::format("Preparing request for {}, {}", name,
                                 message.address()));

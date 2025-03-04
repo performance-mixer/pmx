@@ -66,7 +66,7 @@ SimpleEventHook({
     end
 }):register()
 
-local group_b_channeiils
+local group_b_channels
 SimpleEventHook({
     name = "set_up_filter_chain/find_group_b_channels",
     interests = {
