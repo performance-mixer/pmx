@@ -28,8 +28,7 @@ std::ostream &operator<<(std::ostream &os,
 }
 
 std::expected<void, error::error> console::watch_command(
-  std::istringstream &stream, proxy::ProxyWatcher &proxy_watcher,
-  pw_main_loop *loop) {
+  std::istringstream &stream, proxy::ProxyWatcher &proxy_watcher) {
   std::string object;
   if (stream >> object) {
     if (std::all_of(object.begin(), object.end(), ::isdigit)) {

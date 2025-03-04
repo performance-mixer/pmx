@@ -59,6 +59,5 @@ std::expected<void, error::error> setup_command(std::istringstream &stream,
 
 std::expected<void, error::error> watch_command(std::istringstream &stream,
                                                 proxy::ProxyWatcher &
-                                                proxy_watcher,
-                                                pw_main_loop *loop);
+                                                proxy_watcher);
 }

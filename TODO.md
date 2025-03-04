@@ -2,7 +2,9 @@
 
 - Change link creation to only ever use the object.id of the port.
 - Handle removal of nodes and proxies and links etc.
-- Use systemd nuit file to set the enabled metadata for pmx
+- Use systemd unit file to set the enabled metadata for pmx, and merge start and
+  pmx enable commands in console app
+- wrap commands in console application with function to print error
 
 ```
 [Unit]

@@ -175,6 +175,13 @@ int main(const int argc, char *argv[]) {
             std::cout << "There was an error: " << result.error().message <<
               std::endl;
           }
+        } else if (token == "watch") {
+          repl.history_add(line);
+          auto result = console::watch_command(iss, proxy_watcher);
+          if (!result) {
+            std::cout << "There was an error: " << result.error().message <<
+              std::endl;
+          }
         } else if (token == "list") {
           repl.history_add(line);
           auto result = console::list_command(iss, *link_collection,
