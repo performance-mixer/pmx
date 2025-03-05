@@ -100,6 +100,15 @@ executable(
     install : true)
 
 executable(
+    'pmx-params-watcher',
+    sources : [
+        'applications/params_watcher.cpp'
+    ],
+    dependencies : [pipewire_dep],
+    include_directories : [include_directory],
+    install : true)
+
+executable(
     'pmx-grpc-api',
     sources : [
         'applications/grpc_api.cpp',

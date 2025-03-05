@@ -199,3 +199,10 @@ void proxy::Proxy::update_parameters(
     watcher(changes);
   }
 }
+
+std::expected<void, error::error> proxy::ProxyWatcher::watch_proxy_by_name(
+  const std::string &name) {
+  std::lock_guard lock(proxies_mutex);
+  _watched_names.push_back(name);
+  return {};
+}

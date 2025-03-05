@@ -13,6 +13,8 @@ enum class proxy_type { node };
 
 class Proxy {
 public:
+  using proxy_param_update_callback = std::function<void()>;
+
   proxy_type type;
   uint32_t id;
   std::string name;
@@ -64,6 +66,7 @@ class ProxyWatcher {
 public:
   void register_callback(pw_registry *registry);
   std::optional<std::shared_ptr<Proxy>> get_proxy(std::uint32_t id);
+  std::expected<void, error::error> watch_proxy_by_name(const std::string& name);
 
 private:
   pw_registry_events registry_events{
@@ -79,6 +82,9 @@ private:
 
   pw_registry *registry{nullptr};
   spa_hook registry_hook{};
+
+  std::mutex _watched_names_mutex;
+  std::vector<std::string> _watched_names;
 
   static void process_registry_event(void *data, uint32_t id,
                                      uint32_t permissions, const char *c_type,
