@@ -102,7 +102,9 @@ executable(
 executable(
     'pmx-params-watcher',
     sources : [
-        'applications/params_watcher.cpp'
+        'applications/params_watcher.cpp',
+        'constants.cpp',
+        'proxy_watcher.cpp',
     ],
     dependencies : [pipewire_dep],
     include_directories : [include_directory],

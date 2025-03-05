@@ -38,7 +38,8 @@ std::expected<void, error::error> console::watch_command(
       if (pw_proxy.has_value()) {
         auto result = pw_proxy.value()->watch_proxy_prop_params(
           [](std::span<std::tuple<
-          std::string, pwcpp::property::property_value_type>> updates) {
+               std::string, pwcpp::property::property_value_type>> updates,
+             auto &proxy) {
             for (auto &update : updates) {
               std::cout << std::get<0>(update) << ": " << std::get<1>(update) <<
                 std::endl;

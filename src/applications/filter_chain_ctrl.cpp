@@ -43,8 +43,7 @@ int main(const int argc, char *argv[]) {
                                       auto &user_data) {
               logging::Logger logger{"signal-processor"};
 
-              auto buffer = in_ports[0]->get_buffer();
-              if (buffer.has_value()) {
+              if (auto buffer = in_ports[0]->get_buffer(); buffer.has_value()) {
                 auto packets = pwcpp::osc::parse_osc<16>(buffer.value());
                 if (packets.has_value()) {
                   bool wakeup_consumer(false);

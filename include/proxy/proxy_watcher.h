@@ -13,7 +13,9 @@ enum class proxy_type { node };
 
 class Proxy {
 public:
-  using proxy_param_update_callback = std::function<void()>;
+  using proxy_param_update_callback = std::function<void(
+    std::span<std::tuple<std::string, pwcpp::property::property_value_type>>
+    updates, Proxy &proxy)>;
 
   proxy_type type;
   uint32_t id;
@@ -43,9 +45,7 @@ public:
   }
 
   std::expected<void, error::error> watch_proxy_prop_params(
-    const std::function<void(
-      std::span<std::tuple<std::string, pwcpp::property::property_value_type>>)>
-    &callback) {
+    const proxy_param_update_callback &callback) {
     _watch_callbacks.push_back(callback);
     return {};
   }
@@ -57,16 +57,15 @@ private:
   std::vector<std::tuple<std::string, pwcpp::property::property_value_type>>
   _parameters;
 
-  std::vector<std::function<void(
-    std::span<std::tuple<std::string, pwcpp::property::property_value_type>>)>>
-  _watch_callbacks;
+  std::vector<proxy_param_update_callback> _watch_callbacks;
 };
 
 class ProxyWatcher {
 public:
   void register_callback(pw_registry *registry);
   std::optional<std::shared_ptr<Proxy>> get_proxy(std::uint32_t id);
-  std::expected<void, error::error> watch_proxy_by_name(const std::string& name);
+  std::expected<void, error::error>
+  watch_proxy_by_name(const std::string &name);
 
 private:
   pw_registry_events registry_events{
@@ -84,7 +83,7 @@ private:
   spa_hook registry_hook{};
 
   std::mutex _watched_names_mutex;
-  std::vector<std::string> _watched_names;
+  std::vector<Proxy::proxy_param_update_callback> _watched_names;
 
   static void process_registry_event(void *data, uint32_t id,
                                      uint32_t permissions, const char *c_type,

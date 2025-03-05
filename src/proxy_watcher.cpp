@@ -196,7 +196,7 @@ void proxy::Proxy::update_parameters(
   }
 
   for (auto &&watcher : _watch_callbacks) {
-    watcher(changes);
+    watcher(changes, *this);
   }
 }
 
