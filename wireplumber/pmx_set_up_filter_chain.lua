@@ -94,22 +94,22 @@ SimpleEventHook({
         if filter_chain ~= nil then
             local input_channels_id
             if input_channels ~= nil then
-                input_channels_id = input_channels.properties["object.id"]
+                input_channels_id = tonumber(input_channels.properties["object.id"])
             end
 
             local group_a_channels_id
             if group_a_channels ~= nil then
-                group_a_channels_id = group_a_channels.properties["object.id"]
+                group_a_channels_id = tonumber(group_a_channels.properties["object.id"])
             end
 
             local group_b_channels_id
             if group_b_channels ~= nil then
-                group_b_channels_id = group_b_channels.properties["object.id"]
+                group_b_channels_id = tonumber(group_b_channels.properties["object.id"])
             end
 
             local layer_channels_id
             if layer_channels ~= nil then
-                layer_channels_id = layer_channels.properties["object.id"]
+                layer_channels_id = tonumber(layer_channels.properties["object.id"])
             end
 
             print("inputChannels", input_channels_id)

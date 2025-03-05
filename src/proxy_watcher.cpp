@@ -66,6 +66,9 @@ void proxy::ProxyWatcher::process_node_params_event(void *data, int seq,
       const char *key;
       spa_pod_get_string(struct_field, &key);
       keys.emplace_back(key);
+      if (std::string(key) == "inputChannels") {
+        std::cout << "inputChannels" << std::endl;
+      }
     } else {
       auto type = SPA_POD_TYPE(struct_field);
       switch (type) {

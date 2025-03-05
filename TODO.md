@@ -24,5 +24,5 @@ WantedBy=multi-user.target
   correctly, I expect that this has something to do with the types lua assumes
   by default
 - SimpleEventHook doesn't work if nodes already exist, need to handle that case
-  explicitly 
-- 
+  explicitly
+- Build a params watcher that can watch parameter changes of nodes by node name
