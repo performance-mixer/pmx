@@ -76,7 +76,7 @@ int main(int argc, char **argv) {
     [&running, &queue, &lock, &condition_variable, &app]() {
       logging::Logger logger{"network_sender_thread"};
 
-      auto ip_address_it = std::find_if(
+      const auto ip_address_it = std::find_if(
         app.value()->parameters_property->parameters().begin(),
         app.value()->parameters_property->parameters().end(),
         [](const auto &parameter) {
@@ -89,7 +89,7 @@ int main(int argc, char **argv) {
         return;
       }
 
-      auto port_it = std::find_if(
+      const auto port_it = std::find_if(
         app.value()->parameters_property->parameters().begin(),
         app.value()->parameters_property->parameters().end(),
         [](const auto &parameter) {
@@ -101,7 +101,7 @@ int main(int argc, char **argv) {
         return;
       }
 
-      auto protocol_it = std::find_if(
+      const auto protocol_it = std::find_if(
         app.value()->parameters_property->parameters().begin(),
         app.value()->parameters_property->parameters().end(),
         [](const auto &parameter) {
@@ -115,15 +115,16 @@ int main(int argc, char **argv) {
 
       boost::asio::io_context io_context;
       boost::asio::ip::udp::resolver resolver(io_context);
-      boost::asio::ip::udp::resolver::results_type endpoints = resolver.resolve(
-        boost::asio::ip::udp::v4(), std::get<std::string>(std::get<1>(*ip_address_it)),
-        std::to_string(std::get<int>(std::get<1>(*port_it))));
+      const boost::asio::ip::udp::resolver::results_type endpoints = resolver.
+        resolve(boost::asio::ip::udp::v4(),
+                std::get<std::string>(std::get<1>(*ip_address_it)),
+                std::to_string(std::get<int>(std::get<1>(*port_it))));
       boost::asio::ip::udp::socket socket(io_context);
       socket.open(boost::asio::ip::udp::v4());
 
       while (running) {
         logger.log_info("Starting queue processing");
-        queue_message message;
+        queue_message message{};
         if (queue.pop(message)) {
           if (std::get<std::string>(std::get<1>(*port_it)) == "udp") {
             socket.send_to(boost::asio::buffer(message.data, message.size),

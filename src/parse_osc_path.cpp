@@ -34,7 +34,7 @@ std::expected<osc::osc_path, error::error> osc::parse_osc_path(
       error::error::invalid_argument("invalid layer " + path[3]));
   }
 
-  auto layer = path[3] == 'A' ? osc_path_layer::A : osc_path_layer::B;
+  const auto layer = path[3] == 'A' ? osc_path_layer::A : osc_path_layer::B;
 
   size_t consumed(5);
   size_t channel(0);
@@ -53,7 +53,7 @@ std::expected<osc::osc_path, error::error> osc::parse_osc_path(
 
   const auto parameter_name = path.substr(consumed);
 
-  auto parameter = std::ranges::find_if(parameters::all,
+  const auto parameter = std::ranges::find_if(parameters::all,
                                         [&device_short_name, &parameter_name](
                                         const auto &parameter) {
                                           return parameter->device_short_name ==

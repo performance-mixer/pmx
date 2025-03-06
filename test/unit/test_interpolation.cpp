@@ -3,7 +3,7 @@
 #include <gtest/gtest.h>
 
 TEST(Interpolation, LinearInterpolation) {
-  auto parameter = parameters::parameter(1, "param", "CMP", 2.3, 5.6, "CMP");
+  const auto parameter = parameters::parameter(1, "param", "CMP", 2.3, 5.6, "CMP");
   const auto lowest_value = interpolation::interpolate(parameter, 0);
   ASSERT_EQ(lowest_value, 2.3);
 

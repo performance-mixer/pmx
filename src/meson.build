@@ -84,7 +84,6 @@ executable(
         'constants.cpp',
         'proxy_watcher.cpp',
         'pipewire_tools.cpp',
-        'commands/check.cpp',
         'commands/describe.cpp',
         'commands/list.cpp',
         'commands/meta.cpp',

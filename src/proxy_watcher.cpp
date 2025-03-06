@@ -1,6 +1,7 @@
 #include "proxy/proxy_watcher.h"
 
 #include <iostream>
+#include <ranges>
 #include <memory>
 #include <shared_mutex>
 #include <spa/debug/pod.h>
@@ -33,8 +34,17 @@ void proxy::ProxyWatcher::process_registry_event(void *data, uint32_t id,
 
     std::lock_guard lock(self->proxies_mutex);
     auto factory = [self, id]() { return self->get_proxy_client(id); };
-    auto proxy = std::make_shared<Proxy>(factory, proxy_type::node, id,
-                                         std::string(name));
+    const auto proxy = std::make_shared<Proxy>(factory, proxy_type::node, id,
+                                               std::string(name));
+
+
+    for (const auto &watched_name : self->_watched_names |
+         std::ranges::views::filter([&](const auto &wn) {
+           return std::get<0>(wn) == name;
+         })) {
+      proxy->watch_proxy_prop_params(std::get<1>(watched_name));
+    }
+
     self->proxies.push_back(proxy);
     auto client = proxy->client();
     if (client.has_value()) {
@@ -61,7 +71,7 @@ void proxy::ProxyWatcher::process_node_params_event(void *data, int seq,
   std::vector<std::string> keys;
   std::size_t count(0);
   SPA_POD_STRUCT_FOREACH(&property->value, struct_field_void) {
-    auto struct_field = reinterpret_cast<spa_pod*>(struct_field_void);
+    const auto struct_field = static_cast<spa_pod*>(struct_field_void);
     if (count % 2 == 0) {
       const char *key;
       spa_pod_get_string(struct_field, &key);
@@ -124,19 +134,19 @@ void proxy::ProxyWatcher::process_node_params_event(void *data, int seq,
 
 std::optional<std::shared_ptr<proxy::Proxy>>
 proxy::ProxyWatcher::get_proxy(uint32_t id) {
-  auto proxy = std::find_if(proxies.begin(), proxies.end(),
-                            [id](const auto &proxy) {
-                              return proxy->id == id;
-                            });
+  const auto proxy = std::find_if(proxies.begin(), proxies.end(),
+                                  [id](const auto &proxy) {
+                                    return proxy->id == id;
+                                  });
   if (proxy != proxies.end()) {
     return *proxy;
   }
   return std::nullopt;
 }
 
-bool equal(std::tuple<std::string, pwcpp::property::property_value_type> left,
-           std::tuple<std::string, pwcpp::property::property_value_type>
-           right) {
+bool equal(
+  const std::tuple<std::string, pwcpp::property::property_value_type> &left,
+  const std::tuple<std::string, pwcpp::property::property_value_type> &right) {
   if (std::get<0>(left) != std::get<0>(right)) { return false; }
 
   if (std::holds_alternative<int>(std::get<1>(left)) && std::holds_alternative<
@@ -201,8 +211,8 @@ void proxy::Proxy::update_parameters(
 }
 
 std::expected<void, error::error> proxy::ProxyWatcher::watch_proxy_by_name(
-  const std::string &name) {
+  const std::string &name, const Proxy::proxy_param_update_callback &callback) {
   std::lock_guard lock(proxies_mutex);
-  _watched_names.push_back(name);
+  _watched_names.emplace_back(name, callback);
   return {};
 }

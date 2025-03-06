@@ -7,21 +7,21 @@
 
 auto link_added_callback = +[ ](WpObjectManager *object_manager,
                                 gpointer object, gpointer user_data) {
-  auto link_collection = static_cast<wpcpp::LinkCollection*>(user_data);
+  const auto link_collection = static_cast<wpcpp::LinkCollection*>(user_data);
   const auto link = static_cast<WpPipewireObject*>(object);
-  const auto id = std::atoi(
+  const auto id = std::stoi(
     wp_pipewire_object_get_property(link, PW_KEY_OBJECT_ID));
 
-  auto output_port_id = std::atoi(
+  const auto output_port_id = std::stoi(
     wp_pipewire_object_get_property(link, PW_KEY_LINK_OUTPUT_PORT));
 
-  auto input_port_id = std::atoi(
+  const auto input_port_id = std::stoi(
     wp_pipewire_object_get_property(link, PW_KEY_LINK_INPUT_PORT));
 
-  auto output_node_id = std::atoi(
+  const auto output_node_id = std::stoi(
     wp_pipewire_object_get_property(link, PW_KEY_LINK_OUTPUT_NODE));
 
-  auto input_node_id = std::atoi(
+  const auto input_node_id = std::stoi(
     wp_pipewire_object_get_property(link, PW_KEY_LINK_INPUT_NODE));
 
   link_collection->push_back({

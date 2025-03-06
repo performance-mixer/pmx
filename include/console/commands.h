@@ -13,12 +13,6 @@
 #include <sdcpp/error.h>
 
 namespace console {
-std::expected<void, error::error> check_command(std::istringstream &stream,
-                                                wpcpp::ProxyCollection &
-                                                proxy_collection,
-                                                wpcpp::LinkCollection &
-                                                link_collection);
-
 std::expected<void, error::error> describe_command(
   std::istringstream &stream, wpcpp::ProxyCollection &proxy_collection,
   proxy::ProxyWatcher &proxy_watcher, wpcpp::LinkCollection &link_collection);

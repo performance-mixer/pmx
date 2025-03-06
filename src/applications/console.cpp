@@ -87,10 +87,10 @@ int main(const int argc, char *argv[]) {
 
   std::thread pw_thread([&filter_app, &proxy_watcher]() {
     if (filter_app.has_value()) {
-      auto context = pw_context_new(
+      const auto context = pw_context_new(
         pw_main_loop_get_loop(filter_app.value()->loop), nullptr, 0);
-      auto core = pw_context_connect(context, nullptr, 0);
-      auto registry = pw_core_get_registry(core, PW_VERSION_REGISTRY, 0);
+      const auto core = pw_context_connect(context, nullptr, 0);
+      const auto registry = pw_core_get_registry(core, PW_VERSION_REGISTRY, 0);
       proxy_watcher.register_callback(registry);
       filter_app.value()->run();
     }

@@ -39,10 +39,10 @@ std::expected<void, error::error> console::describe_command(
       }
 
       auto proxies = proxy_collection.get_proxies();
-      auto proxy = std::find_if(proxies.begin(), proxies.end(),
-                                [id](const auto &proxy) {
-                                  return proxy.object_id == id;
-                                });
+      const auto proxy = std::find_if(proxies.begin(), proxies.end(),
+                                      [id](const auto &proxy) {
+                                        return proxy.object_id == id;
+                                      });
 
       std::cout << std::endl << "Links:" << std::endl;
       auto links = link_collection.get_links();
@@ -69,10 +69,10 @@ std::expected<void, error::error> console::describe_command(
         }
       }
 
-      auto link = std::find_if(links.begin(), links.end(),
-                               [id](const auto &link) {
-                                 return link.object_id == id;
-                               });
+      const auto link = std::find_if(links.begin(), links.end(),
+                                     [id](const auto &link) {
+                                       return link.object_id == id;
+                                     });
       if (link != links.end()) {
         std::cout << *link << std::endl;
       }

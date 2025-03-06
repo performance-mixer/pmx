@@ -8,4 +8,6 @@ tmux send-keys 'pmx-console' C-m
 tmux select-pane -t 1
 tmux send-keys 'journalctl --user -f' C-m
 tmux split-window -v
+tmux select-pane -t 2
+tmux send-keys 'pmx-params-watcher' C-m
 tmux attach-session -t $SESSION_NAME

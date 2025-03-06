@@ -11,12 +11,12 @@ int main(int argc, char *argv[]) {
   auto loop = pw_main_loop_new(nullptr);
 
   pw_loop_add_signal(pw_main_loop_get_loop(loop), SIGINT,
-                     [](void *user_data, int signal_number) { auto loop =
+                     [](void *user_data, int signal_number) { const auto loop =
                      static_cast<pw_main_loop * >(user_data); pw_main_loop_quit(
                        loop); }, loop);
 
   pw_loop_add_signal(pw_main_loop_get_loop(loop), SIGTERM,
-                     [](void *user_data, int signal_number) { auto loop =
+                     [](void *user_data, int signal_number) { const auto loop =
                      static_cast<pw_main_loop * >(user_data); pw_main_loop_quit(
                        loop); }, loop);
 
@@ -37,12 +37,21 @@ int main(int argc, char *argv[]) {
       return service;
     });
 
+  auto watcher_callback = [](
+    std::span<std::tuple<std::string, pwcpp::property::property_value_type>>
+    updates, const proxy::Proxy &proxy) {
+    for (auto &update : updates) {
+      std::cout << proxy.name << ": " << std::get<0>(update) << ": " << std::get
+        <1>(update) << std::endl;
+    }
+  };
+
   for (const auto &service : pmx::constants::filter_chain_node_names) {
-    auto result = watcher.watch_proxy_by_name(service);
+    auto result = watcher.watch_proxy_by_name(service, watcher_callback);
   }
 
   for (const auto &service : services_without_suffix) {
-    auto result = watcher.watch_proxy_by_name(service);
+    auto result = watcher.watch_proxy_by_name(service, watcher_callback);
   }
 
   pw_main_loop_run(loop);

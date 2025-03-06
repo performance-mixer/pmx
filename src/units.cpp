@@ -181,11 +181,12 @@ std::expected<void, sdcpp::error> sdcpp::start_units(
     sd_bus_error error = SD_BUS_ERROR_NULL;
     sd_bus_message *reply = nullptr;
     sd_bus_message *request = nullptr;
-    auto result = sd_bus_call_method(bus.bus(), "org.freedesktop.systemd1",
-                                     "/org/freedesktop/systemd1",
-                                     "org.freedesktop.systemd1.Manager",
-                                     "StartUnit", &error, &reply, "ss",
-                                     unit_name.c_str(), "replace");
+    const auto result = sd_bus_call_method(bus.bus(),
+                                           "org.freedesktop.systemd1",
+                                           "/org/freedesktop/systemd1",
+                                           "org.freedesktop.systemd1.Manager",
+                                           "StartUnit", &error, &reply, "ss",
+                                           unit_name.c_str(), "replace");
     if (result < 0) {
       return std::unexpected(
         error::error::systemd_call_method(strerror(-result)));

@@ -22,7 +22,7 @@ auto proxy_added_callback = +[ ](WpObjectManager *object_manager,
   const auto object_id = std::atoi(wp_pipewire_object_get_property(
     g_object, PW_KEY_OBJECT_ID));
 
-  std::string path = safe_string(
+  const std::string path = safe_string(
     wp_pipewire_object_get_property(g_object, PW_KEY_OBJECT_PATH));
 
   wpcpp::proxy_type type(wpcpp::proxy_type::unknown);
