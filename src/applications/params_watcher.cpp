@@ -8,6 +8,7 @@
 #include <proxy/proxy_watcher.h>
 
 int main(int argc, char *argv[]) {
+  pw_init(&argc, &argv);
   auto loop = pw_main_loop_new(nullptr);
 
   pw_loop_add_signal(pw_main_loop_get_loop(loop), SIGINT,
