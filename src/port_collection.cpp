@@ -7,7 +7,7 @@ auto port_added_callback = +[ ](WpObjectManager *object_manager,
   auto *port_collection = static_cast<wpcpp::PortCollection*>(user_data);
   const auto g_object = static_cast<WpPipewireObject*>(object);
 
-  const auto id = std::atoi(
+  const auto id = std::stoi(
     wp_pipewire_object_get_property(g_object, PW_KEY_PORT_ID));
   const auto name = std::string(
     wp_pipewire_object_get_property(g_object, PW_KEY_PORT_NAME));
@@ -23,18 +23,24 @@ auto port_added_callback = +[ ](WpObjectManager *object_manager,
   if (dsp_format_unprocessed != nullptr) {
     dsp_format = std::string(dsp_format_unprocessed);
   }
-  const auto node_id = std::atoi(
+  const auto node_id = std::stoi(
     wp_pipewire_object_get_property(g_object, PW_KEY_NODE_ID));
   const auto pw_direction = std::string(
     wp_pipewire_object_get_property(g_object, PW_KEY_PORT_DIRECTION));
-  const auto physical = std::string(wp_pipewire_object_get_property(
-    g_object, PW_KEY_PORT_PHYSICAL)) == "true";
-  const auto object_serial = std::atoi(
+  const auto physical =
+    wp_pipewire_object_get_property(g_object, PW_KEY_PORT_PHYSICAL) != nullptr
+      ? std::string(
+        wp_pipewire_object_get_property(g_object, PW_KEY_PORT_PHYSICAL)) ==
+      "true"
+      : false;
+
+  const auto object_serial = std::stoi(
     wp_pipewire_object_get_property(g_object, PW_KEY_OBJECT_SERIAL));
 
   wpcpp::pipewire_port::Direction direction;
-  if (pw_direction ==
-    "in") { direction = wpcpp::pipewire_port::Direction::IN; } else {
+  if (pw_direction == "in") {
+    direction = wpcpp::pipewire_port::Direction::IN;
+  } else {
     direction = wpcpp::pipewire_port::Direction::OUT;
   }
 
