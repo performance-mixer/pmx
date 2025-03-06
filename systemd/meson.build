@@ -70,6 +70,16 @@ configure_file(
     install_dir : 'lib/systemd/user'
 )
 
+configure_file(
+    input : 'pmx-filter-chains.service.in',
+    output : 'pmx-filter-chains.service',
+    configuration : {
+        'BINDIR' : application_install_dir
+    },
+    install : true,
+    install_dir : 'lib/systemd/user'
+)
+
 install_data(
     'performance-mixer.target',
     install_dir : 'lib/systemd/user')

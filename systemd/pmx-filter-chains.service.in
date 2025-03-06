@@ -1,0 +1,12 @@
+[Unit]
+Description=Start performance mixer filter chain
+Requires=pipewire.service wireplumber.service pmx-metadata-manager.service
+
+[Service]
+Type=simple
+ExecStart=@BINDIR@/pmx-enable-filter-chains.fish
+ExecStop=@BINDIR@/pmx-disable-filter-chains.fish
+RemainAfterExit=true
+
+[Install]
+WantedBy=performance-mixer.target

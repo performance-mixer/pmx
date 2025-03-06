@@ -11,28 +11,6 @@
 namespace wpcpp {
 class Metadata {
 public:
-  void register_initial_metadata_object(WpCore *core) {
-    auto metadata = wp_impl_metadata_new_full(core, "performance-mixer",
-                                              nullptr);
-
-    wp_object_activate(reinterpret_cast<WpObject*>(metadata),
-                       WP_OBJECT_FEATURES_ALL, nullptr,
-                       [](GObject *source_object, GAsyncResult *res,
-                          gpointer data) {}, nullptr);
-    _metadata = reinterpret_cast<WpMetadata*>(metadata);
-  }
-
-  void register_initial_metadata_object(WpCore *core,
-                                        GAsyncReadyCallback callback,
-                                        void *data) {
-    auto metadata = wp_impl_metadata_new_full(core, "performance-mixer",
-                                              nullptr);
-
-    wp_object_activate(reinterpret_cast<WpObject*>(metadata),
-                       WP_OBJECT_FEATURES_ALL, nullptr, callback, data);
-    _metadata = reinterpret_cast<WpMetadata*>(metadata);
-  }
-
   bool get_existing_metadata_object(WpCore *core);
 
   std::vector<std::tuple<std::string, std::string>> get_metadata_values() {

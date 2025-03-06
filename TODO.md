@@ -25,4 +25,3 @@ WantedBy=multi-user.target
   by default
 - SimpleEventHook doesn't work if nodes already exist, need to handle that case
   explicitly
-- Build a params watcher that can watch parameter changes of nodes by node name

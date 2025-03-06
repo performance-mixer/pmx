@@ -7,14 +7,14 @@ void metadata::MetadataWatcher::push_metadata_update(const guint subject,
                                                      const std::string &type,
                                                      const std::string &value) {
   std::lock_guard lock(_mutex);
-  _metadata_updates.push(metadata_update{subject, key, type, value});
+  _metadata_updates.emplace(metadata_update{subject, key, type, value});
   _condition_variable.notify_all();
 }
 
 void metadata::MetadataWatcher::push_metadata_deletion(const guint subject,
                                                        const std::string &key) {
   std::lock_guard lock(_mutex);
-  _metadata_updates.push(metadata_deletion{subject, key});
+  _metadata_updates.emplace(metadata_deletion{subject, key});
   _condition_variable.notify_all();
 }
 
