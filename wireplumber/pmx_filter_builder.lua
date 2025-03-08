@@ -60,6 +60,22 @@ local layer_filter_graph_definition = [[
       {
         "output": "Compressor-B:out_r",
         "input": "Equalizer-B:lv2_audio_in_2"
+      },
+      {
+        "output": "Equalizer-A:lv2_audio_out_1",
+        "input": "Mixer-L:In 1"
+      },
+      {
+        "output": "Equalizer-A:lv2_audio_out_2",
+        "input": "Mixer-R:In 1"
+      },
+      {
+        "output": "Equalizer-B:lv2_audio_out_1",
+        "input": "Mixer-L:In 2"
+      },
+      {
+        "output": "Equalizer-B:lv2_audio_out_2",
+        "input": "Mixer-R:In 2"
       }
     ],
     "inputs": [
