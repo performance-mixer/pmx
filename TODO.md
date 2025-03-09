@@ -9,3 +9,4 @@
 - SimpleEventHook doesn't work if nodes already exist, need to handle that case
   explicitly (low prio, might not be strictly necessary, pipewire + wireplumber
   should always start first + load scripts)
+- 

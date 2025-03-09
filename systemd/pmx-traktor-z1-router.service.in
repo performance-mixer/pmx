@@ -7,7 +7,8 @@ Wants=
 
 [Service]
 Type=notify
-ExecStart=@BINDIR@/pmx-traktor-z1-router
+EnvironmentFile=%h/.config/pmx/traktor-z1.config
+ExecStart=@BINDIR@/pmx-traktor-z1-router ${DEVICE_NAME}
 ExecStop=
 Restart=on-failure
 

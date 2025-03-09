@@ -83,52 +83,52 @@ int main(int argc, char *argv[]) {
 
                       if (previous.gain_l != message.gain_l) {
                         changes[0] = std::make_tuple(
-                          "/L/A/MIX/fx_gain", message.gain_l);
+                          "/L/A/1/MIX/fx_gain", message.gain_l);
                       }
 
                       if (previous.hi_l != message.hi_l) {
                         changes[1] = std::make_tuple(
-                          "/L/A/EQU/high", message.hi_l);
+                          "/L/A/1/EQU/high", message.hi_l);
                       }
 
                       if (previous.mid_l != message.mid_l) {
                         changes[2] = std::make_tuple(
-                          "/L/A/EQU/mid", message.mid_l);
+                          "/L/A/1/EQU/mid", message.mid_l);
                       }
 
                       if (previous.low_l != message.low_l) {
                         changes[3] = std::make_tuple(
-                          "/L/A/EQU/low", message.low_l);
+                          "/L/A/1/EQU/low", message.low_l);
                       }
 
                       if (previous.filter_l != message.filter_l) {
                         changes[4] = std::make_tuple(
-                          "/L/A/MIX/fx_mix", message.filter_l);
+                          "/L/A/1/MIX/fx_mix", message.filter_l);
                       }
 
                       if (previous.gain_r != message.gain_r) {
                         changes[5] = std::make_tuple(
-                          "/L/B/MIX/fx_gain", message.gain_r);
+                          "/L/B/1/MIX/fx_gain", message.gain_r);
                       }
 
                       if (previous.hi_r != message.hi_r) {
                         changes[6] = std::make_tuple(
-                          "/L/B/EQU/high", message.hi_r);
+                          "/L/B/1/EQU/high", message.hi_r);
                       }
 
                       if (previous.mid_r != message.mid_r) {
                         changes[7] = std::make_tuple(
-                          "/L/B/EQU/mid", message.mid_r);
+                          "/L/B/1/EQU/mid", message.mid_r);
                       }
 
                       if (previous.low_r != message.low_r) {
                         changes[8] = std::make_tuple(
-                          "/L/B/EQU/low", message.low_r);
+                          "/L/B/1/EQU/low", message.low_r);
                       }
 
                       if (previous.filter_r != message.filter_r) {
                         changes[9] = std::make_tuple(
-                          "/L/B/MIX/fx_mix", message.filter_r);
+                          "/L/B/1/MIX/fx_mix", message.filter_r);
                       }
 
                       if (previous.cue_mix != message.cue_mix) {
@@ -138,12 +138,12 @@ int main(int argc, char *argv[]) {
 
                       if (previous.fader_l != message.fader_l) {
                         changes[11] = std::make_tuple(
-                          "/L/A/EQU/master", message.fader_l);
+                          "/L/A/1/EQU/master", message.fader_l);
                       }
 
                       if (previous.fader_r != message.fader_r) {
                         changes[12] = std::make_tuple(
-                          "/L/B/EQU/master", message.fader_r);
+                          "/L/B/1/EQU/master", message.fader_r);
                       }
 
                       if (previous.cross_fader != message.cross_fader) {
@@ -156,8 +156,8 @@ int main(int argc, char *argv[]) {
                                       [](const auto &change) {
                                         return change.has_value();
                                       })) {
-                        spa_pod_builder builder;
-                        spa_pod_frame frame;
+                        spa_pod_builder builder{};
+                        spa_pod_frame frame{};
                         spa_pod_builder_init(&builder, spa_data->data,
                                              spa_data->maxsize);
                         spa_pod_builder_push_sequence(&builder, &frame, 0);
@@ -202,7 +202,7 @@ int main(int argc, char *argv[]) {
     }
 
     std::array<std::uint8_t, 30> buffer = {0};
-    traktor_z1_message report;
+    traktor_z1_message report{};
 
     while (file.read(reinterpret_cast<char*>(buffer.data()), buffer.size())) {
       if (buffer[0] == 1) {
