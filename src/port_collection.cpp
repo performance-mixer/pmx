@@ -13,8 +13,13 @@ auto port_added_callback = +[ ](WpObjectManager *object_manager,
     wp_pipewire_object_get_property(g_object, PW_KEY_PORT_NAME));
   const auto alias = std::string(wp_pipewire_object_get_property(
     g_object, PW_KEY_PORT_ALIAS));
-  const auto group = std::string(
-    wp_pipewire_object_get_property(g_object, PW_KEY_PORT_GROUP));
+  std::string group("unknown");
+  auto group_object_property = wp_pipewire_object_get_property(
+    g_object, PW_KEY_PORT_GROUP);
+  if (group_object_property != nullptr) {
+    group = std::string(
+      wp_pipewire_object_get_property(g_object, PW_KEY_PORT_GROUP));
+  }
   const auto path = std::string(
     wp_pipewire_object_get_property(g_object, PW_KEY_OBJECT_PATH));
   const auto dsp_format_unprocessed = wp_pipewire_object_get_property(

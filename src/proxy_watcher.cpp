@@ -42,16 +42,17 @@ void proxy::ProxyWatcher::process_registry_event(void *data, uint32_t id,
          std::ranges::views::filter([&](const auto &wn) {
            return std::get<0>(wn) == name;
          })) {
-      proxy->watch_proxy_prop_params(std::get<1>(watched_name));
+      auto result = proxy->watch_proxy_prop_params(std::get<1>(watched_name));
     }
 
     self->proxies.push_back(proxy);
     auto client = proxy->client();
     if (client.has_value()) {
-      pw_node_add_listener(client.value(), &proxy->hook, &self->node_events,
-                           proxy.get());
+      pw_node_add_listener(reinterpret_cast<pw_node*>(client.value()),
+                           &proxy->hook, &self->node_events, proxy.get());
       std::uint32_t params[] = {SPA_PARAM_Props};
-      pw_node_subscribe_params(client.value(), params, 1);
+      pw_node_subscribe_params(reinterpret_cast<pw_node*>(client.value()),
+                               params, 1);
     }
   }
 };
