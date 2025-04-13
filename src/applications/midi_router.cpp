@@ -139,8 +139,25 @@ int main(const int argc, char *argv[]) {
             params_pod[0] = static_cast<spa_pod*>(spa_pod_builder_pop(
               &builder, &frame));
 
-            pw_filter_update_params(filter_app.value()->filter, nullptr,
-                                    params_pod, 1);
+            struct invoke_data {
+              pw_filter *filter;
+              const spa_pod **params;
+            };
+
+            invoke_data data{
+              .filter = filter_app.value()->filter, .params = params_pod
+            };
+
+            pw_loop_invoke(pw_main_loop_get_loop(filter_app.value()->loop),
+                           [](spa_loop *loop, bool async, u_int32_t seq,
+                              const void *data, size_t size, void *user_data) {
+                             auto my_data = static_cast<const invoke_data*>(
+                               data);
+
+                             pw_filter_update_params(
+                               my_data->filter, nullptr, my_data->params, 1);
+                             return 0;
+                           }, 1, &data, sizeof(invoke_data), true, nullptr);
           }
         }
 
