@@ -12,10 +12,11 @@
 std::string
 processing::build_input_channel_osc_path(
   const pwcpp::midi::control_change &message,
-  const parameters::parameter &parameter) {
+  const parameters::parameter &parameter, const std::string &active_layer) {
   std::stringstream osc_path;
 
-  osc_path << std::format("/I/A/{}/{}/{}", static_cast<int>(message.channel) + 1,
+  osc_path << std::format("/I/{}/{}/{}/{}", active_layer,
+                          static_cast<int>(message.channel) + 1,
                           parameter.device_short_name, parameter.name);
 
   return osc_path.str();
@@ -23,9 +24,11 @@ processing::build_input_channel_osc_path(
 
 std::string processing::build_group_channel_osc_path(uint8_t group_id,
                                                      const parameters::parameter
-                                                     &parameter) {
-  return std::format("/G/A/{}/{}/{}", group_id, parameter.device_short_name,
-                     parameter.name);
+                                                     &parameter,
+                                                     const std::string &
+                                                     active_layer) {
+  return std::format("/G/{}/{}/{}/{}", active_layer, group_id,
+                     parameter.device_short_name, parameter.name);
 };
 
 template <class Iter, size_t MAX_N>

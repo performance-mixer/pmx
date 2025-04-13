@@ -27,14 +27,16 @@ struct queue_message {
 int main(const int argc, char *argv[]) {
   sd_notify(0, "STATUS=Starting");
 
-  boost::lockfree::spsc_queue<queue_message> queue(128);
+  boost::lockfree::spsc_queue<queue_message, boost::lockfree::capacity<128>>
+    queue{};
+
   std::mutex wait_mutex;
   std::condition_variable wait_condition;
 
   pwcpp::filter::AppBuilder<std::nullptr_t> builder;
   builder.set_filter_name("pmx-filter-chain-ctrl").set_media_type("Osc").
           set_media_class("Osc/Sink").add_arguments(argc, argv).
-          add_input_port("pmx-osc", "8 bit raw midi").set_up_parameters().
+          add_input_port("pmx-osc", "32 bit raw UMP").set_up_parameters().
           add("inputChannels", std::nullopt).add("groupChannelsA", std::nullopt)
           .add("groupChannelsB", std::nullopt).
           add("layerChannels", std::nullopt).finish().add_signal_processor(

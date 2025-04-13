@@ -28,9 +28,12 @@ inline void get_midi_messages(logging::Logger &logger,
   in_buffer.finish();
 }
 
-inline void process_group_channels_port(logging::Logger &logger,
-                                        pwcpp::Buffer &in_buffer,
-                                        spa_pod_builder &sequence_builder) {
+inline std::string process_group_channels_port(logging::Logger &logger,
+                                               pwcpp::Buffer &in_buffer,
+                                               spa_pod_builder &
+                                               sequence_builder,
+                                               const std::string &
+                                               active_layer) {
   std::array<std::optional<pwcpp::midi::message>, 16> midi_messages{};
   get_midi_messages(logger, midi_messages, in_buffer);
 
@@ -40,39 +43,56 @@ inline void process_group_channels_port(logging::Logger &logger,
                              });
 
   if (count > 0) {
+    auto current_layer = active_layer;
     for (auto &&midi_message : midi_messages) {
       if (midi_message.has_value()) {
         auto control_change = get<pwcpp::midi::control_change>(
           midi_message.value());
 
-        auto parameter = parameters::find_target_parameter_for_group_channels(
-          control_change.cc_number);
+        if (control_change.cc_number == 64) {
+          constexpr auto mid_point = static_cast<uint32_t>(static_cast<double>(
+            std::numeric_limits<uint32_t>::max()) / 2.0);
 
-        if (parameter.has_value()) {
-          spa_pod_builder_control(&sequence_builder, 0, SPA_CONTROL_OSC);
+          if (control_change.value < mid_point) {
+            current_layer = "A";
+          } else {
+            current_layer = "B";
+          }
+        } else {
+          auto parameter = parameters::find_target_parameter_for_group_channels(
+            control_change.cc_number);
 
-          char osc_buffer[4096];
-          OSCPP::Client::Packet packet(osc_buffer, 4096);
+          if (parameter.has_value()) {
+            spa_pod_builder_control(&sequence_builder, 0, SPA_CONTROL_OSC);
 
-          auto message_path = processing::build_group_channel_osc_path(
-            parameter->group_id, *parameter->parameter);
+            char osc_buffer[4096];
+            OSCPP::Client::Packet packet(osc_buffer, 4096);
 
-          std::cout << message_path << std::endl;
+            auto message_path = processing::build_group_channel_osc_path(
+              parameter->group_id, *parameter->parameter, current_layer);
 
-          packet.openMessage(message_path.c_str(), 1).float32(
-            static_cast<float>(interpolation::interpolate(
-              *parameter->parameter, control_change.value))).closeMessage();
-          auto size = packet.size();
-          spa_pod_builder_bytes(&sequence_builder, osc_buffer, size);
+            std::cout << message_path << std::endl;
+
+            packet.openMessage(message_path.c_str(), 1).float32(
+              static_cast<float>(interpolation::interpolate(
+                *parameter->parameter, control_change.value))).closeMessage();
+            auto size = packet.size();
+            spa_pod_builder_bytes(&sequence_builder, osc_buffer, size);
+          }
         }
       }
     }
+
+    return current_layer;
   }
+
+  return active_layer;
 }
 
 inline void process_input_channels_port(logging::Logger &logger,
                                         pwcpp::Buffer &in_buffer,
-                                        spa_pod_builder &sequence_builder) {
+                                        spa_pod_builder &sequence_builder,
+                                        const std::string &active_layer) {
   std::array<std::optional<pwcpp::midi::message>, 16> midi_messages{};
   get_midi_messages(logger, midi_messages, in_buffer);
 
@@ -96,7 +116,7 @@ inline void process_input_channels_port(logging::Logger &logger,
         OSCPP::Client::Packet packet(osc_buffer, 4096);
 
         auto message_path = processing::build_input_channel_osc_path(
-          control_change, *parameter);
+          control_change, *parameter, active_layer);
 
         std::cout << message_path << std::endl;
 

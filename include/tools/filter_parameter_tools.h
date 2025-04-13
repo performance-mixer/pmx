@@ -3,7 +3,6 @@
 #include <optional>
 
 #include <pwcpp/property/property.h>
-#include <pwcpp/property/parameters_property.h>
 
 namespace tools {
 template <typename T>
