@@ -1,0 +1,16 @@
+[Unit]
+Description=Provides a Midi Clock Source for pmx-1
+Before=
+After=
+Requires=pipewire.service wireplumber.service
+Wants=
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/jack_midi_clock -b  130
+ExecStop=
+Restart=on-failure
+
+[Install]
+WantedBy=performance-mixer.target
+Also=

@@ -9,6 +9,7 @@ install_data(
     'pmx_port_watcher.lua',
     'pmx_set_up_filter_chain.lua',
     'pmx_connect_controllers.lua',
+    'pmx_midi_routing_matrix.lua',
     install_dir : 'share/wireplumber/scripts/pmx')
 
 install_data(

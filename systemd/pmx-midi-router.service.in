@@ -1,7 +1,6 @@
 [Unit]
 Description=Receives midi messages and sends osc for pmx
 Before=
-After=pmx-midi-router.service
 Requires=pipewire.service wireplumber.service pmx-metadata-manager.service
 Wants=
 

@@ -37,7 +37,6 @@ SimpleEventHook({
     execute = function(event)
         FaderFoxPC4 = event:get_subject()
         connect_fader_fox()
-        print("ff")
     end
 }):register()
 
@@ -53,7 +52,6 @@ SimpleEventHook({
     execute = function(event)
         BehringerCMD = event:get_subject()
         connect_b_cmd()
-        print("cmd")
     end
 }):register()
 
@@ -68,7 +66,6 @@ SimpleEventHook({
     },
     execute = function(event)
         MidiRouterInputs = event:get_subject()
-        print("inputs")
         connect_fader_fox()
     end
 }):register()
@@ -84,7 +81,6 @@ SimpleEventHook({
     },
     execute = function(event)
         MidiRouterGroups = event:get_subject()
-        print("output")
         connect_b_cmd()
     end
 }):register()

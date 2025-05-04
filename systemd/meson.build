@@ -82,4 +82,5 @@ configure_file(
 
 install_data(
     'performance-mixer.target',
+    'pmx-jack-midi-clock.service',
     install_dir : 'lib/systemd/user')
