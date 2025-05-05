@@ -64,6 +64,7 @@ SimpleEventHook({
                          "COBALT8:COBALT8 MIDI 1",
                          "Modor NF-1:Modor NF-1 MIDI 1",
                          "SE-02:SE-02 MIDI 1",
+                         "SYSTEM-1m:SYSTEM-1m MIDI 1",
             }),
         })
     },
@@ -87,7 +88,8 @@ SimpleEventHook({
                          "HAPAX:HAPAX MIDI 1",
                          "Modor NF-1:Modor NF-1 MIDI 1",
                          "SE-02:SE-02 MIDI 1",
-                         "RME RayDAT_a5963e:HDSPMxa5963e MIDI 1"
+                         "RME RayDAT_a5963e:HDSPMxa5963e MIDI 1",
+                         "SYSTEM-1m:SYSTEM-1m MIDI 1",
             }),
         })
     },
