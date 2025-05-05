@@ -70,7 +70,6 @@ SimpleEventHook({
     },
     execute = function(event)
         local port = event:get_subject()
-        print("MCLK -> ", port.properties["port.alias"])
         table.insert(HapaxTargetPorts, port)
         connect_all(HapaxOutPort, HapaxTargetPorts)
     end
@@ -95,7 +94,6 @@ SimpleEventHook({
     },
     execute = function(event)
         local port = event:get_subject()
-        print("MCLK -> ", port.properties["port.alias"])
         table.insert(MidiClockTargetPorts, port)
         connect_all(MidiClockOutputPort, MidiClockTargetPorts)
     end

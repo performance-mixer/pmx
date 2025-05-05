@@ -42,7 +42,7 @@ SimpleEventHook({
                 }))
         if input_ports_node ~= nil then
             if target_value ~= nil then
-                local output_port = port_om.lookup(
+                local output_port = port_om:lookup(
                         Interest({
                             type = "port",
                             Constraint({ "port.alias", "=", target_value }),
