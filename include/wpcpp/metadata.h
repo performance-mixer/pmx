@@ -48,6 +48,13 @@ public:
     return user_data.result;
   }
 
+  void set_metadata_value_async(const std::string &key,
+                                const std::string &value) {
+    std::lock_guard lock(_no_parallel_calls_mutex);
+    wp_metadata_set(_metadata, 0, key.c_str(), "Spa:String:JSON",
+                    value.c_str());
+  }
+
   void set_metadata_value(const std::string &key, const std::string &value) {
     std::lock_guard lock(_no_parallel_calls_mutex);
 
@@ -105,7 +112,7 @@ public:
   }
 
   void set_metadata(WpMetadata *const metadata) { _metadata = metadata; }
-  [[nodiscard]] WpMetadata * metadata() const { return _metadata; }
+  [[nodiscard]] WpMetadata *metadata() const { return _metadata; }
 
 private:
   std::mutex _no_parallel_calls_mutex;

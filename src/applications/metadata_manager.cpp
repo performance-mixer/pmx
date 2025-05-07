@@ -18,6 +18,27 @@ struct WirePlumberControl {
   wpcpp::Metadata metadata;
 };
 
+void set_initial_metadata(wpcpp::Metadata &metadata, config::config &config) {
+  size_t index = 1;
+  for (const auto &channel : config.input_channels) {
+    if (channel.has_value()) {
+      std::ostringstream metadata_key_ss;
+      metadata_key_ss << config::Prefix::CHANNEL_PORT_PREFIX << index;
+      metadata.set_metadata_value_async(metadata_key_ss.str(), channel.value());
+    }
+    ++index;
+  }
+
+  index = 1;
+  for (const auto &group_id : config.input_channel_groups) {
+    std::ostringstream metadata_key_ss;
+    metadata_key_ss << config::Prefix::CHANNEL_GROUP_PREFIX << index;
+    metadata.set_metadata_value_async(metadata_key_ss.str(),
+                                      std::to_string(group_id));
+    ++index;
+  }
+}
+
 int main(int argc, char **argv) {
   sd_notify(0, "STATUS=Starting");
   logging::Logger logger{"main"};
@@ -37,7 +58,7 @@ int main(int argc, char **argv) {
       wpcpp::Metadata &metadata;
     };
 
-    logger.log_info("Creating metadata collection");
+    logger.log_info("Reading metadata collection");
     wire_plumber_control.metadata.get_existing_metadata_object(
       wire_plumber_control.core);
 
@@ -45,6 +66,8 @@ int main(int argc, char **argv) {
     while (wire_plumber_control.metadata.metadata() == nullptr) {
       g_main_context_iteration(main_context, true);
     }
+
+    set_initial_metadata(wire_plumber_control.metadata, config);
 
     logger.log_info("Setting up metadata watcher");
     metadata::MetadataWatcher watcher;
@@ -67,9 +90,11 @@ int main(int argc, char **argv) {
                 update_event)) {
                 auto deletion = std::get<metadata::metadata_deletion>(
                   update_event);
+
                 if (deletion.key.starts_with(
                   config::Prefix::CHANNEL_PORT_PREFIX)) {
-                  const auto channel_id = std::stoi(deletion.key.substr(8));
+                  const auto channel_id = std::stoi(deletion.key.substr(
+                    config::Prefix::CHANNEL_PORT_PREFIX.size()));
                   config.input_channels[channel_id - 1] = std::nullopt;
                   changed = true;
                 }
@@ -78,7 +103,8 @@ int main(int argc, char **argv) {
                 auto update = std::get<metadata::metadata_update>(update_event);
                 if (update.key.
                            starts_with(config::Prefix::CHANNEL_PORT_PREFIX)) {
-                  auto channel_id = std::stoi(update.key.substr(8));
+                  auto channel_id = std::stoi(update.key.substr(
+                    config::Prefix::CHANNEL_PORT_PREFIX.size()));
                   if (config.input_channels[channel_id - 1].has_value()) {
                     if (config.input_channels[channel_id - 1].value() != update.
                       value) {
@@ -89,6 +115,13 @@ int main(int argc, char **argv) {
                     config.input_channels[channel_id - 1] = update.value;
                     changed = true;
                   }
+                } else if (update.key.starts_with(
+                  config::Prefix::CHANNEL_GROUP_PREFIX)) {
+                  auto channel_id = std::stoi(update.key.substr(
+                    config::Prefix::CHANNEL_GROUP_PREFIX.size()));
+                  config.input_channel_groups[channel_id - 1] = std::stoi(
+                    update.value);
+                  changed = true;
                 }
               }
             }

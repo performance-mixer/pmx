@@ -3,6 +3,7 @@
 #include "pmx_grpc.grpc.pb.h"
 #include "wpcpp/port.h"
 #include "config/prefix.h"
+#include <algorithm>
 
 #include <grpcpp/support/status.h>
 #include <wpcpp/metadata.h>
@@ -12,9 +13,8 @@ namespace grpc {
 class GrpcService final : public pmx::grpc::PmxGrpc::Service {
 public:
   GrpcService(wpcpp::PortCollection &port_collection,
-              wpcpp::Metadata &metadata) : _port_collection(
-                                                       port_collection),
-                                                     _metadata(metadata) {}
+              wpcpp::Metadata &metadata) : _port_collection(port_collection),
+                                           _metadata(metadata) {}
 
   Status SetupInputPort(ServerContext *context,
                         const pmx::grpc::SetupInputPortRequest *request,
@@ -60,11 +60,15 @@ public:
     for (auto &&metadata_item : metadata) {
       if (std::get<0>(metadata_item).starts_with(
         config::Prefix::CHANNEL_PORT_PREFIX)) {
-        auto channel_id = std::stoi(std::get<0>(metadata_item).substr(13));
+        auto channel_id = std::stoi(
+          std::get<0>(metadata_item).substr(
+            config::Prefix::CHANNEL_PORT_PREFIX.size()));
         channel_id_to_port[channel_id] = std::get<1>(metadata_item);
       } else if (std::get<0>(metadata_item).starts_with(
         config::Prefix::CHANNEL_GROUP_PREFIX)) {
-        auto channel_id = std::stoi(std::get<0>(metadata_item).substr(14));
+        auto channel_id = std::stoi(
+          std::get<0>(metadata_item).substr(
+            config::Prefix::CHANNEL_GROUP_PREFIX.size()));
         channel_id_to_group_channel_id[channel_id] = std::stoi(
           std::get<1>(metadata_item));
       }
@@ -79,7 +83,9 @@ public:
       union_keys.insert(pair.first);
     }
 
-    for (const auto &key : union_keys) {
+    std::vector<size_t> sorted_keys(union_keys.begin(), union_keys.end());
+    std::sort(sorted_keys.begin(), sorted_keys.end());
+    for (const auto &key : sorted_keys) {
       auto response_setup = response->add_setups();
       response_setup->set_channel_id(key);
 

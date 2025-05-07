@@ -39,6 +39,39 @@ input_channels:
   channel_port_30: null
   channel_port_31: null
   channel_port_32: null
+input_channel_groups:
+  channel_group_1: 1
+  channel_group_2: 1
+  channel_group_3: 1
+  channel_group_4: 1
+  channel_group_5: 1
+  channel_group_6: 1
+  channel_group_7: 1
+  channel_group_8: 1
+  channel_group_9: 1
+  channel_group_10: 1
+  channel_group_11: 1
+  channel_group_12: 1
+  channel_group_13: 1
+  channel_group_14: 1
+  channel_group_15: 1
+  channel_group_16: 1
+  channel_group_17: 1
+  channel_group_18: 1
+  channel_group_19: 1
+  channel_group_20: 1
+  channel_group_21: 1
+  channel_group_22: 1
+  channel_group_23: 1
+  channel_group_24: 1
+  channel_group_25: 1
+  channel_group_26: 1
+  channel_group_27: 1
+  channel_group_28: 1
+  channel_group_29: 1
+  channel_group_30: 1
+  channel_group_31: 1
+  channel_group_32: 1
 )");
 
 std::string config::get_config_directory(const std::string &application_name) {
@@ -88,14 +121,27 @@ YAML::Node config::read_config_yaml_or_create_if_not_exists(
 config::config config::read_config(const std::string &application_name) {
   auto config_yaml = read_config_yaml_or_create_if_not_exists(application_name);
   config config;
+
   if (config_yaml["input_channels"]) {
     for (size_t i = 0; i < 32; i++) {
-      auto node = config_yaml["input_channels"][
-        Prefix::CHANNEL_PORT_PREFIX + std::to_string(i + 1)];
+      auto channel_name = Prefix::CHANNEL_PORT_PREFIX + std::to_string(i + 1);
+      auto node = config_yaml["input_channels"][channel_name];
       if (node && !node.IsNull()) {
         config.input_channels[i] = node.as<std::string>();
       } else {
         config.input_channels[i] = std::nullopt;
+      }
+    }
+  }
+
+  if (config_yaml["input_channel_groups"]) {
+    for (size_t i = 0; i < 32; i++) {
+      auto channel_name = Prefix::CHANNEL_GROUP_PREFIX + std::to_string(i + 1);
+      auto node = config_yaml["input_channel_groups"][channel_name];
+      if (node && !node.IsNull()) {
+        config.input_channel_groups[i] = node.as<int>();
+      } else {
+        config.input_channel_groups[i] = 1;
       }
     }
   }
@@ -115,6 +161,9 @@ bool config::write_config(const std::string &application_name,
       config_yaml["input_channels"][Prefix::CHANNEL_PORT_PREFIX + std::to_string(i + 1)] =
         YAML::Node(YAML::NodeType::Null);
     }
+
+    config_yaml["input_channel_groups"][Prefix::CHANNEL_GROUP_PREFIX + std::to_string(i + 1)] =
+      static_cast<int>(config.input_channel_groups[i]);
   }
 
   auto config_directory = get_config_directory(application_name);
