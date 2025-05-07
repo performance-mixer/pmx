@@ -16,6 +16,8 @@
 #include <sdcpp/bus.h>
 #include <sdcpp/error.h>
 
+#include <CLI/CLI11.hpp>
+
 int main(const int argc, char *argv[]) {
   replxx::Replxx repl;
   std::string prompt("pmx ~> ");
@@ -144,6 +146,13 @@ int main(const int argc, char *argv[]) {
   }
 
   sdcpp::Bus bus{sd_bus};
+  CLI::App app{"pmx-console"};
+
+  auto exit_command = app.add_subcommand("exit", "Exit the console");
+  auto start_command = app.add_subcommand("start",
+                                          "Start pmx-1 services and filters");
+  auto status_command = app.add_subcommand("status",
+                                           "Show status of pmx-1 service, filters and connections");
 
   while (true) {
     char const *line = repl.input(prompt);
@@ -151,13 +160,35 @@ int main(const int argc, char *argv[]) {
       break;
     }
 
+    try {
+      std::vector<std::string> args = CLI::detail::split_up(line);
+      app.parse(args);
+      std::expected<void, sdcpp::error> result = {};
+      if (exit_command->parsed()) {
+        break;
+      } else if (start_command->parsed()) {
+        result = console::start_command(bus);
+      } else if (status_command->parsed()) {
+        result = console::status_command(*proxy_collection, *link_collection,
+                                         bus);
+      }
+
+      if (!result) {
+        std::cout << "There was an error: " << result.error().message <<
+          std::endl;
+      }
+
+      continue;
+    } catch (CLI::ParseError &e) {
+      std::cout << "Error parsing command: " << e.what() << std::endl;
+      std::cout << app.help() << std::endl;
+    }
+
     std::string_view command(line);
     if (command == "exit") {
       break;
     } else if (command == "help") {
       std::cout.flush();
-      std::cout << "pmx console v0.1" << std::endl;
-      std::cout << "ask ford or try 42!" << std::endl;
       std::cout.flush();
     } else {
       std::istringstream iss(line);
@@ -203,7 +234,7 @@ int main(const int argc, char *argv[]) {
           }
         } else if (token == "status") {
           repl.history_add(line);
-          auto result = console::status_command(iss, *proxy_collection,
+          auto result = console::status_command(*proxy_collection,
                                                 *link_collection, bus);
           if (!result) {
             std::cout << "There was an error: " << result.error().message <<
@@ -213,13 +244,6 @@ int main(const int argc, char *argv[]) {
           repl.history_add(line);
           auto result = console::pmx_command(iss, metadata, *proxy_collection,
                                              *link_collection, sd_bus);
-          if (!result) {
-            std::cout << "There was an error: " << result.error().message <<
-              std::endl;
-          }
-        } else if (token == "start") {
-          repl.history_add(line);
-          auto result = console::start_command(iss, bus);
           if (!result) {
             std::cout << "There was an error: " << result.error().message <<
               std::endl;

@@ -5,8 +5,7 @@
 
 #include "console/commands.h"
 
-std::expected<void, sdcpp::error> check_systemd_unit_status(
-  std::istringstream &stream, sdcpp::Bus &bus) {
+std::expected<void, sdcpp::error> check_systemd_unit_status(sdcpp::Bus &bus) {
   auto units = sdcpp::list_units(bus);
   auto unit_files = sdcpp::list_unit_files(bus);
   if (units.has_value() && unit_files.has_value()) {
@@ -61,7 +60,7 @@ std::expected<void, sdcpp::error> check_systemd_unit_status(
 }
 
 std::expected<void, error::error> check_osc_connections(
-  std::istringstream &stream, wpcpp::ProxyCollection &proxy_collection,
+  wpcpp::ProxyCollection &proxy_collection,
   wpcpp::LinkCollection &link_collection) {
   auto proxies = proxy_collection.get_proxies();
   std::vector<wpcpp::proxy> producer_nodes;
@@ -172,10 +171,10 @@ std::expected<void, error::error> check_osc_connections(
 }
 
 std::expected<void, sdcpp::error> console::status_command(
-  std::istringstream &stream, wpcpp::ProxyCollection &proxy_collection,
+  wpcpp::ProxyCollection &proxy_collection,
   wpcpp::LinkCollection &link_collection, sdcpp::Bus &bus) {
-  auto systemd_check_result = check_systemd_unit_status(stream, bus);
-  auto osc_check_result = check_osc_connections(stream, proxy_collection,
+  auto systemd_check_result = check_systemd_unit_status(bus);
+  auto osc_check_result = check_osc_connections(proxy_collection,
                                                 link_collection);
   return {};
 }

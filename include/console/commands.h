@@ -37,12 +37,10 @@ std::expected<void, error::error> pmx_command(std::istringstream &stream,
 std::expected<void, error::error> send_command(std::istringstream &stream,
                                                request_message &message);
 
-std::expected<void, sdcpp::error> start_command(std::istringstream &stream,
-                                                sdcpp::Bus &bus);
+std::expected<void, sdcpp::error> start_command(sdcpp::Bus &bus);
 
-std::expected<void, sdcpp::error> status_command(
-  std::istringstream &stream, wpcpp::ProxyCollection &proxy_collection,
-  wpcpp::LinkCollection &link_collection, sdcpp::Bus &bus);
+std::expected<void, sdcpp::error> status_command(wpcpp::ProxyCollection &proxy_collection, wpcpp::LinkCollection &
+                                                 link_collection, sdcpp::Bus &bus);
 
 std::expected<void, error::error> setup_command(std::istringstream &stream,
                                                 wpcpp::ProxyCollection &
