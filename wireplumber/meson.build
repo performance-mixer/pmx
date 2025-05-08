@@ -3,7 +3,6 @@ install_data(
     'pmx_connect_group_to_layer.lua',
     'pmx_control_watcher.lua',
     'pmx_filter_manager.lua',
-    'pmx_link_manager.lua',
     'pmx_set_up_filter_chain.lua',
     'pmx_connect_controllers.lua',
     'pmx_midi_routing_matrix.lua',
