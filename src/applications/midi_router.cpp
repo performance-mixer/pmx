@@ -42,12 +42,12 @@ int main(const int argc, char *argv[]) {
 
   pwcpp::filter::AppBuilder<std::nullptr_t> builder;
   logger.log_info("Building filter app");
-  builder.set_filter_name("pmx-midi-router").set_media_type("Midi").
-          set_media_class("Midi/Sink").add_arguments(argc, argv).
+  builder.set_filter_name("pmx-midi-router").set_media_type("application/control").
+          set_media_class("application/control").add_arguments(argc, argv).
           set_up_parameters().add("activeLayer", "A").finish().
           add_input_port("input channels", "32 bit raw UMP").
           add_input_port("group channels", "32 bit raw UMP").
-          add_output_port("pmx-osc", "32 bit raw UMP").add_signal_processor(
+          add_output_port("pmx-osc", "8 bit raw control").add_signal_processor(
             [&queue, &wait_condition](auto position, auto &in_ports,
                                       auto &out_ports, auto &parameters,
                                       auto &user_data) {
@@ -104,7 +104,11 @@ int main(const int argc, char *argv[]) {
               [[maybe_unused]] auto pod = static_cast<spa_pod*>(
                 spa_pod_builder_pop(&pod_builder, &frame));
 
-              spa_data->chunk->size = pod_builder.state.offset;
+              if (pod_builder.state.offset > 16) {
+                spa_data->chunk->size = pod_builder.state.offset;
+                std::cout << "send data, size: " << spa_data->chunk->size << std::endl;
+              }
+
               out_buffer->finish();
             });
 

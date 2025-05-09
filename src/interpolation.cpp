@@ -1,5 +1,7 @@
 #include "interpolation/interpolation.h"
 
+#include <limits>
+
 double interpolation::interpolate(const parameters::parameter &parameter,
                                   const uint32_t control_value) {
   const auto min = parameter.min;

@@ -34,9 +34,10 @@ int main(const int argc, char *argv[]) {
   std::condition_variable wait_condition;
 
   pwcpp::filter::AppBuilder<std::nullptr_t> builder;
-  builder.set_filter_name("pmx-filter-chain-ctrl").set_media_type("Osc").
-          set_media_class("Osc/Sink").add_arguments(argc, argv).
-          add_input_port("pmx-osc", "32 bit raw UMP").set_up_parameters().
+  builder.set_filter_name("pmx-filter-chain-ctrl").
+          set_media_type("application/control").
+          set_media_class("application/control").add_arguments(argc, argv).
+          add_input_port("pmx-osc", "8 bit raw control").set_up_parameters().
           add("inputChannels", std::nullopt).add("groupChannelsA", std::nullopt)
           .add("groupChannelsB", std::nullopt).
           add("layerChannels", std::nullopt).finish().add_signal_processor(
@@ -53,6 +54,9 @@ int main(const int argc, char *argv[]) {
                     if (packet.has_value()) {
                       OSCPP::Server::Message message(packet.value());
 
+                      logger.log_info(
+                        "Received OSC message: " + std::string(
+                          message.address()));
                       auto osc_path = osc::parse_osc_path(message.address());
                       if (osc_path.has_value()) {
                         switch (osc_path->channel_type) {
