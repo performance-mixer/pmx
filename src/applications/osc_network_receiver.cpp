@@ -30,7 +30,6 @@ int main(int argc, char *argv[]) {
               auto out_buffer = out_ports[0]->get_buffer();
               if (out_buffer.has_value()) {
                   logging::Logger logger{"signal-processor"};
-                  logger.log_info("Preparing POD sequence");
                   auto spa_data = out_buffer->get_spa_data(0);
                   spa_pod_builder builder{};
                   spa_pod_frame frame{};
