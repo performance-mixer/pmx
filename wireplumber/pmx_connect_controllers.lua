@@ -60,7 +60,7 @@ SimpleEventHook({
     interests = {
         EventInterest({
             Constraint({ "event.type", "=", "port-added" }),
-            Constraint({ "object.path", "=", "pmx-midi-router:playback_0" }),
+            Constraint({ "port.alias", "=", "pmx-midi-router:input channels" }),
             Constraint({ "port.direction", "=", "in" }),
         })
     },
@@ -75,7 +75,7 @@ SimpleEventHook({
     interests = {
         EventInterest({
             Constraint({ "event.type", "=", "port-added" }),
-            Constraint({ "object.path", "=", "pmx-midi-router:playback_1" }),
+            Constraint({ "port.alias", "=", "pmx-midi-router:group channels" }),
             Constraint({ "port.direction", "=", "in" }),
         })
     },

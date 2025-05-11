@@ -80,7 +80,6 @@ int main(const int argc, char *argv[]) {
                 has_request = false;
                 has_response = true;
                 has_response.notify_all();
-                out_buffer->finish();
               }
             });
 

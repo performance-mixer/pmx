@@ -20,34 +20,37 @@ int main(int argc, char *argv[]) {
 
   logger.log_info("Building filter app");
   pwcpp::filter::AppBuilder<std::nullptr_t> builder;
-  builder.set_filter_name("pmx-osc-network-receiver").set_media_type("Osc").
-          set_media_class("Osc/Source").
-          add_output_port("pmx-osc", "8 bit raw midi").set_up_parameters().
+  builder.set_filter_name("pmx-osc-network-receiver").set_media_type("application/control").
+          set_media_class("application/control").
+          add_output_port("pmx-osc", "8 bit raw control").set_up_parameters().
           add("source.port", 33334).add("source.protocol", "udp").finish().
           add_signal_processor(
             [&queue](auto position, auto &in_ports, auto &out_ports,
                      auto &user_data, auto &parameters) {
               auto out_buffer = out_ports[0]->get_buffer();
               if (out_buffer.has_value()) {
-                if (queue.read_available() > 0) {
+                  logging::Logger logger{"signal-processor"};
+                  logger.log_info("Preparing POD sequence");
                   auto spa_data = out_buffer->get_spa_data(0);
                   spa_pod_builder builder{};
                   spa_pod_frame frame{};
                   spa_pod_builder_init(&builder, spa_data->data,
                                        spa_data->maxsize);
                   spa_pod_builder_push_sequence(&builder, &frame, 0);
+                if (queue.read_available() > 0) {
                   queue_message message{};
+                  int count(1);
                   while (queue.pop(message)) {
+                    logger.log_info("Adding OSC message " + std::to_string(count++));
                     spa_pod_builder_control(&builder, 0, SPA_CONTROL_OSC);
                     spa_pod_builder_bytes(&builder, message.data, message.size);
                   }
-
-                  // ReSharper disable once CppDFAUnusedValue
-                  [[maybe_unused]] auto pod = static_cast<spa_pod*>(
-                    spa_pod_builder_pop(&builder, &frame));
-
-                  spa_data->chunk->size = builder.state.offset;
                 }
+
+                [[maybe_unused]] auto pod = static_cast<spa_pod*>(
+                  spa_pod_builder_pop(&builder, &frame));
+
+                spa_data->chunk->size = builder.state.offset;
                 out_buffer.value().finish();
               }
             });
@@ -61,11 +64,13 @@ int main(int argc, char *argv[]) {
                                           boost::asio::ip::udp::v4(), 33334));
 
     boost::asio::ip::udp::endpoint sender_endpoint;
+    logging::Logger logger{"network_receiver_thread"};
     while (is_running) {
       queue_message message{0};
       message.size = socket.receive_from(
         boost::asio::buffer(message.data, 4096), sender_endpoint);
       queue.push(message);
+      logger.log_info("Received message and added to queue");
     }
   });
 

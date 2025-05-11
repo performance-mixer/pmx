@@ -126,7 +126,7 @@ int main(int argc, char **argv) {
         logger.log_info("Starting queue processing");
         queue_message message{};
         if (queue.pop(message)) {
-          if (std::get<std::string>(std::get<1>(*port_it)) == "udp") {
+          if (std::get<std::string>(std::get<1>(*protocol_it)) == "udp") {
             socket.send_to(boost::asio::buffer(message.data, message.size),
                            *endpoints.begin());
           } else {
