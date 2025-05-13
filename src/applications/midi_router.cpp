@@ -27,7 +27,9 @@ std::string build_input_channel_osc_path(
 }
 
 struct queue_message {
+  int base_channel_id = 0;
   std::string layer;
+  int selected_channel_id = 1;
 };
 
 int main(const int argc, char *argv[]) {
@@ -42,11 +44,14 @@ int main(const int argc, char *argv[]) {
 
   pwcpp::filter::AppBuilder<std::nullptr_t> builder;
   logger.log_info("Building filter app");
-  builder.set_filter_name("pmx-midi-router").set_media_type("application/control").
+  builder.set_filter_name("pmx-midi-router").
+          set_media_type("application/control").
           set_media_class("application/control").add_arguments(argc, argv).
-          set_up_parameters().add("activeLayer", "A").finish().
+          set_up_parameters().add("activeLayer", "A").add("baseChannelId", 0).
+          add("selectedChannelId", 1).finish().
           add_input_port("input channels", "32 bit raw UMP").
           add_input_port("group channels", "32 bit raw UMP").
+          add_input_port("input channels mix", "32 bit raw UMP").
           add_output_port("pmx-osc", "8 bit raw control").add_signal_processor(
             [&queue, &wait_condition](auto position, auto &in_ports,
                                       auto &out_ports, auto &parameters,
@@ -74,9 +79,25 @@ int main(const int argc, char *argv[]) {
                 active_layer = "A";
               }
 
+              auto base_channel_id_option = tools::get_from_collection<int>(
+                "baseChannelId", parameters.parameters());
+              int base_channel_id = 0;
+              if (base_channel_id_option.has_value()) {
+                base_channel_id = base_channel_id_option.value();
+              }
+
+              auto selected_channel_id_option = tools::get_from_collection<int>(
+                "selectedChannelId", parameters.parameters());
+              int selected_channel_id = 1;
+              if (selected_channel_id_option.has_value()) {
+                selected_channel_id = selected_channel_id_option.value();
+              }
+
               // group channels should be processed before input channels, so
               // that the layer selector is processed before the other updates
               auto group_channels_buffer = in_ports.at(1)->get_buffer();
+
+              bool changes = false;
 
               if (group_channels_buffer.has_value()) {
                 auto new_active_layer =
@@ -85,11 +106,26 @@ int main(const int argc, char *argv[]) {
                     active_layer);
 
                 if (new_active_layer != active_layer) {
+                  changes = true;
                   active_layer = new_active_layer;
+                }
+              }
 
-                  // the layer changed, so we add the change to the queue
-                  queue.push(queue_message{active_layer});
-                  wait_condition.notify_all();
+              auto input_channels_mix_buffer = in_ports.at(2)->get_buffer();
+
+              if (input_channels_mix_buffer.has_value()) {
+                auto result = midi::router::process_input_channels_mix_port(
+                  logger, input_channels_mix_buffer.value(), pod_builder,
+                  active_layer, base_channel_id, selected_channel_id);
+
+                if (std::get<0>(result) != base_channel_id) {
+                  changes = true;
+                  base_channel_id = std::get<0>(result);
+                }
+
+                if (std::get<1>(result) != selected_channel_id) {
+                  changes = true;
+                  selected_channel_id = std::get<1>(result);
                 }
               }
 
@@ -98,16 +134,21 @@ int main(const int argc, char *argv[]) {
               if (input_channels_buffer.has_value()) {
                 midi::router::process_input_channels_port(
                   logger, input_channels_buffer.value(), pod_builder,
-                  active_layer);
+                  active_layer, selected_channel_id);
+              }
+
+              if (changes) {
+                queue.push(queue_message{
+                  .base_channel_id = base_channel_id, .layer = active_layer,
+                  .selected_channel_id = selected_channel_id
+                });
+                wait_condition.notify_all();
               }
 
               [[maybe_unused]] auto pod = static_cast<spa_pod*>(
                 spa_pod_builder_pop(&pod_builder, &frame));
 
-              if (pod_builder.state.offset > 16) {
-                spa_data->chunk->size = pod_builder.state.offset;
-                std::cout << "send data, size: " << spa_data->chunk->size << std::endl;
-              }
+              spa_data->chunk->size = pod_builder.state.offset;
 
               out_buffer->finish();
             });
@@ -120,14 +161,24 @@ int main(const int argc, char *argv[]) {
       while (running) {
         if (!queue.empty()) {
           std::string layer;
+          int base_channel_id = 0;
+          int selected_channel_id = 1;
           while (!queue.empty()) {
-            queue_message message{"A"};
+            queue_message message;
             queue.pop(&message);
             layer = message.layer;
+            base_channel_id = message.base_channel_id;
+            selected_channel_id = message.selected_channel_id;
           }
 
           filter_app.value()->parameters_property->update<std::string>(
             "activeLayer", layer);
+
+          filter_app.value()->parameters_property->update<int>(
+            "baseChannelId", base_channel_id);
+
+          filter_app.value()->parameters_property->update<int>(
+            "selectedChannelId", selected_channel_id);
 
           std::uint8_t buffer[1024];
           spa_pod_builder builder{};

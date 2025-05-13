@@ -77,6 +77,45 @@ find_target_parameter_for_group_channels(std::uint8_t cc_number) {
   return {};
 }
 
+inline std::tuple<uint8_t, std::shared_ptr<parameter>>
+find_target_parameter_for_input_mix_channels(std::uint8_t cc_number) {
+  if (cc_number == 16) { return std::make_tuple(1, equalizer_high); }
+  if (cc_number == 17) { return std::make_tuple(1, equalizer_mid); }
+  if (cc_number == 18) { return std::make_tuple(1, equalizer_low); }
+  if (cc_number == 19) { return std::make_tuple(1, equalizer_master); }
+  if (cc_number == 20) { return std::make_tuple(2, equalizer_high); }
+  if (cc_number == 21) { return std::make_tuple(2, equalizer_mid); }
+  if (cc_number == 22) { return std::make_tuple(2, equalizer_low); }
+  if (cc_number == 23) { return std::make_tuple(2, equalizer_master); }
+  if (cc_number == 24) { return std::make_tuple(3, equalizer_high); }
+  if (cc_number == 25) { return std::make_tuple(3, equalizer_mid); }
+  if (cc_number == 26) { return std::make_tuple(3, equalizer_low); }
+  if (cc_number == 27) { return std::make_tuple(3, equalizer_master); }
+  if (cc_number == 28) { return std::make_tuple(4, equalizer_high); }
+  if (cc_number == 29) { return std::make_tuple(4, equalizer_mid); }
+  if (cc_number == 30) { return std::make_tuple(4, equalizer_low); }
+  if (cc_number == 31) { return std::make_tuple(4, equalizer_master); }
+  if (cc_number == 46) { return std::make_tuple(5, equalizer_high); }
+  if (cc_number == 47) { return std::make_tuple(5, equalizer_mid); }
+  if (cc_number == 48) { return std::make_tuple(5, equalizer_low); }
+  if (cc_number == 49) { return std::make_tuple(5, equalizer_master); }
+  if (cc_number == 50) { return std::make_tuple(6, equalizer_high); }
+  if (cc_number == 51) { return std::make_tuple(6, equalizer_mid); }
+  if (cc_number == 52) { return std::make_tuple(6, equalizer_low); }
+  if (cc_number == 53) { return std::make_tuple(6, equalizer_master); }
+  if (cc_number == 54) { return std::make_tuple(7, equalizer_high); }
+  if (cc_number == 55) { return std::make_tuple(7, equalizer_mid); }
+  if (cc_number == 56) { return std::make_tuple(7, equalizer_low); }
+  if (cc_number == 57) { return std::make_tuple(7, equalizer_master); }
+  if (cc_number == 58) { return std::make_tuple(8, equalizer_high); }
+  if (cc_number == 59) { return std::make_tuple(8, equalizer_mid); }
+  if (cc_number == 60) { return std::make_tuple(8, equalizer_low); }
+  if (cc_number == 61) { return std::make_tuple(8, equalizer_master); }
+
+  return std::make_tuple(0, none);
+}
+
+
 inline std::shared_ptr<parameter>
 find_target_parameter_for_input_channels(std::uint8_t cc_number) {
   if (cc_number == 0) {

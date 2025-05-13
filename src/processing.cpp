@@ -10,13 +10,13 @@
 #include <sstream>
 
 std::string
-processing::build_input_channel_osc_path(
-  const pwcpp::midi::control_change &message,
-  const parameters::parameter &parameter, const std::string &active_layer) {
+processing::build_input_channel_osc_path(const uint8_t channel,
+                                         const parameters::parameter &parameter,
+                                         const std::string &active_layer) {
   std::stringstream osc_path;
 
   osc_path << std::format("/I/{}/{}/{}/{}", active_layer,
-                          static_cast<int>(message.channel) + 1,
+                          static_cast<int>(channel),
                           parameter.device_short_name, parameter.name);
 
   return osc_path.str();
