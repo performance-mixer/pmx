@@ -70,6 +70,13 @@ int main(int argc, char *argv[]) {
 
               auto buffer = out_ports[0]->get_buffer();
               if (buffer.has_value()) {
+                auto spa_data = buffer->get_spa_data(0);
+                spa_pod_builder builder{};
+                spa_pod_frame frame{};
+                spa_pod_builder_init(&builder, spa_data->data,
+                                     spa_data->maxsize);
+                spa_pod_builder_push_sequence(&builder, &frame, 0);
+
                 if (queue.read_available() > 0) {
                   traktor_z1_message message{};
                   while (queue.pop(message)) {
@@ -151,16 +158,10 @@ int main(int argc, char *argv[]) {
                           "/cross_fader", message.cross_fader);
                       }
 
-                      auto spa_data = buffer->get_spa_data(0);
                       if (std::any_of(changes.begin(), changes.end(),
                                       [](const auto &change) {
                                         return change.has_value();
                                       })) {
-                        spa_pod_builder builder{};
-                        spa_pod_frame frame{};
-                        spa_pod_builder_init(&builder, spa_data->data,
-                                             spa_data->maxsize);
-                        spa_pod_builder_push_sequence(&builder, &frame, 0);
                         spa_pod_builder_control(&builder, 0, SPA_CONTROL_OSC);
 
                         char osc_buffer[4096];
@@ -176,17 +177,17 @@ int main(int argc, char *argv[]) {
                           const auto size = packet.size();
                           spa_pod_builder_bytes(&builder, osc_buffer, size);
                         }
-
-                        [[maybe_unused]] auto pod = static_cast<spa_pod*>(
-                          spa_pod_builder_pop(&builder, &frame));
-
-                        spa_data->chunk->size = builder.state.offset;
                       }
 
                       previous = message;
                     }
                   }
                 }
+
+                [[maybe_unused]] auto pod = static_cast<spa_pod*>(
+                  spa_pod_builder_pop(&builder, &frame));
+
+                spa_data->chunk->size = builder.state.offset;
                 buffer.value().finish();
               }
             });
