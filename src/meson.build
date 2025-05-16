@@ -11,6 +11,15 @@ executable(
     install : true)
 
 executable(
+    'pmx-slp-ctrl',
+    sources : [
+        'applications/slp_ctrl.cpp',
+    ],
+    dependencies : [pipewire_dep, libsystemd_dep],
+    include_directories : [include_directory],
+    install : true)
+
+executable(
     'pmx-filter-chain-ctrl',
     sources : [
         'applications/filter_chain_ctrl.cpp',

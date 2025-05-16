@@ -1,5 +1,3 @@
-application_install_dir = join_paths(get_option('prefix'), get_option('bindir'))
-
 configure_file(
     input : 'pmx-metadata-manager.service.in',
     output : 'pmx-metadata-manager.service',
@@ -51,8 +49,28 @@ configure_file(
 )
 
 configure_file(
+    input : 'pmx-osc-sl-network-receiver.service.in',
+    output : 'pmx-osc-sl-network-receiver.service',
+    configuration : {
+        'BINDIR' : application_install_dir
+    },
+    install : true,
+    install_dir : 'lib/systemd/user'
+)
+
+configure_file(
     input : 'pmx-osc-network-sender.service.in',
     output : 'pmx-osc-network-sender.service',
+    configuration : {
+        'BINDIR' : application_install_dir
+    },
+    install : true,
+    install_dir : 'lib/systemd/user'
+)
+
+configure_file(
+    input : 'pmx-osc-sl-network-sender.service.in',
+    output : 'pmx-osc-sl-network-sender.service',
     configuration : {
         'BINDIR' : application_install_dir
     },
@@ -75,6 +93,18 @@ configure_file(
     output : 'pmx-filter-chains.service',
     configuration : {
         'BINDIR' : application_install_dir
+    },
+    install : true,
+    install_dir : 'lib/systemd/user'
+)
+
+
+configure_file(
+    input : 'pmx-sooperlooper.service.in',
+    output : 'pmx-sooperlooper.service',
+    configuration : {
+        'BINDIR' : application_install_dir,
+        'DATADIR' : application_data_dir
     },
     install : true,
     install_dir : 'lib/systemd/user'

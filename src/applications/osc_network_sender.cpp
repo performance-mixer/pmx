@@ -22,15 +22,27 @@ int main(int argc, char **argv) {
   boost::lockfree::spsc_queue<queue_message> queue(128);
   std::condition_variable condition_variable;
   std::mutex mutex;
-  std::unique_lock<std::mutex> lock(mutex);
+  std::unique_lock lock(mutex);
+
+  if (argc < 5) {
+    logger.log_error(
+      "Usage: " + std::string(argv[0]) +
+      " <filter_name> <port_name> <target_address> <target_port>");
+    return 1;
+  }
+
+  const std::string filter_name = argv[1];
+  const std::string port_name = argv[2];
+  const std::string target_address = argv[3];
+  const int target_port = std::stoi(argv[4]);
 
   logger.log_info("Building filter app");
   pwcpp::filter::AppBuilder<std::nullptr_t> builder;
-  builder.set_filter_name("pmx-osc-network-sender").set_media_type("Osc").
-          set_media_class("Osc/Sink").add_arguments(argc, argv).
-          add_input_port("pmx-osc", "8 bit raw midi").set_up_parameters().
-          add("target.ip_address", "127.0.0.1").add("target.port", 3300).
-          add("target.protocol", "udp").finish().add_signal_processor(
+  builder.set_filter_name(filter_name).set_media_type("application/control").
+          set_media_class("application/control").add_arguments(argc, argv).
+          add_input_port(port_name, "8 bit raw midi").set_up_parameters().
+          add("target.ip_address", target_address).
+          add("target.port", target_port).add("target.protocol", "udp").finish().add_signal_processor(
             [&queue, &condition_variable](auto position, auto &in_ports,
                                           auto &out_ports, auto &user_data,
                                           auto &parameters) {

@@ -1,5 +1,5 @@
 [Unit]
-Description=Main OSC Network Sender for PMX-1
+Description=Receives osc messages via network and send them out on a port
 Before=
 After=pmx-metadata-manager.service
 Requires=pipewire.service wireplumber.service pmx-metadata-manager.service
@@ -7,7 +7,7 @@ Wants=
 
 [Service]
 Type=notify
-ExecStart=@BINDIR@/pmx-osc-network-sender pmx-osc-network-sender pmx-osc 127.0.0.1 3300
+ExecStart=@BINDIR@/pmx-osc-network-receiver pmx-osc-sl-network-receiver pmx-from-sl-osc 33334
 ExecStop=
 Restart=on-failure
 
