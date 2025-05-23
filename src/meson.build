@@ -11,6 +11,24 @@ executable(
     install : true)
 
 executable(
+    'pmx-lp-mini-init',
+    sources : [
+        'applications/lp_mini_init.cpp',
+    ],
+    dependencies : [pipewire_dep, libsystemd_dep],
+    include_directories : [include_directory],
+    install : true)
+
+executable(
+    'pmx-ctrl-pipe',
+    sources : [
+        'applications/ctrl_pipe.cpp',
+    ],
+    dependencies : [pipewire_dep, libsystemd_dep],
+    include_directories : [include_directory],
+    install : true)
+
+executable(
     'pmx-slp-ctrl',
     sources : [
         'applications/slp_ctrl.cpp',

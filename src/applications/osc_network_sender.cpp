@@ -40,9 +40,10 @@ int main(int argc, char **argv) {
   pwcpp::filter::AppBuilder<std::nullptr_t> builder;
   builder.set_filter_name(filter_name).set_media_type("application/control").
           set_media_class("application/control").add_arguments(argc, argv).
-          add_input_port(port_name, "8 bit raw midi").set_up_parameters().
+          add_input_port(port_name, "8 bit raw control").set_up_parameters().
           add("target.ip_address", target_address).
-          add("target.port", target_port).add("target.protocol", "udp").finish().add_signal_processor(
+          add("target.port", target_port).add("target.protocol", "udp").finish()
+          .add_signal_processor(
             [&queue, &condition_variable](auto position, auto &in_ports,
                                           auto &out_ports, auto &user_data,
                                           auto &parameters) {

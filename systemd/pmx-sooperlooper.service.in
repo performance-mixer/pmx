@@ -7,11 +7,9 @@ Wants=
 
 [Service]
 Type=simple
-ExecStart=@BINDIR@/sooperlooper --loopcount=8 --load-session=@DATADIR@/pmx/pmx-session.slsess
+ExecStart=@BINDIR@/pmx-start-sooperlooper.fish
 Restart=on-failure
 
 [Install]
-# A list of units who when activated will try and activate this unit
-WantedBy=multi-user.target
-# A list of units to enable or disable when this unit is enabled or disabled (e.g., with systemctl enable)
+WantedBy=performance-mixer.target
 Also=

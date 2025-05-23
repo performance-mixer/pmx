@@ -2,7 +2,7 @@
 
 # Global settings - valid for all loops
 oscsend osc.udp://127.0.0.1:9951 /set sf sync_source -2
-oscsend osc.udp://127.0.0.1:9951 /set sf eighth_per_cycle 32
+oscsend osc.udp://127.0.0.1:9951 /set sf eighth_per_cycle 64
 
 # Loop settings
 for i in (seq 0 7)

@@ -78,12 +78,15 @@ int main(int argc, char *argv[]) {
 
     boost::asio::ip::udp::endpoint sender_endpoint;
     logging::Logger logger{"network_receiver_thread"};
+    logger.log_info("Starting network receiver thread port " + source_port);
+    std::cout << "Starting network receiver thread port " << source_port << std::endl;
     while (is_running) {
       queue_message message{0};
       message.size = socket.receive_from(
         boost::asio::buffer(message.data, 4096), sender_endpoint);
       queue.push(message);
       logger.log_info("Received message and added to queue");
+      std::cout << "Received message and added to queue" << std::endl;
     }
   });
 

@@ -6,6 +6,7 @@
 #include <systemd/sd-journal.h>
 
 #include <utility>
+#include <vector>
 
 namespace logging {
 class Logger {

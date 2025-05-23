@@ -7,7 +7,10 @@ After=network.target pipewire.service wireplumber.service
 
 Requires=pipewire.service wireplumber.service pmx-filter-chain-ctrl.service \
     pmx-grpc-api.service pmx-metadata-manager.service pmx-midi-router.service \
-    pmx-osc-network-receiver.service pmx-osc-network-sender.service
+    pmx-osc-network-receiver.service pmx-osc-network-sender.service \
+    pmx-osc-sl-network-receiver.service pmx-osc-sl-network-sender.service \
+    pmx-sooperlooper.service pmx-jack-midi-clock.service \
+    pmx-traktor-z1-router.service
 
 Wants=
 

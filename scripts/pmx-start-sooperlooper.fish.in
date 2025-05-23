@@ -1,0 +1,3 @@
+#!/bin/fish
+@BINDIR@/sooperlooper --load-session=@DATADIR@/pmx/pmx-session.slsess
+@BINDIR@/pmx-register-sooper-looper-updates.fish
