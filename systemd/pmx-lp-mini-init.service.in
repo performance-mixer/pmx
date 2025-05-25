@@ -1,0 +1,13 @@
+[Unit]
+Description=Activate Session Mode in Launchpad Mini
+Before=pmx-slp-ctrl.service
+After=network.target
+
+[Service]
+Type=notify
+ExecStart=@BINDIR@/pmx-lp-mini-init
+ExecStop=
+Restart=on-failure
+
+[Install]
+WantedBy=performance-mixer.target

@@ -1,0 +1,13 @@
+[Unit]
+Description=Control SooperLooper with Launchpad Mini
+After=network.target pmx-lp-mini-init.service
+Requires=pmx-lp-mini-init.service
+
+[Service]
+Type=notify
+ExecStart=@BINDIR@/pmx-slp-ctrl
+ExecStop=
+Restart=on-failure
+
+[Install]
+WantedBy=performance-mixer.target

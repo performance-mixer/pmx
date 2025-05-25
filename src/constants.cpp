@@ -4,23 +4,24 @@ const std::array<std::string, 2> pmx::constants::service_dependencies = {
   "pipewire.service", "wireplumber.service"
 };
 
-const std::array<std::string, 12> pmx::constants::service_names = {
+const std::array<std::string, 13> pmx::constants::service_names = {
   "pmx-filter-chain-ctrl.service", "pmx-grpc-api.service",
   "pmx-metadata-manager.service", "pmx-midi-router.service",
   "pmx-osc-network-receiver.service", "pmx-osc-network-sender.service",
   "pmx-traktor-z1-router.service", "pmx-filter-chains.service",
   "pmx-jack-midi-clock.service", "pmx-osc-sl-network-receiver.service",
   "pmx-osc-sl-network-sender.service", "pmx-slp-ctrl.service",
+  "pmx-lp-mini-init.service"
 };
 
-const std::array<std::string, 15> pmx::constants::all_services = {
+const std::array<std::string, 16> pmx::constants::all_services = {
   "pipewire.service", "wireplumber.service", "pmx-filter-chain-ctrl.service",
   "pmx-grpc-api.service", "pmx-metadata-manager.service",
   "pmx-midi-router.service", "pmx-osc-network-receiver.service",
   "pmx-osc-network-sender.service", "pmx-traktor-z1-router.service",
   "pmx-filter-chains.service", "pmx-jack-midi-clock.service",
   "pmx-osc-network-receiver.service", "pmx-osc-network-sender.service",
-  "pmx-sooperlooper.service", "pmx-slp-ctrl.service",
+  "pmx-sooperlooper.service", "pmx-slp-ctrl.service", "pmx-lp-mini-init.service"
 };
 
 const std::array<std::string, 3> pmx::constants::pmx_osc_producer_node_names = {

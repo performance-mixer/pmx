@@ -67,6 +67,7 @@ SimpleEventHook({
     },
     execute = function(event)
         new_output_port = event:get_subject()
+        print("found", new_input_port.properties["port.alias"])
         table.insert(FromSlOscOutputPorts, new_output_port)
         local output_port_id = new_output_port.properties["object.id"]
 
@@ -93,6 +94,7 @@ SimpleEventHook({
     },
     execute = function(event)
         new_input_port = event:get_subject()
+        print("found", new_input_port.properties["port.alias"])
         table.insert(FromSlOscInputPort, new_input_port)
         local input_port_id = new_input_port.properties["object.id"]
 
@@ -122,6 +124,7 @@ SimpleEventHook({
     },
     execute = function(event)
         new_output_port = event:get_subject()
+        print("found", new_input_port.properties["port.alias"])
         table.insert(ToSlOscOutputPorts, new_output_port)
         local output_port_id = new_output_port.properties["object.id"]
 
@@ -148,6 +151,7 @@ SimpleEventHook({
     },
     execute = function(event)
         new_input_port = event:get_subject()
+        print("found", new_input_port.properties["port.alias"])
         table.insert(ToSlOscInputPort, new_input_port)
         local input_port_id = new_input_port.properties["object.id"]
 

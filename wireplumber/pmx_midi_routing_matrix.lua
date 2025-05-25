@@ -89,6 +89,8 @@ SimpleEventHook({
                          "SE-02:SE-02 MIDI 1",
                          "RME RayDAT_a5963e:HDSPMxa5963e MIDI 1",
                          "SYSTEM-1m:SYSTEM-1m MIDI 1",
+                         "pmx-slp-ctrl:midi_clock",
+                         "sooperlooper:sooperlooper"
             }),
         })
     },

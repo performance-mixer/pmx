@@ -98,7 +98,6 @@ configure_file(
     install_dir : 'lib/systemd/user'
 )
 
-
 configure_file(
     input : 'pmx-sooperlooper.service.in',
     output : 'pmx-sooperlooper.service',
@@ -109,6 +108,27 @@ configure_file(
     install : true,
     install_dir : 'lib/systemd/user'
 )
+
+configure_file(
+    input : 'pmx-lp-mini-init.service.in',
+    output : 'pmx-lp-mini-init.service',
+    configuration : {
+        'BINDIR' : application_install_dir
+    },
+    install : true,
+    install_dir : 'lib/systemd/user'
+)
+
+configure_file(
+    input : 'pmx-slp-ctrl.service.in',
+    output : 'pmx-slp-ctrl.service',
+    configuration : {
+        'BINDIR' : application_install_dir
+    },
+    install : true,
+    install_dir : 'lib/systemd/user'
+)
+
 
 install_data(
     'performance-mixer.target',
