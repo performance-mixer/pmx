@@ -36,6 +36,9 @@ int main(int argc, char **argv) {
   const std::string target_address = argv[3];
   const int target_port = std::stoi(argv[4]);
 
+  logger.log_info(
+    "Sending to " + target_address + ":" + std::to_string(target_port));
+
   logger.log_info("Building filter app");
   pwcpp::filter::AppBuilder<std::nullptr_t> builder;
   builder.set_filter_name(filter_name).set_media_type("application/control").

@@ -30,6 +30,7 @@ int main(int argc, char *argv[]) {
 
   boost::lockfree::spsc_queue<queue_message> queue(128);
 
+  logger.log_info("Listening on port " + port_name);
   logger.log_info("Building filter app");
   pwcpp::filter::AppBuilder<std::nullptr_t> builder;
   builder.set_filter_name(filter_name).set_media_type("application/control").
