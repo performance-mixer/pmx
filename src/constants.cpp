@@ -20,7 +20,7 @@ const std::array<std::string, 16> pmx::constants::all_services = {
   "pmx-midi-router.service", "pmx-osc-network-receiver.service",
   "pmx-osc-network-sender.service", "pmx-traktor-z1-router.service",
   "pmx-filter-chains.service", "pmx-jack-midi-clock.service",
-  "pmx-osc-network-receiver.service", "pmx-osc-network-sender.service",
+  "pmx-osc-sl-network-receiver.service", "pmx-osc-sl-network-sender.service",
   "pmx-sooperlooper.service", "pmx-slp-ctrl.service", "pmx-lp-mini-init.service"
 };
 
