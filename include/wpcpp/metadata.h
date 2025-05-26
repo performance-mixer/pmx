@@ -34,7 +34,7 @@ public:
       auto metadata_iterator = wp_metadata_new_iterator(data->metadata, 0);
       GValue value = {0};
       while (wp_iterator_next(metadata_iterator, &value)) {
-        auto metadata_item = reinterpret_cast<WpMetadataItem*>(value.data->
+        auto metadata_item = static_cast<WpMetadataItem*>(value.data->
                                                                      v_pointer);
         auto key = wp_metadata_item_get_key(metadata_item);
         auto metadata_value = wp_metadata_item_get_value(metadata_item);

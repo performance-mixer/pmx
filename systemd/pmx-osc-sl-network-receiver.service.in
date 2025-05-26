@@ -7,7 +7,7 @@ Wants=
 
 [Service]
 Type=notify
-ExecStart=@BINDIR@/pmx-osc-network-receiver pmx-osc-sl-network-receiver pmx-from-sl-osc 33334
+ExecStart=@BINDIR@/pmx-osc-network-receiver pmx-osc-sl-network-receiver pmx-from-sl-osc 12345
 ExecStop=
 Restart=on-failure
 
