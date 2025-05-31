@@ -10,6 +10,9 @@
 #include <pwcpp/filter/app_builder.h>
 #include <pwcpp/osc/parse_osc.h>
 
+#include "ump/create_ump_message.h"
+#include "slp_ctrl/GroupChannelSooperLoopers.h"
+
 enum class State {
   Off,
   WaitStart,
@@ -106,8 +109,10 @@ int main(const int argc, char *argv[]) {
   sd_notify(0, "STATUS=Starting");
   logging::Logger logger{"main"};
 
+  slp::ctrl::GroupChannelSooperLoopers loopers;
+
   uint64_t ppm_count{0};
-  auto loopers = SooperLoopers{};
+  auto sooper_loopers = SooperLoopers{};
 
   float known_eighth_per_cycle{64.0f};
 
@@ -119,7 +124,7 @@ int main(const int argc, char *argv[]) {
           add_input_port("midi_clock", "32 bit raw UMP").
           add_output_port("pmx-to-sl-osc", "8 bit raw control").
           add_output_port("lp_mini", "32 bit raw UMP").add_signal_processor(
-            [&ppm_count, &loopers, &known_eighth_per_cycle](
+            [&ppm_count, &sooper_loopers, &known_eighth_per_cycle](
             auto position, auto &in_ports, auto &out_ports, auto &user_data,
             auto &parameters) {
               logging::Logger logger{"signal-processor"};
@@ -170,7 +175,7 @@ int main(const int argc, char *argv[]) {
 
                   for (auto state_update : state_updates) {
                     if (state_update.loop_index < 8) {
-                      loopers.group_channel_loopers[state_update.loop_index].
+                      sooper_loopers.group_channel_loopers[state_update.loop_index].
                         state = state_update.state;
                     }
                   }
@@ -180,6 +185,7 @@ int main(const int argc, char *argv[]) {
               }
 
               std::set<int> registered_loop_ctrl_presses;
+              bool switch_to_mixer_mode{false};
               auto lp_mini_input_buffer = in_ports[1]->get_buffer();
               if (lp_mini_input_buffer.has_value()) {
                 auto pod = lp_mini_input_buffer.value().get_pod(0);
@@ -217,6 +223,29 @@ int main(const int argc, char *argv[]) {
                       registered_loop_ctrl_presses.insert(6);
                     } else if (message[0] == 1082152960 && message[1] == 0) {
                       registered_loop_ctrl_presses.insert(7);
+                    } else if (message[0] == 1085298944 && message[1] == 0) {
+                      switch_to_mixer_mode = true;
+                      std::cout << "Switching to mixer mode -> control received"
+                        << std::endl;
+                    } else if (message[0] == 1085538560) {
+                      std::cout << "Fader 1 value: " << message[1] << std::endl;
+                    } else if (message[0] == 1085538816) {
+                      std::cout << "Fader 2 value: " << message[1] << std::endl;
+                    } else if (message[0] == 1085539072) {
+                      std::cout << "Fader 3 value: " << message[1] << std::endl;
+                    } else if (message[0] == 1085539328) {
+                      std::cout << "Fader 4 value: " << message[1] << std::endl;
+                    } else if (message[0] == 1085539584) {
+                      std::cout << "Fader 5 value: " << message[1] << std::endl;
+                    } else if (message[0] == 1085540608) {
+                      std::cout << "Fader 6 value: " << message[1] << std::endl;
+                    } else if (message[0] == 1085540096) {
+                      std::cout << "Fader 7 value: " << message[1] << std::endl;
+                    } else if (message[0] == 1085540352) {
+                      std::cout << "Fader 8 value: " << message[1] << std::endl;
+                    } else {
+                      std::cout << "Unknown UMP message: [0]=" << message[0] <<
+                        " [1]=" << message[1] << std::endl;
                     }
                   }
                 }
@@ -308,7 +337,7 @@ int main(const int argc, char *argv[]) {
                                      spa_data->maxsize);
                 spa_pod_builder_push_sequence(&builder, &frame, 0);
 
-                for (auto &&state_update : loopers.group_channel_loopers) {
+                for (auto &&state_update : sooper_loopers.group_channel_loopers) {
                   if (state_update.state == State::Off) {
                     spa_pod_builder_control(&builder, 0, SPA_CONTROL_UMP);
                     auto ump_message = static_cast<uint32_t>(0b00100000) << 24 |
@@ -355,6 +384,65 @@ int main(const int argc, char *argv[]) {
                     | static_cast<uint32_t>(0b10110000) << 16 |
                     bar_to_cc_mapping[i] << 8 | value;
                   spa_pod_builder_bytes(&builder, &ump_message, 4);
+                }
+
+                if (switch_to_mixer_mode) {
+                  std::cout << "Sending mixer setup" << std::endl;
+                  spa_pod_builder_control(&builder, 0, SPA_CONTROL_UMP);
+                  spa_pod_builder_bytes(&builder,
+                                        ump::create_8_byte_message(
+                                          ump::message_type::sysex_7bit_start,
+                                          {0, 32, 41, 2, 13, 1})->data(), 8);
+
+                  spa_pod_builder_control(&builder, 0, SPA_CONTROL_UMP);
+                  spa_pod_builder_bytes(&builder,
+                                        ump::create_8_byte_message(
+                                          ump::message_type::sysex_7bit_continue,
+                                          {0, 1, 0, 1, 1, 42})->data(), 8);
+
+                  spa_pod_builder_control(&builder, 0, SPA_CONTROL_UMP);
+                  spa_pod_builder_bytes(&builder,
+                                        ump::create_8_byte_message(
+                                          ump::message_type::sysex_7bit_continue,
+                                          {1, 1, 2, 42, 2})->data(), 8);
+
+                  spa_pod_builder_control(&builder, 0, SPA_CONTROL_UMP);
+                  spa_pod_builder_bytes(&builder,
+                                        ump::create_8_byte_message(
+                                          ump::message_type::sysex_7bit_continue,
+                                          {1, 3, 42, 3, 1, 4})->data(), 8);
+
+                  spa_pod_builder_control(&builder, 0, SPA_CONTROL_UMP);
+                  spa_pod_builder_bytes(&builder,
+                                        ump::create_8_byte_message(
+                                          ump::message_type::sysex_7bit_continue,
+                                          {42, 4, 1, 5, 49, 5})->data(), 8);
+
+                  spa_pod_builder_control(&builder, 0, SPA_CONTROL_UMP);
+                  spa_pod_builder_bytes(&builder,
+                                        ump::create_8_byte_message(
+                                          ump::message_type::sysex_7bit_continue,
+                                          {1, 9, 49, 6, 1, 7})->data(), 8);
+
+                  spa_pod_builder_control(&builder, 0, SPA_CONTROL_UMP);
+                  spa_pod_builder_bytes(&builder,
+                                        ump::create_8_byte_message(
+                                          ump::message_type::sysex_7bit_end,
+                                          {49, 7, 1, 8, 49})->data(), 8);
+
+                  std::cout << "Switching to mixer mode" << std::endl;
+
+                  spa_pod_builder_control(&builder, 0, SPA_CONTROL_UMP);
+                  spa_pod_builder_bytes(&builder,
+                                        ump::create_8_byte_message(
+                                          ump::message_type::sysex_7bit_start,
+                                          {0, 32, 41, 2, 13, 0})->data(), 8);
+
+                  spa_pod_builder_control(&builder, 0, SPA_CONTROL_UMP);
+                  spa_pod_builder_bytes(&builder,
+                                        ump::create_8_byte_message(
+                                          ump::message_type::sysex_7bit_end,
+                                          {13})->data(), 8);
                 }
 
                 [[maybe_unused]] auto pod = static_cast<spa_pod*>(
