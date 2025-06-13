@@ -1,5 +1,4 @@
 #include <iostream>
-#include <oscpp/server.hpp>
 #include <set>
 #include <oscpp/client.hpp>
 
@@ -10,8 +9,8 @@
 #include <pwcpp/filter/app_builder.h>
 #include <pwcpp/osc/parse_osc.h>
 
-#include "ump/create_ump_message.h"
-#include "slp_ctrl/GroupChannelSooperLoopers.h"
+#include "ump/sysex.h"
+#include "slp_ctrl/group_channel_sooper_loopers.h"
 
 enum class State {
   Off,
@@ -124,7 +123,7 @@ int main(const int argc, char *argv[]) {
           add_input_port("midi_clock", "32 bit raw UMP").
           add_output_port("pmx-to-sl-osc", "8 bit raw control").
           add_output_port("lp_mini", "32 bit raw UMP").add_signal_processor(
-            [&ppm_count, &sooper_loopers, &known_eighth_per_cycle](
+            [&ppm_count, &sooper_loopers, &known_eighth_per_cycle, &loopers](
             auto position, auto &in_ports, auto &out_ports, auto &user_data,
             auto &parameters) {
               logging::Logger logger{"signal-processor"};
@@ -133,54 +132,7 @@ int main(const int argc, char *argv[]) {
 
               auto sl_osc_input_buffer = in_ports[0]->get_buffer();
               if (sl_osc_input_buffer.has_value()) {
-                auto packets = pwcpp::osc::parse_osc<16>(
-                  sl_osc_input_buffer.value());
-                if (packets.has_value()) {
-                  std::vector<StateUpdate> state_updates;
-                  for (auto &&packet : packets.value()) {
-                    if (packet.has_value()) {
-                      OSCPP::Server::Message message(packet.value());
-                      OSCPP::Server::ArgStream arguments_stream(message.args());
-
-                      std::string address(message.address());
-
-                      if (address == "/sl/global") {
-                        auto huh = arguments_stream.int32();
-                        auto parameter_name = std::string(
-                          arguments_stream.string());
-                        auto value = arguments_stream.float32();
-                        if (parameter_name == "eighth_per_cycle") {
-                          if (value != eighth_per_cycle) {
-                            logger.log_warning(
-                              "eight per cycle count changed to " +
-                              std::to_string(value));
-                          }
-                          known_eighth_per_cycle = value;
-                        }
-                      } else if (address == "/sl/loops") {
-                        auto loop_index = arguments_stream.int32();
-                        auto parameter_name = std::string(
-                          arguments_stream.string());
-                        auto value = arguments_stream.float32();
-                        std::cout << "Received OSC message: " << value <<
-                          std::endl;
-                        if (parameter_name == "state") {
-                          state_updates.push_back({
-                            loop_index, translate_state(value)
-                          });
-                        }
-                      }
-                    }
-                  }
-
-                  for (auto state_update : state_updates) {
-                    if (state_update.loop_index < 8) {
-                      sooper_loopers.group_channel_loopers[state_update.loop_index].
-                        state = state_update.state;
-                    }
-                  }
-                }
-
+                loopers.update_states(sl_osc_input_buffer.value());
                 sl_osc_input_buffer.value().finish();
               }
 
@@ -337,7 +289,8 @@ int main(const int argc, char *argv[]) {
                                      spa_data->maxsize);
                 spa_pod_builder_push_sequence(&builder, &frame, 0);
 
-                for (auto &&state_update : sooper_loopers.group_channel_loopers) {
+                for (auto &&state_update : sooper_loopers.
+                     group_channel_loopers) {
                   if (state_update.state == State::Off) {
                     spa_pod_builder_control(&builder, 0, SPA_CONTROL_UMP);
                     auto ump_message = static_cast<uint32_t>(0b00100000) << 24 |
@@ -390,58 +343,58 @@ int main(const int argc, char *argv[]) {
                   std::cout << "Sending mixer setup" << std::endl;
                   spa_pod_builder_control(&builder, 0, SPA_CONTROL_UMP);
                   spa_pod_builder_bytes(&builder,
-                                        ump::create_8_byte_message(
-                                          ump::message_type::sysex_7bit_start,
+                                        ump::sysex_7bit_message(
+                                          ump::sysex_7bit_message_type::sysex_7bit_start,
                                           {0, 32, 41, 2, 13, 1})->data(), 8);
 
                   spa_pod_builder_control(&builder, 0, SPA_CONTROL_UMP);
                   spa_pod_builder_bytes(&builder,
-                                        ump::create_8_byte_message(
-                                          ump::message_type::sysex_7bit_continue,
+                                        ump::sysex_7bit_message(
+                                          ump::sysex_7bit_message_type::sysex_7bit_continue,
                                           {0, 1, 0, 1, 1, 42})->data(), 8);
 
                   spa_pod_builder_control(&builder, 0, SPA_CONTROL_UMP);
                   spa_pod_builder_bytes(&builder,
-                                        ump::create_8_byte_message(
-                                          ump::message_type::sysex_7bit_continue,
+                                        ump::sysex_7bit_message(
+                                          ump::sysex_7bit_message_type::sysex_7bit_continue,
                                           {1, 1, 2, 42, 2})->data(), 8);
 
                   spa_pod_builder_control(&builder, 0, SPA_CONTROL_UMP);
                   spa_pod_builder_bytes(&builder,
-                                        ump::create_8_byte_message(
-                                          ump::message_type::sysex_7bit_continue,
+                                        ump::sysex_7bit_message(
+                                          ump::sysex_7bit_message_type::sysex_7bit_continue,
                                           {1, 3, 42, 3, 1, 4})->data(), 8);
 
                   spa_pod_builder_control(&builder, 0, SPA_CONTROL_UMP);
                   spa_pod_builder_bytes(&builder,
-                                        ump::create_8_byte_message(
-                                          ump::message_type::sysex_7bit_continue,
+                                        ump::sysex_7bit_message(
+                                          ump::sysex_7bit_message_type::sysex_7bit_continue,
                                           {42, 4, 1, 5, 49, 5})->data(), 8);
 
                   spa_pod_builder_control(&builder, 0, SPA_CONTROL_UMP);
                   spa_pod_builder_bytes(&builder,
-                                        ump::create_8_byte_message(
-                                          ump::message_type::sysex_7bit_continue,
+                                        ump::sysex_7bit_message(
+                                          ump::sysex_7bit_message_type::sysex_7bit_continue,
                                           {1, 9, 49, 6, 1, 7})->data(), 8);
 
                   spa_pod_builder_control(&builder, 0, SPA_CONTROL_UMP);
                   spa_pod_builder_bytes(&builder,
-                                        ump::create_8_byte_message(
-                                          ump::message_type::sysex_7bit_end,
+                                        ump::sysex_7bit_message(
+                                          ump::sysex_7bit_message_type::sysex_7bit_end,
                                           {49, 7, 1, 8, 49})->data(), 8);
 
                   std::cout << "Switching to mixer mode" << std::endl;
 
                   spa_pod_builder_control(&builder, 0, SPA_CONTROL_UMP);
                   spa_pod_builder_bytes(&builder,
-                                        ump::create_8_byte_message(
-                                          ump::message_type::sysex_7bit_start,
+                                        ump::sysex_7bit_message(
+                                          ump::sysex_7bit_message_type::sysex_7bit_start,
                                           {0, 32, 41, 2, 13, 0})->data(), 8);
 
                   spa_pod_builder_control(&builder, 0, SPA_CONTROL_UMP);
                   spa_pod_builder_bytes(&builder,
-                                        ump::create_8_byte_message(
-                                          ump::message_type::sysex_7bit_end,
+                                        ump::sysex_7bit_message(
+                                          ump::sysex_7bit_message_type::sysex_7bit_end,
                                           {13})->data(), 8);
                 }
 

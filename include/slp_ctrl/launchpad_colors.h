@@ -1,0 +1,145 @@
+#pragma once
+
+#include <array>
+#include <cstdint>
+#include <string>
+
+namespace slp::ctrl {
+struct launchpad_color {
+  std::string name;
+  std::uint8_t code;
+};
+
+namespace colors {
+extern const launchpad_color black;
+extern const launchpad_color dark_gray;
+extern const launchpad_color gray;
+extern const launchpad_color light_gray;
+extern const launchpad_color white;
+extern const launchpad_color red;
+extern const launchpad_color orange_red;
+extern const launchpad_color brown;
+extern const launchpad_color dark_orange;
+extern const launchpad_color orange;
+extern const launchpad_color peach;
+extern const launchpad_color salmon;
+extern const launchpad_color yellow;
+extern const launchpad_color lemon_yellow;
+extern const launchpad_color yellow_green;
+extern const launchpad_color olive;
+extern const launchpad_color forest_green;
+extern const launchpad_color green;
+extern const launchpad_color light_green;
+extern const launchpad_color mint;
+extern const launchpad_color pale_green;
+extern const launchpad_color neon_green;
+extern const launchpad_color spring_green;
+extern const launchpad_color olive_drab;
+extern const launchpad_color teal;
+extern const launchpad_color aqua;
+extern const launchpad_color turquoise;
+extern const launchpad_color light_aqua;
+extern const launchpad_color cyan;
+extern const launchpad_color pale_cyan;
+extern const launchpad_color blue_green;
+extern const launchpad_color sea_green;
+extern const launchpad_color navy;
+extern const launchpad_color dark_blue;
+extern const launchpad_color blue;
+extern const launchpad_color sky_blue;
+extern const launchpad_color light_blue;
+extern const launchpad_color pale_blue;
+extern const launchpad_color steel_blue;
+extern const launchpad_color ice_blue;
+extern const launchpad_color indigo;
+extern const launchpad_color purple;
+extern const launchpad_color violet;
+extern const launchpad_color lavender;
+extern const launchpad_color light_violet;
+extern const launchpad_color magenta;
+extern const launchpad_color bright_magenta;
+extern const launchpad_color plum;
+extern const launchpad_color deep_pink;
+extern const launchpad_color hot_pink;
+extern const launchpad_color pink;
+extern const launchpad_color rose;
+extern const launchpad_color pale_pink;
+extern const launchpad_color orchid;
+extern const launchpad_color mauve;
+extern const launchpad_color thistle;
+extern const launchpad_color fuchsia;
+extern const launchpad_color raspberry;
+extern const launchpad_color wine;
+extern const launchpad_color maroon;
+extern const launchpad_color brick_red;
+extern const launchpad_color terra_cotta;
+extern const launchpad_color gold;
+extern const launchpad_color olive_brown;
+extern const launchpad_color pine_green;
+extern const launchpad_color dark_green;
+extern const launchpad_color moss_green;
+extern const launchpad_color grass_green;
+extern const launchpad_color teal_green;
+extern const launchpad_color ocean_blue;
+extern const launchpad_color slate;
+extern const launchpad_color taupe;
+extern const launchpad_color burnt_orange;
+extern const launchpad_color pumpkin;
+extern const launchpad_color mustard;
+extern const launchpad_color pale_yellow;
+extern const launchpad_color avocado;
+extern const launchpad_color shamrock;
+extern const launchpad_color aqua_blue;
+extern const launchpad_color deep_sky_blue;
+extern const launchpad_color violet_blue;
+extern const launchpad_color lavender_blue;
+extern const launchpad_color lavender_pink;
+extern const launchpad_color cocoa;
+extern const launchpad_color amber;
+extern const launchpad_color chartreuse;
+extern const launchpad_color spring_bud;
+extern const launchpad_color light_olive;
+extern const launchpad_color mint_blue;
+extern const launchpad_color pale_mint;
+extern const launchpad_color ice_mint;
+extern const launchpad_color light_cyan;
+extern const launchpad_color powder_blue;
+extern const launchpad_color pale_violet;
+extern const launchpad_color lilac;
+extern const launchpad_color pale_pink_2;
+extern const launchpad_color sandy_brown;
+extern const launchpad_color tan;
+extern const launchpad_color light_gold;
+extern const launchpad_color khaki;
+extern const launchpad_color olive_tan;
+extern const launchpad_color pale_olive;
+extern const launchpad_color moss_brown;
+extern const launchpad_color slate_brown;
+extern const launchpad_color ash_gray;
+extern const launchpad_color taupe_gray;
+extern const launchpad_color coral;
+extern const launchpad_color salmon_pink;
+extern const launchpad_color apricot;
+extern const launchpad_color lemon_chiffon;
+extern const launchpad_color cream;
+extern const launchpad_color pale_cream;
+extern const launchpad_color rosewood;
+extern const launchpad_color soft_brown;
+extern const launchpad_color muted_rose;
+extern const launchpad_color dusty_pink;
+extern const launchpad_color dusty_blue;
+extern const launchpad_color silver;
+extern const launchpad_color pewter;
+extern const launchpad_color warm_gray;
+extern const launchpad_color brick_brown;
+extern const launchpad_color mocha;
+extern const launchpad_color copper;
+extern const launchpad_color olive_copper;
+extern const launchpad_color butterscotch;
+extern const launchpad_color light_olive_tan;
+extern const launchpad_color tan_gold;
+extern const launchpad_color sand;
+
+extern const std::array<launchpad_color, 128> all_colors;
+}
+}

@@ -8,12 +8,12 @@
 #include "error/error.h"
 
 namespace ump {
-enum class message_type {
+enum class sysex_7bit_message_type {
   sysex_7bit_start, sysex_7bit_continue, sysex_7bit_end,
 };
 
 inline std::expected<std::array<unsigned int, 2>, error::error>
-create_8_byte_message(message_type type,
+sysex_7bit_message(sysex_7bit_message_type type,
                       std::initializer_list<uint32_t> data_bytes) {
   if (data_bytes.size() <= 0 || data_bytes.size() > 6) {
     return std::unexpected(
@@ -25,11 +25,11 @@ create_8_byte_message(message_type type,
               result.begin());
 
   unsigned int second_byte = 0;
-  if (type == message_type::sysex_7bit_start) {
+  if (type == sysex_7bit_message_type::sysex_7bit_start) {
     second_byte = 0b00010000 | data_bytes.size();
-  } else if (type == message_type::sysex_7bit_continue) {
+  } else if (type == sysex_7bit_message_type::sysex_7bit_continue) {
     second_byte = 0b00100000 | data_bytes.size();
-  } else if (type == message_type::sysex_7bit_end) {
+  } else if (type == sysex_7bit_message_type::sysex_7bit_end) {
     second_byte = 0b00110000 | data_bytes.size();
   }
 

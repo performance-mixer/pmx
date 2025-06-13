@@ -32,6 +32,9 @@ executable(
     'pmx-slp-ctrl',
     sources : [
         'applications/slp_ctrl.cpp',
+        'group_channel_sooper_loopers.cpp',
+        'launchpad_colors.cpp',
+        'session.cpp'
     ],
     dependencies : [pipewire_dep, libsystemd_dep],
     include_directories : [include_directory],
