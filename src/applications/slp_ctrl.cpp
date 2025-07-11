@@ -11,6 +11,7 @@
 
 #include "ump/sysex.h"
 #include "slp_ctrl/group_channel_sooper_loopers.h"
+#include "slp_ctrl/launch_pad_mini.h"
 
 enum class State {
   Off,
@@ -109,6 +110,7 @@ int main(const int argc, char *argv[]) {
   logging::Logger logger{"main"};
 
   slp::ctrl::GroupChannelSooperLoopers loopers;
+  slp::ctrl::LaunchPadMini launch_pad_mini;
 
   uint64_t ppm_count{0};
   auto sooper_loopers = SooperLoopers{};
@@ -123,7 +125,7 @@ int main(const int argc, char *argv[]) {
           add_input_port("midi_clock", "32 bit raw UMP").
           add_output_port("pmx-to-sl-osc", "8 bit raw control").
           add_output_port("lp_mini", "32 bit raw UMP").add_signal_processor(
-            [&ppm_count, &sooper_loopers, &known_eighth_per_cycle, &loopers](
+            [&ppm_count, &sooper_loopers, &known_eighth_per_cycle, &loopers, &launch_pad_mini](
             auto position, auto &in_ports, auto &out_ports, auto &user_data,
             auto &parameters) {
               logging::Logger logger{"signal-processor"};

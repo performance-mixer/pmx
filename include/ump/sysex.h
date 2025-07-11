@@ -13,8 +13,8 @@ enum class sysex_7bit_message_type {
 };
 
 inline std::expected<std::array<unsigned int, 2>, error::error>
-sysex_7bit_message(sysex_7bit_message_type type,
-                      std::initializer_list<uint32_t> data_bytes) {
+sysex_7bit_message(const sysex_7bit_message_type type,
+                   const std::initializer_list<uint32_t> data_bytes) {
   if (data_bytes.size() <= 0 || data_bytes.size() > 6) {
     return std::unexpected(
       error::error::invalid_argument("data bytes must be between 1 and 6"));
