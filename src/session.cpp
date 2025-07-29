@@ -27,7 +27,7 @@ void slp::ctrl::Button::add_launchpad_updates_to_sequence(
 void slp::ctrl::Button::add_control_change_update_to_sequence(
   spa_pod_builder &builder) const {
   const auto channel_and_color = determine_channel_and_color();
-  const auto message = ump::control_change_message(
+  const auto message = ump::v1::control_change_message(
     0, std::get<0>(channel_and_color), _midi_index,
     std::get<1>(channel_and_color));
 
@@ -38,7 +38,7 @@ void slp::ctrl::Button::add_control_change_update_to_sequence(
 void slp::ctrl::Button::add_note_update_to_sequence(
   spa_pod_builder &builder) const {
   const auto channel_and_color = determine_channel_and_color();
-  const auto message = ump::note_on_message(0, std::get<0>(channel_and_color),
+  const auto message = ump::v1::note_on_message(0, std::get<0>(channel_and_color),
                                             _midi_index,
                                             std::get<1>(channel_and_color));
   spa_pod_builder_control(&builder, 0, SPA_CONTROL_UMP);

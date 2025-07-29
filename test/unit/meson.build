@@ -3,6 +3,10 @@ osc_path_parsing_test = executable(
     sources : [
         'test_osc_path_parsing.cpp',
         'test_interpolation.cpp',
+        'test_ump_midi_parsing_v1.cpp',
+        'test_ump_midi_parsing_v2.cpp',
+        'test_ump_midi_parsing_errors.cpp',
+        '../../src/ump/parsing.cpp',
         '../../src/parse_osc_path.cpp',
         '../../src/parameters.cpp',
         '../../src/interpolation.cpp'
