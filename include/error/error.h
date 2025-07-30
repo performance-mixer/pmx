@@ -8,6 +8,7 @@ enum class error_type {
   INVALID_ARGUMENT,
   SYSTEMD_CALL_METHOD,
   PIPEWIRE_ERROR,
+  INVALID_CC_INDEX,
 };
 
 struct error {
@@ -28,6 +29,10 @@ struct error {
 
   static error pipewire(const std::string &message) {
     return {message, error_type::PIPEWIRE_ERROR};
+  }
+
+  static error invalid_cc_index(const unsigned int index) {
+    return {"Invalid CC index " + index, error_type::INVALID_CC_INDEX};
   }
 };
 }
