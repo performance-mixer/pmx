@@ -39,6 +39,90 @@ TEST_P(ParseButtonEvents, ParseMidiNoteOnV2) {
   ASSERT_EQ(button_down_event.column, column);
 }
 
+TEST_P(ParseButtonEvents, ParseMidiNodeOffV2) {
+  auto parameter = GetParam();
+  auto index = std::get<0>(parameter);
+  auto row = std::get<1>(parameter);
+  auto column = std::get<2>(parameter);
+
+  auto message = ump::v2::note_off_message(0, 0, index,
+                                           std::numeric_limits<uint16_t>::max(),
+                                           ump::messages::v2::attribute_type::none,
+                                           0);
+
+  ASSERT_TRUE(message.has_value());
+
+  auto first = message.value()[0];
+  auto second = message.value()[1];
+  auto event = slp::ctrl::launchpad::mini::parse_session_midi(first, second);
+
+  ASSERT_TRUE(event.has_value());
+
+  auto variant = event.value();
+  ASSERT_TRUE(
+    std::holds_alternative<slp::ctrl::launchpad::mini::session::button_up>(
+      variant));
+
+  const auto button_up_event = std::get<
+    slp::ctrl::launchpad::mini::session::button_up>(variant);
+  ASSERT_EQ(button_up_event.row, row);
+  ASSERT_EQ(button_up_event.column, column);
+}
+
+TEST_P(ParseButtonEvents, ParseMidiNodeOffV1) {
+  auto parameter = GetParam();
+  auto index = std::get<0>(parameter);
+  auto row = std::get<1>(parameter);
+  auto column = std::get<2>(parameter);
+
+  auto message = ump::v1::note_off_message(0, 0, index,
+                                           std::numeric_limits<uint8_t>::max());
+
+  ASSERT_TRUE(message.has_value());
+
+  auto first = message.value();
+  auto event = slp::ctrl::launchpad::mini::parse_session_midi(first);
+
+  ASSERT_TRUE(event.has_value());
+
+  auto variant = event.value();
+  ASSERT_TRUE(
+    std::holds_alternative<slp::ctrl::launchpad::mini::session::button_up>(
+      variant));
+
+  const auto button_up_event = std::get<
+    slp::ctrl::launchpad::mini::session::button_up>(variant);
+  ASSERT_EQ(button_up_event.row, row);
+  ASSERT_EQ(button_up_event.column, column);
+}
+
+TEST_P(ParseButtonEvents, ParseMidiNoteOnV1) {
+  auto parameter = GetParam();
+  auto index = std::get<0>(parameter);
+  auto row = std::get<1>(parameter);
+  auto column = std::get<2>(parameter);
+
+  auto message = ump::v1::note_on_message(0, 0, index,
+                                          std::numeric_limits<uint8_t>::max());
+
+  ASSERT_TRUE(message.has_value());
+
+  auto first = message.value();
+  auto event = slp::ctrl::launchpad::mini::parse_session_midi(first);
+
+  ASSERT_TRUE(event.has_value());
+
+  auto variant = event.value();
+  ASSERT_TRUE(
+    std::holds_alternative<slp::ctrl::launchpad::mini::session::button_down>(
+      variant));
+
+  const auto button_down_event = std::get<
+    slp::ctrl::launchpad::mini::session::button_down>(variant);
+  ASSERT_EQ(button_down_event.row, row);
+  ASSERT_EQ(button_down_event.column, column);
+}
+
 INSTANTIATE_TEST_SUITE_P(SessionMode, ParseButtonEvents,
                          testing::Values( std::make_tuple(91, 0, 0), std::
                            make_tuple(92, 0, 1), std::make_tuple(93, 0, 2), std

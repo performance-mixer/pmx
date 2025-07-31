@@ -9,6 +9,8 @@ enum class error_type {
   SYSTEMD_CALL_METHOD,
   PIPEWIRE_ERROR,
   INVALID_CC_INDEX,
+  INVALID_NOTE_NUMBER,
+  UMP_PARSING_ERROR
 };
 
 struct error {
@@ -17,6 +19,10 @@ struct error {
 
   static error not_implemented() {
     return {"Not implemented", error_type::NOT_IMPLEMENTED};
+  }
+
+  static error ump_parsing_error(const std::string &message) {
+    return {message, error_type::UMP_PARSING_ERROR};
   }
 
   static error invalid_argument(const std::string &message) {
@@ -33,6 +39,12 @@ struct error {
 
   static error invalid_cc_index(const unsigned int index) {
     return {"Invalid CC index " + index, error_type::INVALID_CC_INDEX};
+  }
+
+  static error invalid_note_number(const unsigned int note_number) {
+    return {
+      "Invalid note number " + note_number, error_type::INVALID_NOTE_NUMBER
+    };
   }
 };
 }
