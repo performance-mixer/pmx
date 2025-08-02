@@ -4,12 +4,8 @@
 #include <ump/messages.h>
 #include <ump/note.h>
 
+#include "ump/control_change.h"
 
-/*
- * TODO:
- * These tests needs to be more complicated, top row and all buttons in the last
- * column use CC messages to indicate changes
- */
 class InvalidButtonIndex : public testing::TestWithParam<unsigned int> {};
 
 TEST_P(InvalidButtonIndex, NoteOnV2) {
@@ -91,6 +87,40 @@ INSTANTIATE_TEST_SUITE_P(SessionModeErrors, InvalidButtonIndex,
 
 class InvalidControlChangeIndex : public testing::TestWithParam<unsigned int> {
 };
+
+TEST_P(InvalidControlChangeIndex, ControlChangeV2) {
+  const auto invalid_index = GetParam();
+
+  const auto message = ump::v2::control_change_message(0, 0, invalid_index,
+    std::numeric_limits<uint16_t>::max());
+
+  ASSERT_TRUE(message.has_value());
+
+  const auto first = message.value()[0];
+  const auto second = message.value()[1];
+  const auto event = slp::ctrl::launchpad::mini::parse_session_midi(
+    first, second);
+
+  ASSERT_FALSE(event.has_value());
+  ASSERT_EQ(event.error().type,
+            error::error_type::INVALID_CONTROL_CHANGE_INDEX);
+}
+
+TEST_P(InvalidControlChangeIndex, ControlChangeV1) {
+  const auto invalid_index = GetParam();
+
+  const auto message =
+    ump::v1::control_change_message(0, 0, invalid_index, 127);
+
+  ASSERT_TRUE(message.has_value());
+
+  const auto first = message.value();
+  const auto event = slp::ctrl::launchpad::mini::parse_session_midi(first);
+
+  ASSERT_FALSE(event.has_value());
+  ASSERT_EQ(event.error().type,
+            error::error_type::INVALID_CONTROL_CHANGE_INDEX);
+}
 
 INSTANTIATE_TEST_SUITE_P(SessionModeErrors, InvalidControlChangeIndex,
                          testing::Values(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11,

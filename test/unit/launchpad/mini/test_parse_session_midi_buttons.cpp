@@ -215,10 +215,10 @@ TEST_P(ParseButtonControlChangeEvents, ParseMidiControlChangeV2Release) {
     std::holds_alternative<slp::ctrl::launchpad::mini::session::button_up>(
       variant));
 
-  const auto button_down_event = std::get<
-    slp::ctrl::launchpad::mini::session::button_down>(variant);
-  ASSERT_EQ(button_down_event.row, row);
-  ASSERT_EQ(button_down_event.column, column);
+  const auto button_up_event = std::get<
+    slp::ctrl::launchpad::mini::session::button_up>(variant);
+  ASSERT_EQ(button_up_event.row, row);
+  ASSERT_EQ(button_up_event.column, column);
 }
 
 TEST_P(ParseButtonControlChangeEvents, ParseMidiControlChangeV1Press) {
@@ -267,10 +267,10 @@ TEST_P(ParseButtonControlChangeEvents, ParseMidiControlChangeV1Release) {
     std::holds_alternative<slp::ctrl::launchpad::mini::session::button_up>(
       variant));
 
-  const auto button_down_event = std::get<
-    slp::ctrl::launchpad::mini::session::button_down>(variant);
-  ASSERT_EQ(button_down_event.row, row);
-  ASSERT_EQ(button_down_event.column, column);
+  const auto button_up_event = std::get<
+    slp::ctrl::launchpad::mini::session::button_up>(variant);
+  ASSERT_EQ(button_up_event.row, row);
+  ASSERT_EQ(button_up_event.column, column);
 }
 
 INSTANTIATE_TEST_SUITE_P(SessionMode, ParseButtonControlChangeEvents,

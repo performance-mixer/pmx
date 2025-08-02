@@ -8,7 +8,7 @@ enum class error_type {
   INVALID_ARGUMENT,
   SYSTEMD_CALL_METHOD,
   PIPEWIRE_ERROR,
-  INVALID_CC_INDEX,
+  INVALID_CONTROL_CHANGE_INDEX,
   INVALID_NOTE_NUMBER,
   UMP_PARSING_ERROR
 };
@@ -37,8 +37,8 @@ struct error {
     return {message, error_type::PIPEWIRE_ERROR};
   }
 
-  static error invalid_cc_index(const unsigned int index) {
-    return {"Invalid CC index " + index, error_type::INVALID_CC_INDEX};
+  static error invalid_control_change_index(const unsigned int index) {
+    return {"Invalid CC index " + index, error_type::INVALID_CONTROL_CHANGE_INDEX};
   }
 
   static error invalid_note_number(const unsigned int note_number) {

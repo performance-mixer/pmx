@@ -30,9 +30,9 @@ void slp::ctrl::GroupChannelSooperLoopers::update_states(
     std::string address(message.address());
 
     if (address == "/sl/global") {
-      auto huh = arguments_stream.int32();
-      auto parameter_name = std::string(arguments_stream.string());
-      auto value = arguments_stream.float32();
+      const auto _ = arguments_stream.int32();
+      const auto parameter_name = std::string(arguments_stream.string());
+      const auto value = arguments_stream.float32();
       if (parameter_name == "eighth_per_cycle") {
         if (value != _eighth_per_cycle) {
           _logger.log_warning(
@@ -41,9 +41,9 @@ void slp::ctrl::GroupChannelSooperLoopers::update_states(
         _known_eighth_per_cycle = value;
       }
     } else if (address == "/sl/loops") {
-      auto loop_index = arguments_stream.int32();
-      auto parameter_name = std::string(arguments_stream.string());
-      auto value = arguments_stream.float32();
+      const auto loop_index = arguments_stream.int32();
+      const auto parameter_name = std::string(arguments_stream.string());
+      const auto value = arguments_stream.float32();
       if (parameter_name == "state") {
         _loopers[loop_index].set_state(translate_state(value));
       }
